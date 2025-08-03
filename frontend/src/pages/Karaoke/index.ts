@@ -1,0 +1,1 @@
+export { KaraokePage } from './KaraokePage' 
