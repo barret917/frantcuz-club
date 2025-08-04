@@ -13,6 +13,7 @@ import { BookingPage } from '@/pages/Booking'
 import { MenuPage } from '@/pages/Menu'
 import { EventsPage } from '@/pages/Events'
 import { CardsPage } from '@/pages/Cards'
+import { AdminPage } from '@/pages/Admin/AdminPage'
 import { Footer } from '@/widgets/Footer'
 import styled from 'styled-components'
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/cards" element={<CardsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </MainContent>
         <Footer />
