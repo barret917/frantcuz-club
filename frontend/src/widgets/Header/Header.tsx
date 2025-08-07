@@ -144,12 +144,11 @@ const navItems = [
   { path: '/karaoke', label: 'Караоке' },
   { path: '/disco', label: 'Диско-бар' },
   { path: '/playstation', label: 'Playstation' },
-  { path: '/lounge', label: 'Лаунж зона' },
+  { path: '/lounge', label: 'Кальян' },
   { path: '/games', label: 'Настольные игры' },
   { path: '/booking', label: 'Бронирование' },
   { path: '/menu', label: 'Меню' },
   { path: '/events', label: 'Мероприятия' },
-  { path: '/cards', label: 'Клубные карты' },
   { path: '/contact', label: 'Контакты' },
 ];
 
