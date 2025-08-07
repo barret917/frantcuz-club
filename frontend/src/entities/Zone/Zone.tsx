@@ -10,9 +10,7 @@ export const Zone: React.FC<ZoneProps> = ({ zone, onSelect }) => {
   return (
     <div onClick={() => onSelect?.(zone)}>
       <h3>{zone.name}</h3>
-      <p>{zone.description}</p>
-      <p>Вместимость: {zone.capacity} гостей</p>
-      <p>Цена: от {zone.price} ₽/час</p>
+      <p>Время работы: {zone.openTime} - {zone.closeTime}</p>
     </div>
   )
 } 

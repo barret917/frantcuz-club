@@ -5,8 +5,8 @@ import { ZoneItem } from '../model/types'
 
 interface RndItemProps {
   item: ZoneItem
-  updatePosition: (id: string, x: number, y: number) => void
-  updateSize: (id: string, width: number, height: number) => void
+  updatePosition: (id: number, x: number, y: number) => void
+  updateSize: (id: number, width: number, height: number) => void
   onSelect?: (item: ZoneItem) => void
   isSelectable?: boolean
 }
@@ -88,7 +88,7 @@ export const RndItem: React.FC<RndItemProps> = ({
         $isSelected={false}
         onClick={handleClick}
       >
-        <NameCard>{item.name}</NameCard>
+        <NameCard>{item.label}</NameCard>
         {item.seats && <Seats>{item.seats} мест</Seats>}
         <NameType>{item.type}</NameType>
       </InnerCard>

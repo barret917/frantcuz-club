@@ -13,6 +13,8 @@ import { BookingPage } from '@/pages/Booking'
 import { MenuPage } from '@/pages/Menu'
 import { EventsPage } from '@/pages/Events'
 import { CardsPage } from '@/pages/Cards'
+import { ThreeDTourPage } from '@/pages/3DTour'
+import { SecurityPage } from '@/pages/Security'
 import { AdminPage } from '@/pages/Admin/AdminPage'
 import { Footer } from '@/widgets/Footer'
 import styled from 'styled-components'
@@ -34,6 +36,7 @@ function App() {
         <MainContent>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/3d-tour" element={<ThreeDTourPage />} />
             <Route path="/billiards" element={<BilliardsPage />} />
             <Route path="/karaoke" element={<KaraokePage />} />
             <Route path="/disco" element={<DiscoPage />} />
@@ -45,6 +48,7 @@ function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/cards" element={<CardsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/security" element={<SecurityPage />} />
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </MainContent>

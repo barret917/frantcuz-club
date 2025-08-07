@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Container } from '@/shared/ui/Container'
+import { createZone } from '@/shared/api/zones'
+import { uploadImage } from '@/shared/config/cloudinary'
 
 const FormWrapper = styled.div`
   max-width: 600px;
@@ -129,42 +131,39 @@ const SuccessMessage = styled.div`
 
 interface CreateZoneData {
   name: string
-  description: string
-  capacity: number
-  price: number
-  imageUrl: string
   openTime: string
   closeTime: string
+  imageUrl: string
 }
 
 export const CreateZoneForm: React.FC = () => {
   const [formData, setFormData] = useState<CreateZoneData>({
     name: '',
-    description: '',
-    capacity: 0,
-    price: 0,
-    imageUrl: '',
     openTime: '',
-    closeTime: ''
+    closeTime: '',
+    imageUrl: ''
   })
   const [errors, setErrors] = useState<string[]>([])
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [imageUploading, setImageUploading] = useState(false)
 
   const handleInputChange = (field: keyof CreateZoneData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // В реальном приложении здесь была бы загрузка на сервер
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        handleInputChange('imageUrl', result)
+      setImageUploading(true)
+      try {
+        const imageUrl = await uploadImage(file)
+        handleInputChange('imageUrl', imageUrl)
+      } catch (error) {
+        setErrors(['Ошибка загрузки изображения'])
+      } finally {
+        setImageUploading(false)
       }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -176,13 +175,10 @@ export const CreateZoneForm: React.FC = () => {
 
     // Валидация
     const newErrors: string[] = []
-    if (!formData.name) newErrors.push('Введите название зоны')
-    if (!formData.description) newErrors.push('Введите описание')
-    if (!formData.capacity) newErrors.push('Укажите вместимость')
-    if (!formData.price) newErrors.push('Укажите цену')
-    if (!formData.imageUrl) newErrors.push('Загрузите изображение')
+    if (!formData.name) newErrors.push('Введите название зала')
     if (!formData.openTime) newErrors.push('Укажите время открытия')
     if (!formData.closeTime) newErrors.push('Укажите время закрытия')
+    if (!formData.imageUrl) newErrors.push('Загрузите изображение')
 
     if (newErrors.length > 0) {
       setErrors(newErrors)
@@ -193,20 +189,17 @@ export const CreateZoneForm: React.FC = () => {
     try {
       // Здесь был бы API запрос
       console.log('Создание зоны:', formData)
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Имитация запроса
+      await createZone(formData)
       
       setSuccess(true)
       setFormData({
         name: '',
-        description: '',
-        capacity: 0,
-        price: 0,
-        imageUrl: '',
         openTime: '',
-        closeTime: ''
+        closeTime: '',
+        imageUrl: ''
       })
     } catch (error) {
-      setErrors(['Ошибка создания зоны'])
+      setErrors(['Ошибка создания зала'])
     } finally {
       setIsLoading(false)
     }
@@ -215,45 +208,16 @@ export const CreateZoneForm: React.FC = () => {
   return (
     <Container>
       <FormWrapper>
-        <Title>Создание зоны</Title>
+        <Title>Создание зала</Title>
 
         <Form onSubmit={handleSubmit}>
           <FormItem>
-            <Label>Название зоны</Label>
+            <Label>Название зала</Label>
             <Input
               type="text"
               placeholder="Например: Караоке, Бильярд"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-            />
-          </FormItem>
-
-          <FormItem>
-            <Label>Описание</Label>
-            <TextArea
-              placeholder="Описание зоны и услуг"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-            />
-          </FormItem>
-
-          <FormItem>
-            <Label>Вместимость (количество гостей)</Label>
-            <Input
-              type="number"
-              placeholder="Например: 8"
-              value={formData.capacity || ''}
-              onChange={(e) => handleInputChange('capacity', parseInt(e.target.value) || 0)}
-            />
-          </FormItem>
-
-          <FormItem>
-            <Label>Цена за час (₽)</Label>
-            <Input
-              type="number"
-              placeholder="Например: 500"
-              value={formData.price || ''}
-              onChange={(e) => handleInputChange('price', parseInt(e.target.value) || 0)}
             />
           </FormItem>
 
@@ -276,7 +240,7 @@ export const CreateZoneForm: React.FC = () => {
           </FormItem>
 
           <FormItem>
-            <Label>Изображение зоны</Label>
+            <Label>Изображение зала</Label>
             <ImageUpload>
               <input
                 type="file"
@@ -284,9 +248,10 @@ export const CreateZoneForm: React.FC = () => {
                 onChange={handleImageUpload}
                 style={{ display: 'none' }}
                 id="image-upload"
+                disabled={imageUploading}
               />
-              <label htmlFor="image-upload" style={{ cursor: 'pointer' }}>
-                {formData.imageUrl ? 'Изменить изображение' : 'Нажмите для загрузки изображения'}
+              <label htmlFor="image-upload" style={{ cursor: imageUploading ? 'not-allowed' : 'pointer' }}>
+                {imageUploading ? 'Загрузка...' : formData.imageUrl ? 'Изменить изображение' : 'Нажмите для загрузки изображения'}
               </label>
               {formData.imageUrl && (
                 <ImagePreview src={formData.imageUrl} alt="Preview" />
@@ -303,14 +268,14 @@ export const CreateZoneForm: React.FC = () => {
           )}
 
           {success && (
-            <SuccessMessage>Зона успешно создана!</SuccessMessage>
+            <SuccessMessage>Зал успешно создан!</SuccessMessage>
           )}
 
           <SubmitButton
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? 'Создается...' : 'Создать зону'}
+            {isLoading ? 'Создается...' : 'Создать зал'}
           </SubmitButton>
         </Form>
       </FormWrapper>

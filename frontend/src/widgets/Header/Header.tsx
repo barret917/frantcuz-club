@@ -2,21 +2,6 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
-const navItems = [
-  { path: '/', label: 'Главная' },
-  { path: '/billiards', label: 'Бильярд' },
-  { path: '/karaoke', label: 'Караоке' },
-  { path: '/disco', label: 'Диско-бар' },
-  { path: '/playstation', label: 'Playstation' },
-  { path: '/lounge', label: 'Лаунж зона' },
-  { path: '/games', label: 'Настольные игры' },
-  { path: '/booking', label: 'Бронирование' },
-  { path: '/menu', label: 'Меню' },
-  { path: '/events', label: 'Афиша' },
-  { path: '/cards', label: 'Клубные карты' },
-  { path: '/contact', label: 'Контакты' },
-];
-
 const HeaderWrap = styled.header`
   background: #222;
   position: sticky;
@@ -152,7 +137,23 @@ const Burger = styled.button`
   }
 `;
 
-export const Header: React.FC = () => {
+const navItems = [
+  { path: '/', label: 'Главная' },
+  { path: '/3d-tour', label: '3D тур' },
+  { path: '/billiards', label: 'Бильярд' },
+  { path: '/karaoke', label: 'Караоке' },
+  { path: '/disco', label: 'Диско-бар' },
+  { path: '/playstation', label: 'Playstation' },
+  { path: '/lounge', label: 'Лаунж зона' },
+  { path: '/games', label: 'Настольные игры' },
+  { path: '/booking', label: 'Бронирование' },
+  { path: '/menu', label: 'Меню' },
+  { path: '/events', label: 'Мероприятия' },
+  { path: '/cards', label: 'Клубные карты' },
+  { path: '/contact', label: 'Контакты' },
+];
+
+const Header: React.FC = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -181,4 +182,6 @@ export const Header: React.FC = () => {
       </Nav>
     </HeaderWrap>
   );
-}; 
+};
+
+export default Header; 

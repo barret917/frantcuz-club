@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import { useBookingStore } from '../model/bookingStore'
 import { Container } from '@/shared/ui/Container'
+import { Zone } from '@/shared/model/types'
+import { ZoneItem } from '@/entities/zone-item/model/types'
 
 const FormWrapper = styled.div`
   max-width: 420px;
@@ -94,8 +96,13 @@ const SuccessMessage = styled.div`
   margin-top: 0.5rem;
 `
 
-export const BookingForm: React.FC = () => {
-  const { date, time, zoneId, tableId, setDate, setTime, setZoneId, setTableId } = useBookingStore()
+interface BookingFormProps {
+  selectedZone?: Zone | null
+  selectedTable?: ZoneItem | null
+}
+
+export const BookingForm: React.FC<BookingFormProps> = ({ selectedZone, selectedTable }) => {
+  const { date, time, setDate, setTime } = useBookingStore()
   const [errors, setErrors] = React.useState<string[]>([])
   const [success, setSuccess] = React.useState(false)
 
@@ -108,7 +115,7 @@ export const BookingForm: React.FC = () => {
     const newErrors: string[] = []
     if (!date) newErrors.push('Выберите дату')
     if (!time) newErrors.push('Выберите время')
-    if (!zoneId) newErrors.push('Выберите зону')
+    if (!selectedZone) newErrors.push('Зона не выбрана')
 
     if (newErrors.length > 0) {
       setErrors(newErrors)
@@ -118,8 +125,8 @@ export const BookingForm: React.FC = () => {
     const data = {
       date,
       time,
-      zoneId,
-      tableId,
+      zoneId: selectedZone?.id,
+      tableId: selectedTable?.id,
     }
 
     console.log('Отправляем на сервер:', data)
@@ -128,8 +135,6 @@ export const BookingForm: React.FC = () => {
     // Сброс формы
     setDate(null)
     setTime(null)
-    setZoneId(null)
-    setTableId(null)
   }
 
   return (
@@ -140,6 +145,36 @@ export const BookingForm: React.FC = () => {
         </h2>
 
         <Form onSubmit={handleSubmit}>
+          {selectedZone && (
+            <FormItem>
+              <Label>Выбранная зона</Label>
+              <div style={{ 
+                padding: '0.75rem', 
+                background: '#333', 
+                borderRadius: '6px', 
+                color: '#ffd700',
+                fontWeight: 'bold'
+              }}>
+                {selectedZone.name}
+              </div>
+            </FormItem>
+          )}
+
+          {selectedTable && (
+            <FormItem>
+              <Label>Выбранный стол</Label>
+              <div style={{ 
+                padding: '0.75rem', 
+                background: '#333', 
+                borderRadius: '6px', 
+                color: '#ffd700',
+                fontWeight: 'bold'
+              }}>
+                {selectedTable.label}
+              </div>
+            </FormItem>
+          )}
+
           <FormItem>
             <Label>Дата</Label>
             <Input
@@ -159,33 +194,6 @@ export const BookingForm: React.FC = () => {
             />
           </FormItem>
 
-          <FormItem>
-            <Label>Зона</Label>
-            <Select
-              value={zoneId || ''}
-              onChange={(e) => setZoneId(e.target.value)}
-            >
-              <option value="">Выберите зону</option>
-              <option value="billiards">Бильярд</option>
-              <option value="karaoke">Караоке</option>
-              <option value="banquet">Банкетный зал</option>
-              <option value="vip">VIP зона</option>
-            </Select>
-          </FormItem>
-
-          <FormItem>
-            <Label>Стол (опционально)</Label>
-            <Select
-              value={tableId || ''}
-              onChange={(e) => setTableId(e.target.value)}
-            >
-              <option value="">Любой стол</option>
-              <option value="table1">Стол 1</option>
-              <option value="table2">Стол 2</option>
-              <option value="table3">Стол 3</option>
-            </Select>
-          </FormItem>
-
           {errors.length > 0 && (
             <div>
               {errors.map((error, index) => (
@@ -200,7 +208,7 @@ export const BookingForm: React.FC = () => {
 
           <SubmitButton
             type="submit"
-            disabled={!date || !time || !zoneId}
+            disabled={!date || !time || !selectedZone}
           >
             Подтвердить бронирование
           </SubmitButton>

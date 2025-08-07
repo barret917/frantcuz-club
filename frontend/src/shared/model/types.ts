@@ -1,8 +1,23 @@
 export interface Zone {
   id: number
   name: string
+  openTime: string
+  closeTime: string
   imageUrl: string
-  description?: string
-  capacity?: number
-  price?: number
+  items?: ZoneItem[]
+}
+
+export interface ZoneItem {
+  id: number
+  zoneId: number
+  floor: number
+  label: string
+  type: string
+  isBooking: boolean
+  isActive: boolean
+  x: number
+  y: number
+  width: number
+  height: number
+  seats?: number
 } 

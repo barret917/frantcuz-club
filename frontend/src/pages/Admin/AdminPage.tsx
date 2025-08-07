@@ -3,6 +3,9 @@ import { Header } from '@/widgets/Header'
 import { CreateZoneForm } from '@/features/create-zone'
 import { ZoneCanvas } from '@/features/zone-constructor/components/ZoneCanvas'
 import { ZoneSelector } from '@/features/zone-constructor/components/ZoneSelector'
+import { MenuTypesTab } from '@/features/menu-management/components/MenuTypesTab'
+import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCategoriesTab'
+import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
 import { getZones } from '@/shared/api/zones'
 import { Zone } from '@/shared/model/types'
 import styled from 'styled-components'
@@ -56,12 +59,13 @@ const Title = styled.h1`
   text-align: center;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'bookings' | 'settings'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'settings'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону' },
   { key: 'zone-constructor', label: 'Конструктор зоны' },
   { key: 'manage-zones', label: 'Управление зонами' },
+  { key: 'menu', label: 'Меню' },
   { key: 'bookings', label: 'Бронирования' },
   { key: 'settings', label: 'Настройки' }
 ]
@@ -103,43 +107,27 @@ export const AdminPage: React.FC = () => {
       case 'create-zone':
         return <CreateZoneForm />
       case 'zone-constructor':
-        if (showCanvas && selectedZone) {
-          return (
-            <div>
-              <div style={{ marginBottom: '1rem' }}>
-                <button 
-                  onClick={handleBackToSelector}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid #ffd700',
-                    color: '#ffd700',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ← Назад к выбору зоны
-                </button>
-              </div>
-              <ZoneCanvas zoneId={selectedZone.id} zoneName={selectedZone.name} />
-            </div>
-          )
-        } else {
-          return (
-            <ZoneSelector
-              zones={zones}
-              onZoneSelect={handleZoneSelect}
-              selectedZone={selectedZone}
-              onContinue={handleContinueToCanvas}
-            />
-          )
-        }
+        return showCanvas ? (
+          <ZoneCanvas 
+            zoneId={selectedZone?.id || 0} 
+            zoneName={selectedZone?.name}
+          />
+        ) : (
+          <ZoneSelector
+            zones={zones}
+            onZoneSelect={handleZoneSelect}
+            selectedZone={selectedZone}
+            onContinue={handleContinueToCanvas}
+          />
+        )
       case 'manage-zones':
-        return <div style={{ color: '#fff', textAlign: 'center' }}>Управление зонами (в разработке)</div>
+        return <div>Управление зонами (в разработке)</div>
+      case 'menu':
+        return <MenuManagement />
       case 'bookings':
-        return <div style={{ color: '#fff', textAlign: 'center' }}>Бронирования (в разработке)</div>
+        return <div>Бронирования (в разработке)</div>
       case 'settings':
-        return <div style={{ color: '#fff', textAlign: 'center' }}>Настройки (в разработке)</div>
+        return <div>Настройки (в разработке)</div>
       default:
         return <CreateZoneForm />
     }
@@ -148,10 +136,7 @@ export const AdminPage: React.FC = () => {
   return (
     <AdminPageContainer>
       <Header />
-      
       <Main>
-        <Title>Админ панель</Title>
-        
         <Layout>
           <Sidebar>
             {tabs.map(tab => (
@@ -164,12 +149,71 @@ export const AdminPage: React.FC = () => {
               </SidebarItem>
             ))}
           </Sidebar>
-          
           <Content>
+            <Title>Панель администратора</Title>
             {renderContent()}
           </Content>
         </Layout>
       </Main>
     </AdminPageContainer>
   )
-} 
+}
+
+// Компонент управления меню
+const MenuManagement: React.FC = () => {
+  const [activeMenuTab, setActiveMenuTab] = useState<'types' | 'categories' | 'items'>('types')
+
+  return (
+    <div>
+      <h2 style={{ color: '#ffd700', marginBottom: '1rem' }}>Управление меню</h2>
+      
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+        <button
+          onClick={() => setActiveMenuTab('types')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: activeMenuTab === 'types' ? '#ffd700' : '#333',
+            color: activeMenuTab === 'types' ? '#000' : '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Типы меню
+        </button>
+        <button
+          onClick={() => setActiveMenuTab('categories')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: activeMenuTab === 'categories' ? '#ffd700' : '#333',
+            color: activeMenuTab === 'categories' ? '#000' : '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Категории
+        </button>
+        <button
+          onClick={() => setActiveMenuTab('items')}
+          style={{
+            padding: '0.5rem 1rem',
+            background: activeMenuTab === 'items' ? '#ffd700' : '#333',
+            color: activeMenuTab === 'items' ? '#000' : '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Блюда
+        </button>
+      </div>
+
+      {activeMenuTab === 'types' && <MenuTypesTab />}
+      {activeMenuTab === 'categories' && <MenuCategoriesTab />}
+      {activeMenuTab === 'items' && <MenuItemsTab />}
+    </div>
+  )
+}
+
+ 

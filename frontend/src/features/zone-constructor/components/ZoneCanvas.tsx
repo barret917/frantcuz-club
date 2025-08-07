@@ -179,7 +179,7 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
     isVisible: false
   })
   const [formData, setFormData] = useState<ZoneItemForm>({
-    name: '',
+    label: '',
     type: 'table',
     floor: 1,
     seats: 0
@@ -205,13 +205,13 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
     loadZoneItems()
   }, [zoneId])
 
-  const updatePosition = (id: string, x: number, y: number) => {
+  const updatePosition = (id: number, x: number, y: number) => {
     setItems(prev => prev.map(item => 
       item.id === id ? { ...item, x, y } : item
     ))
   }
 
-  const updateSize = (id: string, width: number, height: number) => {
+  const updateSize = (id: number, width: number, height: number) => {
     setItems(prev => prev.map(item => 
       item.id === id ? { ...item, width, height } : item
     ))
@@ -219,8 +219,8 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
 
   const addItem = (formData: ZoneItemForm) => {
     const newItem: ZoneItem = {
-      id: Date.now().toString(),
-      name: formData.name,
+      id: Date.now(),
+      label: formData.label,
       type: formData.type,
       floor: formData.floor,
       seats: formData.seats,
@@ -228,20 +228,22 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
       y: 50,
       width: 200,
       height: 100,
-      idZone: zoneId
+      zoneId: zoneId,
+      isBooking: false,
+      isActive: true
     }
     setItems(prev => [...prev, newItem])
     setIsModalOpen(false)
-    setFormData({ name: '', type: 'table', floor: 1, seats: 0 })
+    setFormData({ label: '', type: 'table', floor: 1, seats: 0 })
     
     showNotification(
       'success',
       'Элемент добавлен!',
-      `"${formData.name}" добавлен в зону`
+      `"${formData.label}" добавлен в зону`
     )
   }
 
-  const removeItem = (id: string) => {
+  const removeItem = (id: number) => {
     setItems(prev => prev.filter(item => item.id !== id))
   }
 
@@ -361,8 +363,8 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
               <Label>Название</Label>
               <Input
                 type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                value={formData.label}
+                onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
                 placeholder="Например: Стол 1"
                 required
               />

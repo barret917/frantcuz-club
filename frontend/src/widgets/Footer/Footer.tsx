@@ -179,7 +179,7 @@ export const Footer: React.FC = () => {
             </ContactItem>
             <ContactItem>
               <svg>📍</svg>
-              <a href="#">город Москва,<br/>ул. Салтыковская, 49А</a>
+              <a href="#">город Москва,<br/>ул. Салтыковская, 49А,<br/>ТЦ Волна, Цокольный этаж</a>
             </ContactItem>
             <ContactItem>
               <svg>🎂</svg>
@@ -197,25 +197,20 @@ export const Footer: React.FC = () => {
           {/* Услуги */}
           <FooterSection>
             <h3>Услуги</h3>
-            <a href="/billiards">Бильярд</a>
-            <a href="/karaoke">Караоке</a>
-            <a href="/playstation">Playstation</a>
-            <a href="/lounge">Спорт бар</a>
-            <a href="/booking">Банкеты</a>
-            <a href="/games">Школа бильярда</a>
-            <a href="/events">Школа вокала</a>
+            <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">Работа</a>
+            <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">Доставка</a>
+            <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">Обучение</a>
           </FooterSection>
 
           {/* Гостям */}
           <FooterSection>
             <h3>Гостям</h3>
-            <a href="/cards">Клубные карты</a>
-            <a href="/menu">Меню</a>
             <a href="/contact">Правила клуба</a>
             <a href="/privacy">Политика конфиденциальности</a>
             <a href="/payment">Правила оплаты</a>
             <a href="/refund">Возврат и отказ от услуги</a>
             <a href="/requisites">Реквизиты</a>
+            <a href="/security">Безопасность</a>
           </FooterSection>
         </FooterContent>
 

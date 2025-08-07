@@ -1,20 +1,20 @@
 export interface ZoneItem {
-  id: string
-  name: string
-  type: string
+  id: number
+  zoneId: number
   floor: number
-  seats?: number
+  label: string
+  type: string
+  isBooking: boolean
+  isActive: boolean
   x: number
   y: number
   width: number
   height: number
-  idZone: number
-  isBooking?: boolean
-  isActive?: boolean
+  seats?: number
 }
 
 export interface ZoneItemForm {
-  name: string
+  label: string
   type: string
   floor: number
   seats?: number

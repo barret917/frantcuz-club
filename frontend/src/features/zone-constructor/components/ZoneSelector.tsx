@@ -16,7 +16,7 @@ const Title = styled.h2`
   font-size: 1.8rem;
 `
 
-const Instructions = styled.p`
+const Subtitle = styled.p`
   color: #ccc;
   text-align: center;
   margin-bottom: 2rem;
@@ -97,10 +97,10 @@ export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
   return (
     <Container>
       <SelectorWrapper>
-        <Title>Выберите зону для конструктора</Title>
-        <Instructions>
-          Выберите зону, для которой хотите создать столы и элементы
-        </Instructions>
+        <Title>Выберите зал для конструктора</Title>
+        <Subtitle>
+          Выберите зал, для которого хотите создать столы и элементы
+        </Subtitle>
 
         <ZoneGrid>
           {zones.map(zone => (
@@ -110,10 +110,9 @@ export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
               onClick={() => onZoneSelect(zone)}
             >
               <ZoneName>{zone.name}</ZoneName>
-              <ZoneDescription>{zone.description}</ZoneDescription>
+              <ZoneDescription>Время работы: {zone.openTime} - {zone.closeTime}</ZoneDescription>
               <ZoneDetails>
-                <div>Вместимость: {zone.capacity} гостей</div>
-                <div>Цена: от {zone.price} ₽/час</div>
+                <div>Зал: {zone.name}</div>
               </ZoneDetails>
             </ZoneCard>
           ))}

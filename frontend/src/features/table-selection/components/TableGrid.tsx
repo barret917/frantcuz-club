@@ -95,7 +95,7 @@ export const TableGrid: React.FC<TableGridProps> = ({
 
       {selectedTable && (
         <SelectedTableInfo>
-          <TableName>Выбранный стол: {selectedTable.name}</TableName>
+                          <TableName>Выбранный стол: {selectedTable.label}</TableName>
           <TableDetails>
             Количество мест: {selectedTable.seats || 'Не указано'}
           </TableDetails>

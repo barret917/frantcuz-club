@@ -181,7 +181,7 @@ export const BookingPage: React.FC = () => {
           <BookingContent>
             <Title>Бронирование</Title>
             <Subtitle>
-              Выберите зону и заполните форму для бронирования
+              Выберите зал и заполните форму для бронирования
             </Subtitle>
 
             <StepIndicator>
@@ -192,7 +192,7 @@ export const BookingPage: React.FC = () => {
 
             {currentStep === 1 ? (
               <StepContainer>
-                <StepTitle>Шаг 1: Выберите зону</StepTitle>
+                <StepTitle>Шаг 1: Выберите зал</StepTitle>
                 
                 {isLoading ? (
                   <LoadingContainer>Загрузка зон...</LoadingContainer>
@@ -217,7 +217,7 @@ export const BookingPage: React.FC = () => {
                 {selectedZone && (
                   <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
-                      Зона: {selectedZone.name}
+                      Зал: {selectedZone.name}
                     </p>
                     <button 
                       onClick={handleBackToZones}
@@ -231,7 +231,7 @@ export const BookingPage: React.FC = () => {
                         marginTop: '1rem'
                       }}
                     >
-                      ← Выбрать другую зону
+                      ← Выбрать другой зал
                     </button>
                   </div>
                 )}
@@ -259,7 +259,7 @@ export const BookingPage: React.FC = () => {
                 {selectedZone && selectedTable && (
                   <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
-                      Зона: {selectedZone.name} | Стол: {selectedTable.name}
+                      Зал: {selectedZone.name} | Стол: {selectedTable.label}
                     </p>
                     <button 
                       onClick={handleBackToTables}
@@ -277,7 +277,12 @@ export const BookingPage: React.FC = () => {
                     </button>
                   </div>
                 )}
-                <BookingForm />
+                {selectedZone && selectedTable && (
+                  <BookingForm 
+                    selectedZone={selectedZone}
+                    selectedTable={selectedTable}
+                  />
+                )}
               </StepContainer>
             )}
           </BookingContent>

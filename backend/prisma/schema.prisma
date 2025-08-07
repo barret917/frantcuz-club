@@ -71,4 +71,53 @@ enum ReservationStatus {
   arrived    // клиент пришёл
   no_show    // клиент не пришёл
   cancelled  // отменено
+}
+
+// ---------- Тип меню ----------
+model MenuType {
+  id          Int            @id @default(autoincrement())
+  name        String         // "Основное", "Барная карта", "Банкетное меню"
+  slug        String         @unique // "main", "bar", "banquet"
+  description String?
+  isActive    Boolean        @default(true)
+  sortOrder   Int            @default(0)
+  categories  MenuCategory[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+// ---------- Категория меню ----------
+model MenuCategory {
+  id          Int        @id @default(autoincrement())
+  menuTypeId  Int
+  name        String     // "Холодные закуски", "Салаты", "Коктейли"
+  slug        String     @unique // "cold-appetizers", "salads", "cocktails"
+  description String?
+  isActive    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  items       MenuItem[]
+  menuType    MenuType   @relation(fields: [menuTypeId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// ---------- Блюдо/напиток ----------
+model MenuItem {
+  id          Int           @id @default(autoincrement())
+  categoryId  Int
+  name        String        // "Стейк Рибай", "Мохито"
+  description String?       // Описание блюда
+  price       Decimal       @db.Decimal(8,2)
+  currency    String        @default("₽")
+  imageUrl    String?       // Ссылка на Cloudinary
+  isActive    Boolean       @default(true)
+  isPopular   Boolean       @default(false) // Популярное блюдо
+  allergens   String[]      // Аллергены: ["глютен", "лактоза"]
+  weight      String?       // "300г", "0.5л"
+  calories    Int?          // Калории
+  preparation String?       // Время приготовления
+  sortOrder   Int           @default(0)
+  category    MenuCategory  @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 } 

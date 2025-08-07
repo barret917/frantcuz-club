@@ -17,7 +17,7 @@ export const ZoneSelection: React.FC<ZoneSelectionProps> = ({ zones, onZoneSelec
 
   return (
     <div>
-      <h2>Выберите зону</h2>
+      <h2>Выберите зал</h2>
       {zones.map(zone => (
         <Zone 
           key={zone.id} 

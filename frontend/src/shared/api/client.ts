@@ -10,6 +10,20 @@ export const apiClient = axios.create({
   },
 })
 
+// Типы для API ответов
+export interface ApiResponse<T = any> {
+  data: T
+  success: boolean
+  message?: string
+}
+
+// Функция для обработки ошибок API
+export const handleApiError = (error: any): never => {
+  const message = error.response?.data?.message || error.message || 'Произошла ошибка'
+  console.error('API Error:', error.response?.data || error.message)
+  throw new Error(message)
+}
+
 // Интерцепторы для обработки ошибок
 apiClient.interceptors.response.use(
   (response) => response,
