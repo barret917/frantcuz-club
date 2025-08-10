@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Header } from '@/widgets/Header'
 import { CreateZoneForm } from '@/features/create-zone'
 import { ZoneCanvas } from '@/features/zone-constructor/components/ZoneCanvas'
 import { ZoneSelector } from '@/features/zone-constructor/components/ZoneSelector'
@@ -135,7 +134,6 @@ export const AdminPage: React.FC = () => {
 
   return (
     <AdminPageContainer>
-      <Header />
       <Main>
         <Layout>
           <Sidebar>

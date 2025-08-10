@@ -1,5 +1,4 @@
 import React from 'react'
-import { Header } from '@/widgets/Header'
 import styled from 'styled-components'
 
 const PageContainer = styled.div`
@@ -39,8 +38,6 @@ const Content = styled.div`
 export const DiscoPage: React.FC = () => {
   return (
     <PageContainer>
-      <Header />
-      
       <Main>
         <Container>
           <Content>

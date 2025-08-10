@@ -1,5 +1,4 @@
 import React from 'react'
-import { Header } from '@/widgets/Header'
 import styled from 'styled-components'
 
 const SecurityContainer = styled.div`
@@ -158,7 +157,6 @@ const ContactItem = styled.div`
 export const SecurityPage: React.FC = () => {
   return (
     <SecurityContainer>
-      <Header />
       <Content>
         <Title>Безопасность гостей</Title>
         <Subtitle>
@@ -216,10 +214,10 @@ export const SecurityPage: React.FC = () => {
           
           <SecurityCard>
             <CardIcon>🚪</CardIcon>
-            <CardTitle>Аварийные выходы</CardTitle>
+            <CardTitle>Пожарная безопасность</CardTitle>
             <CardDescription>
               Четко обозначенные аварийные выходы и пути эвакуации. 
-              Регулярные проверки и тренировки по эвакуации персонала.
+              Регулярно проводятся профилактические работы по обеспечению пожарной безопасности.
             </CardDescription>
           </SecurityCard>
         </SecurityGrid>

@@ -44,7 +44,7 @@ export interface MenuItem {
 
 export interface CreateMenuTypeData {
   name: string
-  slug: string
+  slug?: string
   description?: string
   sortOrder?: number
 }
@@ -58,7 +58,7 @@ export interface UpdateMenuTypeData {
 
 export interface CreateMenuCategoryData {
   name: string
-  slug: string
+  slug?: string
   description?: string
   menuTypeId: number
   sortOrder?: number

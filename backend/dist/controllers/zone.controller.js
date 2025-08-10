@@ -34,37 +34,50 @@ const getZones = async (req, res) => {
 exports.getZones = getZones;
 const saveZoneItems = async (req, res) => {
     try {
+        console.log('🔧 Начинаем сохранение элементов зоны...');
+        console.log('📥 Полученные данные:', JSON.stringify(req.body, null, 2));
         // 1) Забираем из тела массива items
         const items = req.body;
+        console.log('📋 Обработанные элементы:', items.length);
         if (!items.length) {
+            console.log('❌ Пустой массив элементов');
             res.status(400).json({ error: 'Нужен непустой массив' });
+            return;
         }
-        const zoneId = items[0].idZone;
+        const zoneId = items[0].zoneId;
+        console.log('🎯 ZoneId:', zoneId);
         // 2) Удаляем старые элементы для этой зоны
+        console.log('🗑️ Удаляем старые элементы для зоны', zoneId);
         await prisma_1.prisma.zoneItem.deleteMany({ where: { zoneId } });
         // 3) Готовим данные — приводим seats к number|null
         const data = items.map(it => {
             const seatsNum = it.seats == null
                 ? null
                 : Number(it.seats); // явно number
-            return {
-                zoneId: it.idZone,
+            const itemData = {
+                zoneId: it.zoneId,
                 floor: it.floor,
-                label: it.name,
+                label: it.label,
                 type: it.type,
                 seats: seatsNum, // теперь number | null
-                x: it.x,
-                y: it.y,
-                width: it.width,
-                height: it.height,
+                x: it.x, // Float - не нужно масштабирование
+                y: it.y, // Float - не нужно масштабирование
+                width: it.width, // Float - не нужно масштабирование
+                height: it.height, // Float - не нужно масштабирование
+                isBooking: it.isBooking ?? false,
+                isActive: it.isActive ?? true,
             };
+            console.log('📝 Подготовленный элемент:', itemData);
+            return itemData;
         });
+        console.log('💾 Сохраняем', data.length, 'элементов в базу данных');
         // 4) Массовая вставка
         const result = await prisma_1.prisma.zoneItem.createMany({ data });
+        console.log('✅ Успешно сохранено:', result.count, 'элементов');
         res.status(200).json({ inserted: result.count });
     }
     catch (err) {
-        console.error('Ошибка сохранения элементов зоны', err);
+        console.error('❌ Ошибка сохранения элементов зоны:', err);
         res
             .status(500)
             .json({ error: 'Не удалось сохранить элементы зоны' });

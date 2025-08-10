@@ -1,5 +1,4 @@
 import React from 'react'
-import { Header } from '@/widgets/Header'
 import styled from 'styled-components'
 
 const ThreeDTourPageContainer = styled.div`
@@ -53,8 +52,6 @@ const TourPlaceholder = styled.div`
 export const ThreeDTourPage: React.FC = () => {
   return (
     <ThreeDTourPageContainer>
-      <Header />
-      
       <Main>
         <Container>
           <Content>

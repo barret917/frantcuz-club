@@ -181,7 +181,6 @@ export const MenuCategoriesTab: React.FC = () => {
   const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(null)
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     description: '',
     menuTypeId: 0,
     sortOrder: 0
@@ -211,7 +210,6 @@ export const MenuCategoriesTab: React.FC = () => {
     setEditingCategory(null)
     setFormData({
       name: '',
-      slug: '',
       description: '',
       menuTypeId: 0,
       sortOrder: 0
@@ -223,7 +221,6 @@ export const MenuCategoriesTab: React.FC = () => {
     setEditingCategory(category)
     setFormData({
       name: category.name,
-      slug: category.slug,
       description: category.description || '',
       menuTypeId: category.menuTypeId,
       sortOrder: category.sortOrder
@@ -248,10 +245,23 @@ export const MenuCategoriesTab: React.FC = () => {
     e.preventDefault()
     
     try {
+      // Генерируем slug автоматически на основе названия
+      const slug = formData.name
+        .toLowerCase()
+        .replace(/[^а-яёa-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+
+      const submitData = {
+        ...formData,
+        slug
+      }
+
       if (editingCategory) {
-        await menuApi.updateMenuCategory(editingCategory.id, formData)
+        await menuApi.updateMenuCategory(editingCategory.id, submitData)
       } else {
-        await menuApi.createMenuCategory(formData)
+        await menuApi.createMenuCategory(submitData)
       }
       
       setIsModalOpen(false)
@@ -351,17 +361,6 @@ export const MenuCategoriesTab: React.FC = () => {
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Название категории"
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Slug</Label>
-              <Input
-                type="text"
-                value={formData.slug}
-                onChange={(e) => handleInputChange('slug', e.target.value)}
-                placeholder="Slug для URL (например: hot-dishes)"
                 required
               />
             </FormGroup>

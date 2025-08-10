@@ -19,12 +19,12 @@ const FooterWrapper = styled.footer`
 
 const FooterContent = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-bottom: 2rem;
   
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     margin-bottom: 1.5rem;
   }
@@ -37,6 +37,8 @@ const FooterContent = styled.div`
 `
 
 const FooterSection = styled.div`
+  text-align: left;
+  
   h3 {
     color: #ffffff;
     margin-bottom: 1rem;
@@ -59,6 +61,7 @@ const FooterSection = styled.div`
     display: block;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+    line-height: 1.4;
     
     @media (max-width: 768px) {
       font-size: 0.85rem;
@@ -77,64 +80,98 @@ const FooterSection = styled.div`
 `
 
 const ContactItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin-bottom: 0.5rem;
   
   @media (max-width: 768px) {
-    gap: 0.4rem;
     margin-bottom: 0.4rem;
   }
   
   @media (max-width: 480px) {
-    gap: 0.3rem;
     margin-bottom: 0.3rem;
-  }
-  
-  svg {
-    width: 16px;
-    height: 16px;
-    color: #ffd700;
-    
-    @media (max-width: 768px) {
-      width: 14px;
-      height: 14px;
-    }
-    
-    @media (max-width: 480px) {
-      width: 12px;
-      height: 12px;
-    }
   }
 `
 
 const SocialLinks = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   
   @media (max-width: 768px) {
-    gap: 0.8rem;
+    gap: 1.2rem;
   }
   
   @media (max-width: 480px) {
-    gap: 0.6rem;
+    gap: 1rem;
   }
   
   a {
-    color: #ccc;
-    font-size: 1.5rem;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.7rem 1.1rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    /* VK стили */
+    &[href*="vk.com"] {
+      background: linear-gradient(135deg, #4C75A3 0%, #5B7BB3 100%);
+      border: 2px solid #4C75A3;
+      
+      &:hover {
+        background: linear-gradient(135deg, #5B7BB3 0%, #6B8BC3 100%);
+        border-color: #6B8BC3;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(76, 117, 163, 0.4);
+      }
+      
+      &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(76, 117, 163, 0.3);
+      }
+    }
+    
+    /* Telegram стили */
+    &[href*="t.me"] {
+      background: linear-gradient(135deg, #0088CC 0%, #0099DD 100%);
+      border: 2px solid #0088CC;
+      
+      &:hover {
+        background: linear-gradient(135deg, #0099DD 0%, #00AADD 100%);
+        border-color: #00AADD;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+      }
+      
+      &:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+      }
+    }
+    
+    /* Общие hover эффекты */
+    &:hover {
+      color: #ffffff;
+    }
     
     @media (max-width: 768px) {
-      font-size: 1.3rem;
+      font-size: 1rem;
+      padding: 0.6rem 1rem;
+      min-width: 60px;
+      border-radius: 10px;
     }
     
     @media (max-width: 480px) {
-      font-size: 1.1rem;
-    }
-    
-    &:hover {
-      color: #ffd700;
+      font-size: 0.9rem;
+      padding: 0.5rem 0.9rem;
+      min-width: 55px;
+      border-radius: 8px;
     }
   }
 `
@@ -166,31 +203,25 @@ export const Footer: React.FC = () => {
           <FooterSection>
             <h3>Контакты</h3>
             <ContactItem>
-              <svg>📞</svg>
               <a href="tel:+79680905550">+7(968) 090-55-50</a>
             </ContactItem>
             <ContactItem>
-              <svg>📞</svg>
               <a href="tel:+79680915550">+7(968) 091-55-50</a>
             </ContactItem>
             <ContactItem>
-              <svg>📧</svg>
               <a href="mailto:order@wetop.ru">order@wetop.ru</a>
             </ContactItem>
             <ContactItem>
-              <svg>📍</svg>
               <a href="#">город Москва,<br/>ул. Салтыковская, 49А,<br/>ТЦ Волна, Цокольный этаж</a>
             </ContactItem>
             <ContactItem>
-              <svg>🎂</svg>
               <a href="tel:+79680915550">Банкетный менеджер:<br/>+7 (968)091-55-50</a>
             </ContactItem>
             
             <h3>Мы в соцсети</h3>
             <SocialLinks>
-              <a href="https://vk.com/frant_rk">VK</a>
-              <a href="https://www.instagram.com/frant_rk/">Instagram</a>
-              <a href="https://t.me/francuz_klub">Telegram</a>
+              <a href="https://vk.com/frant_rk" title="ВКонтакте">VK</a>
+              <a href="https://t.me/francuz_klub" title="Telegram">TG</a>
             </SocialLinks>
           </FooterSection>
 
@@ -215,7 +246,7 @@ export const Footer: React.FC = () => {
         </FooterContent>
 
         <Copyright>
-          <div>© 2021 Frantsuz-club.ru все права защищены.</div>
+          <div>© 2018 Frantsuz-club.ru все права защищены.</div>
           <div>Сделано WeTop digital agency.</div>
         </Copyright>
       </Container>

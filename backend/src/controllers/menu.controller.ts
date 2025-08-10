@@ -63,10 +63,18 @@ export const createMenuType = async (req: Request, res: Response) => {
   try {
     const { name, slug, description, sortOrder } = req.body;
     
+    // Генерируем slug автоматически, если не передан
+    const generatedSlug = slug || name
+      .toLowerCase()
+      .replace(/[^а-яёa-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+    
     const menuType = await prisma.menuType.create({
       data: {
         name,
-        slug,
+        slug: generatedSlug,
         description,
         sortOrder: sortOrder || 0
       }
@@ -85,11 +93,19 @@ export const updateMenuType = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, slug, description, isActive, sortOrder } = req.body;
     
+    // Генерируем slug автоматически, если не передан
+    const generatedSlug = slug || name
+      .toLowerCase()
+      .replace(/[^а-яёa-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+    
     const menuType = await prisma.menuType.update({
       where: { id: parseInt(id) },
       data: {
         name,
-        slug,
+        slug: generatedSlug,
         description,
         isActive,
         sortOrder
@@ -162,31 +178,28 @@ export const createMenuCategory = async (req: Request, res: Response) => {
   try {
     const { name, slug, description, menuTypeId, sortOrder } = req.body;
     
-    // Если sortOrder не указан, находим максимальный и добавляем 1
-    let finalSortOrder = sortOrder;
-    if (!sortOrder && sortOrder !== 0) {
-      const maxSortOrder = await prisma.menuCategory.findFirst({
-        where: { menuTypeId: parseInt(menuTypeId) },
-        orderBy: { sortOrder: 'desc' },
-        select: { sortOrder: true }
-      });
-      finalSortOrder = (maxSortOrder?.sortOrder || 0) + 1;
-    }
+    // Генерируем slug автоматически, если не передан
+    const generatedSlug = slug || name
+      .toLowerCase()
+      .replace(/[^а-яёa-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
     
     const category = await prisma.menuCategory.create({
       data: {
         name,
-        slug,
+        slug: generatedSlug,
         description,
         menuTypeId: parseInt(menuTypeId),
-        sortOrder: finalSortOrder
+        sortOrder: sortOrder || 0
       }
     });
     
     res.status(201).json(category);
   } catch (error) {
-    console.error('Ошибка создания категории:', error);
-    res.status(500).json({ error: 'Ошибка создания категории' });
+    console.error('Ошибка создания категории меню:', error);
+    res.status(500).json({ error: 'Ошибка создания категории меню' });
   }
 };
 
@@ -194,40 +207,23 @@ export const createMenuCategory = async (req: Request, res: Response) => {
 export const updateMenuCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, slug, description, isActive, sortOrder, menuTypeId } = req.body;
-    const categoryId = parseInt(id);
+    const { name, slug, description, menuTypeId, isActive, sortOrder } = req.body;
     
-    // Если изменяется sortOrder, проверяем конфликты
-    if (sortOrder !== undefined) {
-      const existingCategory = await prisma.menuCategory.findFirst({
-        where: {
-          sortOrder: sortOrder,
-          menuTypeId: menuTypeId || (await prisma.menuCategory.findUnique({ where: { id: categoryId } }))?.menuTypeId,
-          id: { not: categoryId }
-        }
-      });
-      
-      if (existingCategory) {
-        // Если есть конфликт, сдвигаем существующие категории
-        await prisma.menuCategory.updateMany({
-          where: {
-            menuTypeId: menuTypeId || (await prisma.menuCategory.findUnique({ where: { id: categoryId } }))?.menuTypeId,
-            sortOrder: { gte: sortOrder },
-            id: { not: categoryId }
-          },
-          data: {
-            sortOrder: { increment: 1 }
-          }
-        });
-      }
-    }
+    // Генерируем slug автоматически, если не передан
+    const generatedSlug = slug || name
+      .toLowerCase()
+      .replace(/[^а-яёa-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
     
     const category = await prisma.menuCategory.update({
-      where: { id: categoryId },
+      where: { id: parseInt(id) },
       data: {
         name,
-        slug,
+        slug: generatedSlug,
         description,
+        menuTypeId: parseInt(menuTypeId),
         isActive,
         sortOrder
       }
@@ -235,8 +231,8 @@ export const updateMenuCategory = async (req: Request, res: Response) => {
     
     res.json(category);
   } catch (error) {
-    console.error('Ошибка обновления категории:', error);
-    res.status(500).json({ error: 'Ошибка обновления категории' });
+    console.error('Ошибка обновления категории меню:', error);
+    res.status(500).json({ error: 'Ошибка обновления категории меню' });
   }
 };
 
@@ -341,7 +337,6 @@ export const createMenuItem = async (req: Request, res: Response) => {
     const item = await prisma.menuItem.create({
       data: {
         name,
-        slug,
         description,
         price: parseFloat(price),
         currency: currency || '₽',
@@ -370,7 +365,6 @@ export const updateMenuItem = async (req: Request, res: Response) => {
     const { id } = req.params;
     const {
       name,
-      slug,
       description,
       price,
       currency,
@@ -415,7 +409,6 @@ export const updateMenuItem = async (req: Request, res: Response) => {
       where: { id: itemId },
       data: {
         name,
-        slug,
         description,
         price: parseFloat(price),
         currency,

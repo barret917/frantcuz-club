@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Header } from '@/widgets/Header'
 import { Container } from '@/shared/ui/Container'
 import { ZoneCard } from '@/shared/ui/ZoneCard'
 import { BookingForm } from '@/features/booking'
@@ -58,16 +57,25 @@ const StepTitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 300px);
-  grid-auto-rows: 300px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   justify-content: center;
   margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    margin: 0 10px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
+    padding: 0 15px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 10px;
   }
 `
 
@@ -174,120 +182,116 @@ export const BookingPage: React.FC = () => {
 
   return (
     <BookingPageContainer>
-      <Header />
-      
-      <Main>
-        <Container>
-          <BookingContent>
-            <Title>Бронирование</Title>
-            <Subtitle>
-              Выберите зал и заполните форму для бронирования
-            </Subtitle>
+      <Container>
+        <BookingContent>
+          <Title>Бронирование</Title>
+          <Subtitle>
+            Выберите зал и заполните форму для бронирования
+          </Subtitle>
 
-            <StepIndicator>
-              <Step $active={currentStep === 1} $completed={currentStep > 1}>1</Step>
-              <Step $active={currentStep === 2} $completed={currentStep > 2}>2</Step>
-              <Step $active={currentStep === 3} $completed={false}>3</Step>
-            </StepIndicator>
+          <StepIndicator>
+            <Step $active={currentStep === 1} $completed={currentStep > 1}>1</Step>
+            <Step $active={currentStep === 2} $completed={currentStep > 2}>2</Step>
+            <Step $active={currentStep === 3} $completed={false}>3</Step>
+          </StepIndicator>
 
-            {currentStep === 1 ? (
-              <StepContainer>
-                <StepTitle>Шаг 1: Выберите зал</StepTitle>
-                
-                {isLoading ? (
-                  <LoadingContainer>Загрузка зон...</LoadingContainer>
-                ) : error ? (
-                  <ErrorContainer>{error}</ErrorContainer>
-                ) : (
-                  <Grid>
-                    {zones.map((zone, index) => (
-                      <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
-                        <ZoneCard 
-                          zone={zone} 
-                          $isFullWidth={index % 3 === 2} 
-                        />
-                      </div>
-                    ))}
-                  </Grid>
-                )}
-              </StepContainer>
-            ) : currentStep === 2 ? (
-              <StepContainer>
-                <StepTitle>Шаг 2: Выберите стол</StepTitle>
-                {selectedZone && (
-                  <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
-                      Зал: {selectedZone.name}
-                    </p>
-                    <button 
-                      onClick={handleBackToZones}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #ffd700',
-                        color: '#ffd700',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginTop: '1rem'
-                      }}
-                    >
-                      ← Выбрать другой зал
-                    </button>
-                  </div>
-                )}
-                {isLoadingTables ? (
-                  <div style={{ 
-                    textAlign: 'center', 
-                    padding: '2rem',
-                    color: '#ffd700',
-                    fontSize: '1.2rem'
-                  }}>
-                    Загрузка столов...
-                  </div>
-                ) : (
-                  <TableGrid 
-                    zoneItems={zoneItems}
-                    onTableSelect={handleTableSelect}
-                    selectedTable={selectedTable}
-                    onContinue={handleContinueToBooking}
-                  />
-                )}
-              </StepContainer>
-            ) : (
-              <StepContainer>
-                <StepTitle>Шаг 3: Заполните форму бронирования</StepTitle>
-                {selectedZone && selectedTable && (
-                  <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
-                      Зал: {selectedZone.name} | Стол: {selectedTable.label}
-                    </p>
-                    <button 
-                      onClick={handleBackToTables}
-                      style={{
-                        background: 'transparent',
-                        border: '1px solid #ffd700',
-                        color: '#ffd700',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        marginTop: '1rem'
-                      }}
-                    >
-                      ← Выбрать другой стол
-                    </button>
-                  </div>
-                )}
-                {selectedZone && selectedTable && (
-                  <BookingForm 
-                    selectedZone={selectedZone}
-                    selectedTable={selectedTable}
-                  />
-                )}
-              </StepContainer>
-            )}
-          </BookingContent>
-        </Container>
-      </Main>
+          {currentStep === 1 ? (
+            <StepContainer>
+              <StepTitle>Шаг 1: Выберите зал</StepTitle>
+              
+              {isLoading ? (
+                <LoadingContainer>Загрузка зон...</LoadingContainer>
+              ) : error ? (
+                <ErrorContainer>{error}</ErrorContainer>
+              ) : (
+                <Grid>
+                  {zones.map((zone, index) => (
+                    <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
+                      <ZoneCard 
+                        zone={zone} 
+                        $isFullWidth={index % 3 === 2} 
+                      />
+                    </div>
+                  ))}
+                </Grid>
+              )}
+            </StepContainer>
+          ) : currentStep === 2 ? (
+            <StepContainer>
+              <StepTitle>Шаг 2: Выберите стол</StepTitle>
+              {selectedZone && (
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                  <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
+                    Зал: {selectedZone.name}
+                  </p>
+                  <button 
+                    onClick={handleBackToZones}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #ffd700',
+                      color: '#ffd700',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginTop: '1rem'
+                    }}
+                  >
+                    ← Выбрать другой зал
+                  </button>
+                </div>
+              )}
+              {isLoadingTables ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '2rem',
+                  color: '#ffd700',
+                  fontSize: '1.2rem'
+                }}>
+                  Загрузка столов...
+                </div>
+              ) : (
+                <TableGrid 
+                  zoneItems={zoneItems}
+                  onTableSelect={handleTableSelect}
+                  selectedTable={selectedTable}
+                  onContinue={handleContinueToBooking}
+                />
+              )}
+            </StepContainer>
+          ) : (
+            <StepContainer>
+              <StepTitle>Шаг 3: Заполните форму бронирования</StepTitle>
+              {selectedZone && selectedTable && (
+                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                  <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
+                    Зал: {selectedZone.name} | Стол: {selectedTable.label}
+                  </p>
+                  <button 
+                    onClick={handleBackToTables}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #ffd700',
+                      color: '#ffd700',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      marginTop: '1rem'
+                    }}
+                  >
+                    ← Выбрать другой стол
+                  </button>
+                </div>
+              )}
+              {selectedZone && selectedTable && (
+                <BookingForm 
+                  selectedZone={selectedZone}
+                  selectedTable={selectedTable}
+                />
+              )}
+            </StepContainer>
+          )}
+        </BookingContent>
+      </Container>
     </BookingPageContainer>
   )
 } 

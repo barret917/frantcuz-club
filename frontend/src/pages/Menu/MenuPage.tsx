@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Header } from '@/widgets/Header'
 import { Container } from '@/shared/ui/Container'
 import { menuApi, MenuType, MenuCategory, type MenuItem } from '@/shared/api/menu'
 import styled from 'styled-components'
@@ -7,6 +6,22 @@ import styled from 'styled-components'
 const MenuPageContainer = styled.div`
   display: flex;
   flex-direction: column;
+  padding-top: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  
+  @media (max-width: 768px) {
+    padding-top: 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`
+
+const MenuContainer = styled.div`
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 `
 
 const Main = styled.main`
@@ -16,24 +31,14 @@ const Main = styled.main`
 const MenuLayout = styled.div`
   display: flex;
   gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  width: 100%;
+  margin: 0;
+  padding: 2rem 0 0 0;
   min-height: 0; /* Важно для flex-контейнера */
-  
-  @media (max-width: 1200px) {
-    max-width: 100%;
-    padding: 0 1.5rem;
-  }
   
   @media (max-width: 1024px) {
     flex-direction: column;
     gap: 1rem;
-    padding: 0 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 0 0.5rem;
   }
 `
 
@@ -285,10 +290,9 @@ export const MenuPage: React.FC = () => {
   if (isLoading) {
     return (
       <MenuPageContainer>
-        <Header />
-        <Main>
+        <Container>
           <LoadingSpinner>Загрузка меню...</LoadingSpinner>
-        </Main>
+        </Container>
       </MenuPageContainer>
     )
   }
@@ -296,10 +300,9 @@ export const MenuPage: React.FC = () => {
   if (error) {
     return (
       <MenuPageContainer>
-        <Header />
-        <Main>
+        <Container>
           <ErrorMessage>{error}</ErrorMessage>
-        </Main>
+        </Container>
       </MenuPageContainer>
     )
   }
@@ -307,10 +310,9 @@ export const MenuPage: React.FC = () => {
   if (menuTypes.length === 0) {
     return (
       <MenuPageContainer>
-        <Header />
-        <Main>
+        <MenuContainer>
           <ErrorMessage>Меню пока не доступно</ErrorMessage>
-        </Main>
+        </MenuContainer>
       </MenuPageContainer>
     )
   }
@@ -327,9 +329,7 @@ export const MenuPage: React.FC = () => {
 
   return (
     <MenuPageContainer>
-      <Header />
-      
-      <Main>
+      <MenuContainer>
         <MenuLayout>
           <LeftPanel>
             {menuTypes.map(menuType => (
@@ -380,7 +380,7 @@ export const MenuPage: React.FC = () => {
                   {currentItems.map((item) => (
                     <MenuItem key={item.id}>
                       <MenuImage 
-                        src={item.imageUrl || 'https://via.placeholder.com/300x200/333/666?text=Фото'} 
+                        src={item.imageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuKXjzwvdGV4dD48L3N2Zz4='} 
                         alt={item.name} 
                       />
                       <MenuItemContent>
@@ -402,7 +402,7 @@ export const MenuPage: React.FC = () => {
             </MenuContent>
           </RightPanel>
         </MenuLayout>
-      </Main>
+      </MenuContainer>
     </MenuPageContainer>
   )
 }

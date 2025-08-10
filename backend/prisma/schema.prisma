@@ -29,10 +29,10 @@ model ZoneItem {
   isBooking  Boolean      @default(false)
   isActive   Boolean      @default(true)
 
-  x          Decimal      @db.Decimal(5,4)
-  y          Decimal      @db.Decimal(5,4)
-  width      Decimal      @db.Decimal(5,4)
-  height     Decimal      @db.Decimal(5,4)
+  x          Float
+  y          Float
+  width      Float
+  height     Float
 
   seats      Int?
   zone       Zone         @relation(fields: [zoneId], references: [id])

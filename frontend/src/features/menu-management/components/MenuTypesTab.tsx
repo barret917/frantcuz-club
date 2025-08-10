@@ -151,7 +151,6 @@ export const MenuTypesTab: React.FC = () => {
   const [editingType, setEditingType] = useState<MenuType | null>(null)
   const [formData, setFormData] = useState({
     name: '',
-    slug: '',
     description: '',
     sortOrder: 0
   })
@@ -176,7 +175,6 @@ export const MenuTypesTab: React.FC = () => {
     setEditingType(null)
     setFormData({
       name: '',
-      slug: '',
       description: '',
       sortOrder: 0
     })
@@ -187,7 +185,6 @@ export const MenuTypesTab: React.FC = () => {
     setEditingType(menuType)
     setFormData({
       name: menuType.name,
-      slug: menuType.slug,
       description: menuType.description || '',
       sortOrder: menuType.sortOrder
     })
@@ -211,10 +208,23 @@ export const MenuTypesTab: React.FC = () => {
     e.preventDefault()
     
     try {
+      // Генерируем slug автоматически на основе названия
+      const slug = formData.name
+        .toLowerCase()
+        .replace(/[^а-яёa-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+
+      const submitData = {
+        ...formData,
+        slug
+      }
+
       if (editingType) {
-        await menuApi.updateMenuType(editingType.id, formData)
+        await menuApi.updateMenuType(editingType.id, submitData)
       } else {
-        await menuApi.createMenuType(formData)
+        await menuApi.createMenuType(submitData)
       }
       
       setIsModalOpen(false)
@@ -293,17 +303,6 @@ export const MenuTypesTab: React.FC = () => {
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 placeholder="Например: Основное меню"
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Slug</Label>
-              <Input
-                type="text"
-                value={formData.slug}
-                onChange={(e) => handleInputChange('slug', e.target.value)}
-                placeholder="Например: main"
                 required
               />
             </FormGroup>

@@ -18,9 +18,18 @@ const Card = styled.div<{ $isFullWidth?: boolean }>`
   cursor: pointer;
   transition: transform 0.3s ease;
   position: relative;
+  aspect-ratio: 16/9;
 
   &:hover {
     transform: translateY(-5px);
+  }
+
+  @media (max-width: 768px) {
+    aspect-ratio: 4/3;
+  }
+
+  @media (max-width: 480px) {
+    aspect-ratio: 1/1;
   }
 `
 
@@ -68,4 +77,4 @@ export const ZoneCard: React.FC<ZoneCardProps> = ({ zone, $isFullWidth }) => {
       </ImageContainer>
     </Card>
   )
-} 
+}

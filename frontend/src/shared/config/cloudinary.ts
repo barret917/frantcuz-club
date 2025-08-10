@@ -22,7 +22,7 @@ export const uploadImage = async (file: File): Promise<string> => {
       console.error('❌', error)
       // Для тестирования возвращаем placeholder
       console.log('🔄 Возвращаем placeholder для тестирования')
-      resolve('https://via.placeholder.com/300x200/333/666?text=Фото')
+      resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuKXjzwvdGV4dD48L3N2Zz4=')
       return
     }
 
@@ -51,9 +51,9 @@ export const uploadImage = async (file: File): Promise<string> => {
       if (!response.ok) {
         return response.text().then(text => {
           console.error('❌ Ответ Cloudinary:', text)
-          // Для тестирования возвращаем placeholder при ошибке
+          // Для тестирования возвращаем placeholder
           console.log('🔄 Возвращаем placeholder из-за ошибки Cloudinary')
-          resolve('https://via.placeholder.com/300x200/333/666?text=Фото')
+          resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuKXjzwvdGV4dD48L3N2Zz4=')
         })
       }
       return response.json()
@@ -67,14 +67,14 @@ export const uploadImage = async (file: File): Promise<string> => {
         console.error('❌', error, data)
         // Для тестирования возвращаем placeholder
         console.log('🔄 Возвращаем placeholder из-за отсутствия URL')
-        resolve('https://via.placeholder.com/300x200/333/666?text=Фото')
+        resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuKXjzwvdGV4dD48L3N2Zz4=')
       }
     })
     .catch(error => {
       console.error('❌ Ошибка загрузки в Cloudinary:', error)
       // Для тестирования возвращаем placeholder при любой ошибке
       console.log('🔄 Возвращаем placeholder из-за ошибки сети')
-      resolve('https://via.placeholder.com/300x200/333/666?text=Фото')
+      resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuKXjzwvdGV4dD48L3N2Zz4=')
     })
   })
 }
