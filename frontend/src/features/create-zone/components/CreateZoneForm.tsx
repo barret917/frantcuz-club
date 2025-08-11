@@ -6,18 +6,26 @@ import { uploadImage } from '@/shared/config/cloudinary'
 
 const FormWrapper = styled.div`
   max-width: 600px;
-  margin: 40px auto;
-  padding: 32px;
-  background: #1a1a1a;
-  border-radius: 12px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 `
 
 const Title = styled.h2`
-  color: #ffd700;
+  color: #ffffff;
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `
 
 const Form = styled.form`
@@ -29,104 +37,134 @@ const Form = styled.form`
 const FormItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `
 
 const Label = styled.label`
-  color: #fff;
+  color: #ffffff;
   font-weight: 500;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 
   &::placeholder {
-    color: #888;
+    color: rgba(255, 255, 255, 0.5);
   }
 `
 
 const TextArea = styled.textarea`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
   min-height: 100px;
   resize: vertical;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 
   &::placeholder {
-    color: #888;
+    color: rgba(255, 255, 255, 0.5);
   }
 `
 
 const SubmitButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: #ffd700;
-  color: #000;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 
   &:hover {
-    background: #ffed4e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
-    background: #666;
+    background: rgba(255, 255, 255, 0.1);
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `
 
 const ImageUpload = styled.div`
-  border: 2px dashed #333;
-  border-radius: 6px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.02);
 
   &:hover {
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
   }
 `
 
 const ImagePreview = styled.img`
   max-width: 100%;
   max-height: 200px;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-top: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 `
 
 const ErrorMessage = styled.div`
   color: #ff6b6b;
   font-size: 0.9rem;
   margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 107, 107, 0.2);
 `
 
 const SuccessMessage = styled.div`
   color: #51cf66;
   font-size: 0.9rem;
   margin-top: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(81, 207, 102, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(81, 207, 102, 0.2);
 `
 
 interface CreateZoneData {

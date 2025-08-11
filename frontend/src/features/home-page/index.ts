@@ -1,0 +1,6 @@
+export { AboutSection } from './AboutSection'
+export { BilliardsSection } from './BilliardsSection'
+export { KaraokeSection } from './KaraokeSection'
+export { PlaystationSection } from './PlaystationSection'
+export { DiscoBarSection } from './DiscoBarSection'
+export { AdditionalServicesSection } from './AdditionalServicesSection' 

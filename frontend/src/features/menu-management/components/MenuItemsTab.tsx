@@ -11,54 +11,79 @@ const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
-  background: #1a1a1a;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 `
 
 const Th = styled.th`
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   text-align: left;
-  background: #333;
-  color: #ffd700;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
   font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `
 
 const Td = styled.td`
-  padding: 1rem;
-  border-bottom: 1px solid #333;
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Button = styled.button<{ $variant?: 'primary' | 'danger' | 'secondary' }>`
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   margin-right: 0.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   ${({ $variant }) => {
     switch ($variant) {
       case 'danger':
         return `
-          background: #dc3545;
+          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
           color: white;
-          &:hover { background: #c82333; }
+          box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+          &:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+          }
         `
       case 'secondary':
         return `
-          background: #6c757d;
+          background: rgba(255, 255, 255, 0.1);
           color: white;
-          &:hover { background: #5a6268; }
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          &:hover { 
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+          }
         `
       default:
         return `
-          background: #ffd700;
-          color: #000;
-          &:hover { background: #ffed4e; }
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+          &:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+          }
         `
     }
   }}
+
+  &:active {
+    transform: translateY(0);
+  }
 `
 
 const Modal = styled.div<{ $isOpen: boolean }>`
@@ -72,63 +97,80 @@ const Modal = styled.div<{ $isOpen: boolean }>`
   z-index: 1000;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
 `
 
 const ModalContent = styled.div`
-  background: #1a1a1a;
-  padding: 2rem;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2.5rem;
+  border-radius: 16px;
   width: 90%;
   max-width: 600px;
   color: #fff;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 `
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 `
 
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `
 
 const Label = styled.label`
-  color: #fff;
+  color: #ffffff;
   font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 4px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
   }
 `
 
 const Select = styled.select`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 4px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
   cursor: pointer;
   width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
 
   &:disabled {
@@ -137,7 +179,7 @@ const Select = styled.select`
   }
 
   option {
-    background: #333;
+    background: #1a1a2e;
     color: #fff;
     padding: 0.5rem;
   }
@@ -153,7 +195,54 @@ const ItemImage = styled.img`
   width: 60px;
   height: 60px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`
+
+const StatusBadge = styled.span<{ $isActive: boolean }>`
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: ${props => props.$isActive 
+    ? 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)' 
+    : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)'
+  };
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+`
+
+const SectionTitle = styled.h3`
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`
+
+const ModalTitle = styled.h3`
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`
+
+const PlaceholderImage = styled.div`
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 `
 
 export const MenuItemsTab: React.FC = () => {
@@ -394,7 +483,7 @@ export const MenuItemsTab: React.FC = () => {
                   {item.imageUrl ? (
                     <ItemImage src={item.imageUrl} alt={item.name} />
                   ) : (
-                    <div style={{ width: 60, height: 60, background: '#333', borderRadius: 4 }} />
+                    <PlaceholderImage />
                   )}
                 </Td>
                 <Td>{item.name}</Td>
@@ -402,15 +491,9 @@ export const MenuItemsTab: React.FC = () => {
                 <Td>{category?.name || 'Неизвестно'}</Td>
                 <Td>{item.price} ₽</Td>
                 <Td>
-                  <span style={{ 
-                    padding: '0.25rem 0.5rem', 
-                    borderRadius: '4px', 
-                    fontSize: '0.8rem',
-                    background: item.isActive ? '#28a745' : '#dc3545',
-                    color: 'white'
-                  }}>
+                  <StatusBadge $isActive={item.isActive}>
                     {item.isActive ? 'Активно' : 'Неактивно'}
-                  </span>
+                  </StatusBadge>
                 </Td>
                 <Td>
                   <Button $variant="secondary" onClick={() => handleEdit(item)}>
@@ -428,9 +511,9 @@ export const MenuItemsTab: React.FC = () => {
 
       <Modal $isOpen={isModalOpen}>
         <ModalContent>
-          <h3 style={{ marginBottom: '1rem', color: '#ffd700' }}>
+          <ModalTitle>
             {editingItem ? 'Редактировать блюдо' : 'Добавить блюдо'}
-          </h3>
+          </ModalTitle>
           
           <Form onSubmit={handleSubmit}>
             <FormGroup>

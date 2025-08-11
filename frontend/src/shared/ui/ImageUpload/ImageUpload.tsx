@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import styled from 'styled-components'
 import { uploadImage } from '@/shared/config/cloudinary'
 
@@ -62,6 +62,20 @@ const ProgressFill = styled.div<{ $progress: number }>`
   transition: width 0.3s ease;
 `
 
+const ProgressText = styled.div`
+  position: absolute;
+  top: -20px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1;
+`
+
 const ErrorMessage = styled.div`
   color: #dc3545;
   font-size: 0.9rem;
@@ -113,7 +127,19 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null)
+  const [uploadAttempt, setUploadAttempt] = useState(0)
+  const [maxAttempts] = useState(3)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Check Cloudinary configuration on mount
+  useEffect(() => {
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    
+    if (!cloudName || !uploadPreset) {
+      setError('Ошибка конфигурации Cloudinary. Обратитесь к администратору.')
+    }
+  }, [])
 
   const handleFileSelect = async (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -121,24 +147,32 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-      setError('Размер файла не должен превышать 5MB')
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Размер файла не должен превышать 10MB')
+      return
+    }
+
+    // Check file format
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedTypes.includes(file.type)) {
+      setError('Поддерживаются только JPG, PNG и WebP форматы')
       return
     }
 
     setError(null)
     setIsUploading(true)
     setProgress(0)
+    setUploadAttempt(0)
 
     try {
-      // Создаем предварительный просмотр
+      // Create preview
       const reader = new FileReader()
       reader.onload = (e) => {
         setPreviewUrl(e.target?.result as string)
       }
       reader.readAsDataURL(file)
 
-      // Имитируем прогресс загрузки
+      // Simulate progress
       const progressInterval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
@@ -147,39 +181,60 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           }
           return prev + 10
         })
-      }, 100)
+      }, 200)
 
-      // Загружаем в Cloudinary
-      const imageUrl = await uploadImage(file)
+      // Upload to Cloudinary
+      const imageUrl = await uploadImage(file, maxAttempts, (attempt) => {
+        setUploadAttempt(attempt);
+      })
       
       clearInterval(progressInterval)
       setProgress(100)
-      
-      onImageUpload(imageUrl)
       setSuccess(true)
       
-      // Очищаем input после успешной загрузки
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      // Call the callback
+      onImageUpload(imageUrl)
       
+      // Reset states after success
       setTimeout(() => {
         setSuccess(false)
-      }, 3000)
+        setProgress(0)
+        setIsUploading(false)
+      }, 2000)
       
     } catch (err: any) {
       console.error('❌ Ошибка в ImageUpload:', err)
-      const errorMessage = err.message || 'Ошибка загрузки изображения'
+      
+      // Detailed error handling
+      let errorMessage = 'Ошибка загрузки изображения'
+      
+      if (err.message) {
+        if (err.message.includes('Не настроены переменные окружения')) {
+          errorMessage = 'Ошибка конфигурации Cloudinary. Обратитесь к администратору.'
+        } else if (err.message.includes('Ошибка Cloudinary')) {
+          errorMessage = 'Ошибка сервера Cloudinary. Попробуйте позже.'
+        } else if (err.message.includes('Не получен URL')) {
+          errorMessage = 'Ошибка получения URL изображения. Попробуйте еще раз.'
+        } else if (err.message.includes('Проблема с сетевым подключением')) {
+          errorMessage = 'Проблема с интернет-соединением. Проверьте подключение и попробуйте снова.'
+        } else if (err.message.includes('Превышено время ожидания')) {
+          errorMessage = 'Загрузка занимает слишком много времени. Попробуйте еще раз.'
+        } else {
+          errorMessage = err.message
+        }
+      }
+      
       setError(errorMessage)
       setPreviewUrl(null)
       
-      // Очищаем input при ошибке
+      // Clear input on error
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
     } finally {
       setIsUploading(false)
       setProgress(0)
+      setUploadAttempt(0)
     }
   }
 
@@ -249,7 +304,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
               {isUploading ? 'Загрузка...' : 'Перетащите изображение сюда или нажмите для выбора'}
             </UploadText>
             <UploadText style={{ fontSize: '0.8rem', color: '#666' }}>
-              Поддерживаются: JPG, PNG, GIF (до 5MB)
+              Поддерживаются: JPG, PNG, WebP (до 10MB)
             </UploadText>
           </>
         ) : (
@@ -273,6 +328,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       {isUploading && (
         <ProgressBar $progress={progress}>
           <ProgressFill $progress={progress} />
+          {uploadAttempt > 0 && (
+            <ProgressText>
+              Попытка {uploadAttempt}/{maxAttempts}
+            </ProgressText>
+          )}
         </ProgressBar>
       )}
 

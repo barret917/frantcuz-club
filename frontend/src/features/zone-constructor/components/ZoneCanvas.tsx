@@ -9,49 +9,79 @@ const CanvasWrapper = styled.div`
   position: relative;
   width: 100%;
   height: 80vh;
-  background: #f5f5f5;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   overflow: hidden;
+  backdrop-filter: blur(20px);
 `
 
 const Controls = styled.div`
   display: flex;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
 `
 
 const Button = styled.button`
-  padding: 0.5rem 1rem;
-  background: #ffd700;
-  color: #000;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 
   &:hover {
-    background: #ffed4e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
-    background: #ccc;
+    background: rgba(255, 255, 255, 0.1);
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `
 
 const FloorButton = styled.button<{ $active: boolean }>`
-  padding: 0.5rem 1rem;
-  background: ${props => props.$active ? '#ffd700' : '#333'};
-  color: ${props => props.$active ? '#000' : '#fff'};
-  border: none;
-  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  background: ${props => props.$active 
+    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+    : 'rgba(255, 255, 255, 0.1)'
+  };
+  color: ${props => props.$active ? '#ffffff' : '#a0a0a0'};
+  border: ${props => props.$active ? 'none' : '1px solid rgba(255, 255, 255, 0.2)'};
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: ${props => props.$active ? '#ffed4e' : '#444'};
+    background: ${props => props.$active 
+      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+      : 'rgba(255, 255, 255, 0.15)'
+    };
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `
 
@@ -61,91 +91,140 @@ const Modal = styled.div<{ $isOpen: boolean }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
   display: ${props => props.$isOpen ? 'flex' : 'none'};
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(10px);
 `
 
 const ModalContent = styled.div`
-  background: #1a1a1a;
-  padding: 2rem;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 2.5rem;
+  border-radius: 16px;
   color: #fff;
-  min-width: 300px;
+  min-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+`
+
+const ModalTitle = styled.h3`
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 `
 
 const FormItem = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
 `
 
 const Label = styled.label`
-  color: #fff;
+  color: #ffffff;
   font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Input = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 4px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
   }
 `
 
 const Select = styled.select`
-  padding: 0.75rem;
-  border: 1px solid #333;
-  border-radius: 4px;
-  background: #333;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
   color: #fff;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:focus {
     outline: none;
-    border-color: #ffd700;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  option {
+    background: #1a1a2e;
+    color: #ffffff;
   }
 `
 
 const SubmitButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background: #ffd700;
-  color: #000;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 
   &:hover {
-    background: #ffed4e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `
 
 const CancelButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background: transparent;
-  color: #fff;
-  border: 1px solid #666;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   cursor: pointer;
   margin-left: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: #333;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `
 
@@ -153,6 +232,64 @@ const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+`
+
+const ZoneTitle = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #667eea;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+`
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #ff6b6b;
+  font-size: 1.2rem;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+`
+
+const Notification = styled.div<{ $type: 'success' | 'error' }>`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  background: ${props => props.$type === 'success' 
+    ? 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)' 
+    : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)'
+  };
+  color: white;
+  border-radius: 12px;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+`
+
+const NotificationTitle = styled.div`
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+`
+
+const NotificationMessage = styled.div`
+  font-size: 0.9rem;
+  opacity: 0.9;
 `
 
 interface ZoneCanvasProps {
@@ -293,15 +430,9 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
     return (
     <Container>
       {zoneName && (
-        <div style={{ 
-          textAlign: 'center', 
-          marginBottom: '1rem',
-          color: '#ffd700',
-          fontSize: '1.5rem',
-          fontWeight: 'bold'
-        }}>
+        <ZoneTitle>
           Конструктор зоны: {zoneName}
-        </div>
+        </ZoneTitle>
       )}
       <Controls>
         <Button onClick={() => setIsModalOpen(true)}>
@@ -325,23 +456,13 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
       </Controls>
 
       {isLoading ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '2rem',
-          color: '#ffd700',
-          fontSize: '1.2rem'
-        }}>
+        <LoadingMessage>
           Загрузка элементов зоны...
-        </div>
+        </LoadingMessage>
       ) : error ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '2rem',
-          color: '#ff6b6b',
-          fontSize: '1.2rem'
-        }}>
+        <ErrorMessage>
           {error}
-        </div>
+        </ErrorMessage>
       ) : (
         <CanvasWrapper ref={canvasRef}>
           {filteredItems.map(item => (
@@ -357,7 +478,7 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
 
       <Modal $isOpen={isModalOpen}>
         <ModalContent>
-          <h3>Добавить элемент</h3>
+          <ModalTitle>Добавить элемент</ModalTitle>
           <Form onSubmit={handleSubmit}>
             <FormItem>
               <Label>Название</Label>
@@ -417,19 +538,10 @@ export const ZoneCanvas: React.FC<ZoneCanvasProps> = ({ zoneId, zoneName, onSave
       </Modal>
 
       {notification.isVisible && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          padding: '1rem',
-          background: notification.type === 'success' ? '#51cf66' : '#ff6b6b',
-          color: 'white',
-          borderRadius: '8px',
-          zIndex: 10000
-        }}>
-          <div style={{ fontWeight: 'bold' }}>{notification.title}</div>
-          <div>{notification.message}</div>
-        </div>
+        <Notification $type={notification.type}>
+          <NotificationTitle>{notification.title}</NotificationTitle>
+          <NotificationMessage>{notification.message}</NotificationMessage>
+        </Notification>
       )}
     </Container>
   )

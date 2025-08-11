@@ -10,17 +10,25 @@ const SelectorWrapper = styled.div`
 `
 
 const Title = styled.h2`
-  color: #ffd700;
+  color: #ffffff;
   text-align: center;
   margin-bottom: 2rem;
   font-size: 1.8rem;
+  font-weight: 700;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `
 
 const Subtitle = styled.p`
-  color: #ccc;
+  color: #a0a0a0;
   text-align: center;
   margin-bottom: 2rem;
   font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
 `
 
 const ZoneGrid = styled.div`
@@ -31,53 +39,93 @@ const ZoneGrid = styled.div`
 `
 
 const ZoneCard = styled.div<{ $selected: boolean }>`
-  background: ${props => props.$selected ? '#ffd700' : '#1a1a1a'};
-  color: ${props => props.$selected ? '#000' : '#fff'};
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: ${props => props.$selected 
+    ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)' 
+    : 'rgba(255, 255, 255, 0.03)'
+  };
+  color: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid ${props => props.$selected ? '#ffd700' : 'transparent'};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid ${props => props.$selected 
+    ? 'rgba(102, 126, 234, 0.5)' 
+    : 'rgba(255, 255, 255, 0.1)'
+  };
+  backdrop-filter: blur(20px);
+  box-shadow: ${props => props.$selected 
+    ? '0 8px 32px rgba(102, 126, 234, 0.3)' 
+    : '0 4px 16px rgba(0, 0, 0, 0.2)'
+  };
 
   &:hover {
-    background: ${props => props.$selected ? '#ffed4e' : '#333'};
+    background: ${props => props.$selected 
+      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)' 
+      : 'rgba(255, 255, 255, 0.08)'
+    };
+    transform: translateY(-4px);
+    box-shadow: ${props => props.$selected 
+      ? '0 12px 40px rgba(102, 126, 234, 0.4)' 
+      : '0 8px 24px rgba(0, 0, 0, 0.3)'
+    };
+  }
+
+  &:active {
+    transform: translateY(-2px);
   }
 `
 
 const ZoneName = styled.h3`
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
+  margin: 0 0 0.75rem 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #ffffff;
 `
 
 const ZoneDescription = styled.p`
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   opacity: 0.8;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
 `
 
 const ZoneDetails = styled.div`
   margin-top: 1rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const ContinueButton = styled.button`
-  padding: 0.75rem 1.5rem;
-  background: #ffd700;
-  color: #000;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 2rem;
   width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 
   &:hover {
-    background: #ffed4e;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 
   &:disabled {
-    background: #666;
+    background: rgba(255, 255, 255, 0.1);
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `
 

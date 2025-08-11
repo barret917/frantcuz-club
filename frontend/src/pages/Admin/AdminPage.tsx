@@ -5,45 +5,97 @@ import { ZoneSelector } from '@/features/zone-constructor/components/ZoneSelecto
 import { MenuTypesTab } from '@/features/menu-management/components/MenuTypesTab'
 import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCategoriesTab'
 import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
+import { BilliardsPricing } from '@/features/billiards-pricing'
 import { getZones } from '@/shared/api/zones'
 import { Zone } from '@/shared/model/types'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+// Анимации
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`
+
+const slideIn = keyframes`
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+`
+
+const pulse = keyframes`
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+`
 
 const AdminPageContainer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #262935;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Main = styled.main`
   flex: 1;
-  padding: 2rem 0;
+  padding: 0;
 `
 
-const Sidebar = styled.div`
-  width: 250px;
-  background: #1a1a1a;
-  padding: 2rem 0;
-  border-right: 1px solid #333;
+const Header = styled.header`
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 `
 
-const SidebarItem = styled.div<{ $active: boolean }>`
-  padding: 1rem 2rem;
-  cursor: pointer;
-  color: ${props => props.$active ? '#ffd700' : '#fff'};
-  background: ${props => props.$active ? '#333' : 'transparent'};
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #333;
-    color: #ffd700;
-  }
+const HeaderTitle = styled.h1`
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `
 
-const Content = styled.div`
-  flex: 1;
-  padding: 2rem;
+const HeaderActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+`
+
+const UserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`
+
+const UserAvatar = styled.div`
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+`
+
+const UserName = styled.span`
+  font-weight: 500;
+  color: #ffffff;
 `
 
 const Layout = styled.div`
@@ -51,22 +103,247 @@ const Layout = styled.div`
   min-height: calc(100vh - 80px);
 `
 
-const Title = styled.h1`
-  color: #ffd700;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
+const Sidebar = styled.div`
+  width: 280px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem 0;
+  animation: ${slideIn} 0.6s ease-out;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'settings'
+const SidebarHeader = styled.div`
+  padding: 0 2rem 2rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1rem;
+`
+
+const SidebarTitle = styled.h3`
+  color: #a0a0a0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.5rem 0;
+`
+
+const SidebarItem = styled.div<{ $active: boolean }>`
+  padding: 1rem 2rem;
+  cursor: pointer;
+  color: ${props => props.$active ? '#ffffff' : '#a0a0a0'};
+  background: ${props => props.$active ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)' : 'transparent'};
+  border-left: 3px solid ${props => props.$active ? '#667eea' : 'transparent'};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0.25rem 1rem;
+  border-radius: 0 12px 12px 0;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: ${props => props.$active 
+      ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)' 
+      : 'rgba(255, 255, 255, 0.05)'
+    };
+    color: #ffffff;
+    transform: translateX(4px);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+`
+
+const SidebarItemIcon = styled.span`
+  margin-right: 0.75rem;
+  font-size: 1.1rem;
+  opacity: 0.8;
+`
+
+const Content = styled.div`
+  flex: 1;
+  padding: 2rem;
+  animation: ${fadeIn} 0.6s ease-out;
+  overflow-y: auto;
+`
+
+const ContentHeader = styled.div`
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`
+
+const ContentTitle = styled.h2`
+  color: #ffffff;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`
+
+const ContentSubtitle = styled.p`
+  color: #a0a0a0;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
+`
+
+const TabContainer = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+`
+
+const TabButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`
+
+const TabButton = styled.button<{ $active: boolean }>`
+  padding: 0.75rem 1.5rem;
+  background: ${props => props.$active 
+    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+    : 'transparent'
+  };
+  color: ${props => props.$active ? '#ffffff' : '#a0a0a0'};
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: ${props => props.$active 
+      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+      : 'rgba(255, 255, 255, 0.1)'
+    };
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`
+
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+`
+
+const StatCard = styled.div`
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+`
+
+const StatValue = styled.div`
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`
+
+const StatLabel = styled.div`
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`
+
+const ComingSoonCard = styled.div`
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  animation: ${pulse} 2s infinite;
+`
+
+const ComingSoonIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+`
+
+const ComingSoonTitle = styled.h3`
+  color: #a0a0a0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+`
+
+const ComingSoonText = styled.p`
+  color: #808080;
+  font-size: 1rem;
+  margin: 0;
+  line-height: 1.6;
+`
+
+type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'billiards' | 'settings'
 
 const tabs = [
-  { key: 'create-zone', label: 'Создать зону' },
-  { key: 'zone-constructor', label: 'Конструктор зоны' },
-  { key: 'manage-zones', label: 'Управление зонами' },
-  { key: 'menu', label: 'Меню' },
-  { key: 'bookings', label: 'Бронирования' },
-  { key: 'settings', label: 'Настройки' }
+  { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
+  { key: 'zone-constructor', label: 'Конструктор зоны', icon: '🎨' },
+  { key: 'manage-zones', label: 'Управление зонами', icon: '🗺️' },
+  { key: 'menu', label: 'Меню', icon: '🍽️' },
+  { key: 'bookings', label: 'Бронирования', icon: '📅' },
+  { key: 'billiards', label: 'Бильярд', icon: '🎱' },
+  { key: 'settings', label: 'Настройки', icon: '⚙️' }
 ]
 
 export const AdminPage: React.FC = () => {
@@ -120,35 +397,111 @@ export const AdminPage: React.FC = () => {
           />
         )
       case 'manage-zones':
-        return <div>Управление зонами (в разработке)</div>
+        return (
+          <div>
+            <StatsGrid>
+              <StatCard>
+                <StatValue>{zones.length}</StatValue>
+                <StatLabel>Всего зон</StatLabel>
+              </StatCard>
+              <StatCard>
+                <StatValue>{zones.filter(z => z.isActive).length}</StatValue>
+                <StatLabel>Активных зон</StatLabel>
+              </StatCard>
+              <StatCard>
+                <StatValue>0</StatValue>
+                <StatLabel>Забронировано</StatLabel>
+              </StatCard>
+            </StatsGrid>
+            <ComingSoonCard>
+              <ComingSoonIcon>🚧</ComingSoonIcon>
+              <ComingSoonTitle>Управление зонами</ComingSoonTitle>
+              <ComingSoonText>
+                Функция находится в разработке. Скоро вы сможете редактировать, 
+                удалять и настраивать все зоны ресторана.
+              </ComingSoonText>
+            </ComingSoonCard>
+          </div>
+        )
       case 'menu':
         return <MenuManagement />
+      case 'billiards':
+        return <BilliardsPricing />
       case 'bookings':
-        return <div>Бронирования (в разработке)</div>
+        return (
+          <ComingSoonCard>
+            <ComingSoonIcon>📊</ComingSoonIcon>
+            <ComingSoonTitle>Управление бронированиями</ComingSoonTitle>
+            <ComingSoonText>
+              Скоро здесь появится полная система управления бронированиями 
+              с календарем, уведомлениями и статистикой.
+            </ComingSoonText>
+          </ComingSoonCard>
+        )
       case 'settings':
-        return <div>Настройки (в разработке)</div>
+        return (
+          <ComingSoonCard>
+            <ComingSoonIcon>🔧</ComingSoonIcon>
+            <ComingSoonTitle>Настройки системы</ComingSoonTitle>
+            <ComingSoonText>
+              Настройки профиля, уведомлений, безопасности и другие 
+              параметры системы будут доступны в ближайшее время.
+            </ComingSoonText>
+          </ComingSoonCard>
+        )
       default:
         return <CreateZoneForm />
     }
   }
 
+  const getTabDescription = () => {
+    const descriptions = {
+      'create-zone': 'Создайте новую зону для вашего ресторана',
+      'zone-constructor': 'Настройте расположение столов и элементов зоны',
+      'manage-zones': 'Управляйте всеми зонами ресторана',
+      'menu': 'Редактируйте меню, категории и блюда',
+      'billiards': 'Управляйте ценами и изображениями бильярда',
+      'bookings': 'Управляйте бронированиями и резервациями',
+      'settings': 'Настройки системы и профиля'
+    }
+    return descriptions[activeTab] || ''
+  }
+
   return (
     <AdminPageContainer>
       <Main>
+        <Header>
+          <HeaderTitle>Панель администратора</HeaderTitle>
+          <HeaderActions>
+            <UserInfo>
+              <UserAvatar>A</UserAvatar>
+              <UserName>Администратор</UserName>
+            </UserInfo>
+          </HeaderActions>
+        </Header>
+        
         <Layout>
           <Sidebar>
+            <SidebarHeader>
+              <SidebarTitle>Навигация</SidebarTitle>
+            </SidebarHeader>
             {tabs.map(tab => (
               <SidebarItem
                 key={tab.key}
                 $active={activeTab === tab.key}
                 onClick={() => setActiveTab(tab.key as AdminTab)}
               >
+                <SidebarItemIcon>{tab.icon}</SidebarItemIcon>
                 {tab.label}
               </SidebarItem>
             ))}
           </Sidebar>
+          
           <Content>
-            <Title>Панель администратора</Title>
+            <ContentHeader>
+              <ContentTitle>{tabs.find(t => t.key === activeTab)?.label}</ContentTitle>
+              <ContentSubtitle>{getTabDescription()}</ContentSubtitle>
+            </ContentHeader>
             {renderContent()}
           </Content>
         </Layout>
@@ -162,55 +515,32 @@ const MenuManagement: React.FC = () => {
   const [activeMenuTab, setActiveMenuTab] = useState<'types' | 'categories' | 'items'>('types')
 
   return (
-    <div>
-      <h2 style={{ color: '#ffd700', marginBottom: '1rem' }}>Управление меню</h2>
-      
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-        <button
+    <TabContainer>
+      <TabButtons>
+        <TabButton
+          $active={activeMenuTab === 'types'}
           onClick={() => setActiveMenuTab('types')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: activeMenuTab === 'types' ? '#ffd700' : '#333',
-            color: activeMenuTab === 'types' ? '#000' : '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
         >
           Типы меню
-        </button>
-        <button
+        </TabButton>
+        <TabButton
+          $active={activeMenuTab === 'categories'}
           onClick={() => setActiveMenuTab('categories')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: activeMenuTab === 'categories' ? '#ffd700' : '#333',
-            color: activeMenuTab === 'categories' ? '#000' : '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
         >
           Категории
-        </button>
-        <button
+        </TabButton>
+        <TabButton
+          $active={activeMenuTab === 'items'}
           onClick={() => setActiveMenuTab('items')}
-          style={{
-            padding: '0.5rem 1rem',
-            background: activeMenuTab === 'items' ? '#ffd700' : '#333',
-            color: activeMenuTab === 'items' ? '#000' : '#fff',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
         >
           Блюда
-        </button>
-      </div>
+        </TabButton>
+      </TabButtons>
 
       {activeMenuTab === 'types' && <MenuTypesTab />}
       {activeMenuTab === 'categories' && <MenuCategoriesTab />}
       {activeMenuTab === 'items' && <MenuItemsTab />}
-    </div>
+    </TabContainer>
   )
 }
 

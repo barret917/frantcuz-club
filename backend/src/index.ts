@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import zonesRouter from './routes/zones';
 import menuRouter from './routes/menu';
+import billiardsRouter from './routes/billiards';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Routes
 app.use('/api', zonesRouter);
 app.use('/api', menuRouter);
+app.use('/api/billiards', billiardsRouter);
 
 // Health check
 app.get('/health', (req, res) => {
