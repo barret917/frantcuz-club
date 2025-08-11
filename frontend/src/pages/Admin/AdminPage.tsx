@@ -6,6 +6,7 @@ import { MenuTypesTab } from '@/features/menu-management/components/MenuTypesTab
 import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCategoriesTab'
 import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
 import { BilliardsPricing } from '@/features/billiards-pricing'
+import { KaraokePricing } from '@/features/karaoke-pricing'
 import { getZones } from '@/shared/api/zones'
 import { Zone } from '@/shared/model/types'
 import styled, { keyframes } from 'styled-components'
@@ -334,7 +335,7 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'billiards' | 'settings'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'settings'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
@@ -343,6 +344,7 @@ const tabs = [
   { key: 'menu', label: 'Меню', icon: '🍽️' },
   { key: 'bookings', label: 'Бронирования', icon: '📅' },
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
+  { key: 'karaoke', label: 'Караоке', icon: '🎤' },
   { key: 'settings', label: 'Настройки', icon: '⚙️' }
 ]
 
@@ -427,6 +429,8 @@ export const AdminPage: React.FC = () => {
         return <MenuManagement />
       case 'billiards':
         return <BilliardsPricing />
+      case 'karaoke':
+        return <KaraokePricing />
       case 'bookings':
         return (
           <ComingSoonCard>
@@ -461,6 +465,7 @@ export const AdminPage: React.FC = () => {
       'manage-zones': 'Управляйте всеми зонами ресторана',
       'menu': 'Редактируйте меню, категории и блюда',
       'billiards': 'Управляйте ценами и изображениями бильярда',
+      'karaoke': 'Управляйте ценами и настройками караоке',
       'bookings': 'Управляйте бронированиями и резервациями',
       'settings': 'Настройки системы и профиля'
     }

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import zonesRouter from './routes/zones';
 import menuRouter from './routes/menu';
 import billiardsRouter from './routes/billiards';
+import karaokeRouter from './routes/karaoke';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api', zonesRouter);
 app.use('/api', menuRouter);
 app.use('/api/billiards', billiardsRouter);
+app.use('/api/karaoke', karaokeRouter);
 
 // Health check
 app.get('/health', (req, res) => {
