@@ -16,7 +16,15 @@ import { EventsPage } from '@/pages/Events'
 import { CardsPage } from '@/pages/Cards'
 import { ThreeDTourPage } from '@/pages/3DTour'
 import { SecurityPage } from '@/pages/Security'
+import { PaymentRulesPage } from '@/pages/PaymentRules'
+import { RefundPage } from '@/pages/Refund'
+import { ClubRulesPage } from '@/pages/ClubRules'
+import { PrivacyPage } from '@/pages/Privacy'
+import { RequisitesPage } from '@/pages/Requisites'
+import { BanquetsPage } from '@/pages/Banquets'
 import { AdminPage } from '@/pages/Admin/AdminPage'
+import { NotFoundPage } from '@/pages/NotFound'
+import { ErrorPage } from '@/pages/Error'
 
 function App() {
   return (
@@ -31,13 +39,26 @@ function App() {
           <Route path="/playstation" element={<PlaystationPage />} />
           <Route path="/lounge" element={<LoungePage />} />
           <Route path="/games" element={<GamesPage />} />
+          <Route path="/banquets" element={<BanquetsPage />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/cards" element={<CardsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/security" element={<SecurityPage />} />
+          <Route path="/payment-rules" element={<PaymentRulesPage />} />
+          <Route path="/refund" element={<RefundPage />} />
+          <Route path="/club-rules" element={<ClubRulesPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/requisites" element={<RequisitesPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          
+          {/* Тестовый роут для страницы ошибки 500 */}
+          <Route path="/error" element={<ErrorPage />} />
+          
+          {/* Catch-all роут для несуществующих страниц */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Layout>
     </BrowserRouter>

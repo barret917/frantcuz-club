@@ -174,7 +174,11 @@ interface CreateZoneData {
   imageUrl: string
 }
 
-export const CreateZoneForm: React.FC = () => {
+interface CreateZoneFormProps {
+  onZoneCreated?: () => void
+}
+
+export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated }) => {
   const [formData, setFormData] = useState<CreateZoneData>({
     name: '',
     openTime: '',
@@ -236,6 +240,11 @@ export const CreateZoneForm: React.FC = () => {
         closeTime: '',
         imageUrl: ''
       })
+      
+      // Вызываем callback для обновления списка зон
+      if (onZoneCreated) {
+        onZoneCreated()
+      }
     } catch (error) {
       setErrors(['Ошибка создания зала'])
     } finally {

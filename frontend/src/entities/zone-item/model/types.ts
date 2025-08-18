@@ -11,6 +11,15 @@ export interface ZoneItem {
   width: number
   height: number
   seats?: number
+  capacity?: number
+  pricePerHour?: number
+  pricePerSeat?: number
+  pricePerSlot?: number
+  minDuration?: number
+  maxDuration?: number
+  timeSlots?: string[]
+  description?: string
+  features?: string[]
 }
 
 export interface ZoneItemForm {
@@ -18,4 +27,13 @@ export interface ZoneItemForm {
   type: string
   floor: number
   seats?: number
+  capacity?: number
+  pricePerHour?: number
+  pricePerSeat?: number
+  pricePerSlot?: number
+  minDuration?: number
+  maxDuration?: number
+  timeSlots?: string[]
+  description?: string
+  features?: string[]
 } 

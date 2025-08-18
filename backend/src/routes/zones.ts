@@ -1,18 +1,30 @@
-import { Router } from 'express';
-import { createZone, getZones, saveZoneItems, getZoneItems } from '../controllers/zone.controller';
+import express from 'express'
+import { zonesController } from '../controllers/zones.controller'
 
-const router = Router();
+const router = express.Router()
 
-// Создание зоны
-router.post('/zones', createZone);
+// Получить все зоны
+router.get('/', zonesController.getZones)
 
-// Получение всех зон
-router.get('/zones', getZones);
+// Получить зону по ID
+router.get('/:id', zonesController.getZoneById)
 
-// Сохранение элементов зоны
-router.post('/zones/items', saveZoneItems);
+// Получить элементы зоны по типу (более специфичный маршрут)
+router.get('/type/:zoneType/items', zonesController.getZoneItemsByType)
 
-// Получение элементов зоны
-router.get('/zones/:zoneId/items', getZoneItems);
+// Получить элементы конкретной зоны по ID
+router.get('/:zoneId/items', zonesController.getZoneItems)
 
-export default router; 
+// Создать элементы зоны
+router.post('/items', zonesController.createZoneItems)
+
+// Обновить элемент зоны
+router.put('/items/:id', zonesController.updateZoneItem)
+
+// Удалить элемент зоны
+router.delete('/items/:id', zonesController.deleteZoneItem)
+
+// Универсальное бронирование
+router.post('/reservations', zonesController.createReservation)
+
+export default router 

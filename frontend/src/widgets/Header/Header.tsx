@@ -146,6 +146,7 @@ const navItems = [
   { path: '/playstation', label: 'Playstation' },
   { path: '/lounge', label: 'Кальян' },
   { path: '/games', label: 'Настольные игры' },
+  { path: '/banquets', label: 'Банкеты' },
   { path: '/booking', label: 'Бронирование' },
   { path: '/menu', label: 'Меню' },
   { path: '/events', label: 'Мероприятия' },

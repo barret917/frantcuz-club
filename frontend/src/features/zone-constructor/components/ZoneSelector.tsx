@@ -130,18 +130,26 @@ const ContinueButton = styled.button`
 `
 
 interface ZoneSelectorProps {
-  zones: Zone[]
+  zones?: Zone[]
   onZoneSelect: (zone: Zone) => void
   selectedZone: Zone | null
   onContinue: () => void
+  onRefresh?: () => void
 }
 
 export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
-  zones,
+  zones = [],
   onZoneSelect,
   selectedZone,
-  onContinue
+  onContinue,
+  onRefresh
 }) => {
+  // Отладочная информация
+  console.log('🔍 ZoneSelector получил zones:', zones)
+  console.log('🔍 Тип zones:', typeof zones)
+  console.log('🔍 Array.isArray(zones):', Array.isArray(zones))
+  console.log('🔍 zones.length:', zones?.length)
+  
   return (
     <Container>
       <SelectorWrapper>
@@ -149,21 +157,67 @@ export const ZoneSelector: React.FC<ZoneSelectorProps> = ({
         <Subtitle>
           Выберите зал, для которого хотите создать столы и элементы
         </Subtitle>
+        
+        {/* Кнопка обновления */}
+        {onRefresh && (
+          <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+            <button
+              onClick={onRefresh}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '0.9rem'
+              }}
+            >
+              🔄 Обновить список зон
+            </button>
+          </div>
+        )}
+
+        {/* Отладочная информация на странице */}
+        <div style={{ 
+          background: 'rgba(255, 255, 255, 0.1)', 
+          padding: '1rem', 
+          borderRadius: '8px', 
+          marginBottom: '1rem',
+          fontSize: '0.9rem',
+          color: '#ccc'
+        }}>
+          <strong>Отладка:</strong> Получено зон: {zones?.length || 0} | 
+          Тип: {typeof zones} | 
+          Массив: {Array.isArray(zones) ? 'Да' : 'Нет'}
+        </div>
 
         <ZoneGrid>
-          {zones.map(zone => (
-            <ZoneCard
-              key={zone.id}
-              $selected={selectedZone?.id === zone.id}
-              onClick={() => onZoneSelect(zone)}
-            >
-              <ZoneName>{zone.name}</ZoneName>
-              <ZoneDescription>Время работы: {zone.openTime} - {zone.closeTime}</ZoneDescription>
-              <ZoneDetails>
-                <div>Зал: {zone.name}</div>
-              </ZoneDetails>
-            </ZoneCard>
-          ))}
+          {zones && zones.length > 0 ? (
+            zones.map(zone => (
+              <ZoneCard
+                key={zone.id}
+                $selected={selectedZone?.id === zone.id}
+                onClick={() => onZoneSelect(zone)}
+              >
+                <ZoneName>{zone.name}</ZoneName>
+                <ZoneDescription>Время работы: {zone.openTime} - {zone.closeTime}</ZoneDescription>
+                <ZoneDetails>
+                  <div>Зал: {zone.name}</div>
+                </ZoneDetails>
+              </ZoneCard>
+            ))
+          ) : (
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '2rem',
+              color: '#ccc',
+              fontSize: '1.1rem',
+              gridColumn: '1 / -1'
+            }}>
+              Зоны не найдены. Создайте зоны через админ-панель.
+            </div>
+          )}
         </ZoneGrid>
 
         {selectedZone && (

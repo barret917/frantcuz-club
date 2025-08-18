@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { CreateZoneForm } from '@/features/create-zone'
 import { ZoneCanvas } from '@/features/zone-constructor/components/ZoneCanvas'
 import { ZoneSelector } from '@/features/zone-constructor/components/ZoneSelector'
@@ -7,9 +7,11 @@ import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCat
 import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
 import { BilliardsPricing } from '@/features/billiards-pricing'
 import { KaraokePricing } from '@/features/karaoke-pricing'
+import { BanquetRequestsPage } from './BanquetRequestsPage'
 import { getZones } from '@/shared/api/zones'
+import { banquetRequestsApi } from '@/shared/api/banquet-requests'
 import { Zone } from '@/shared/model/types'
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
 
 // Анимации
 const fadeIn = keyframes`
@@ -110,7 +112,7 @@ const Sidebar = styled.div`
   backdrop-filter: blur(20px);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
   padding: 2rem 0;
-  animation: ${slideIn} 0.6s ease-out;
+  animation: ${css`slideIn`} 0.6s ease-out;
 `
 
 const SidebarHeader = styled.div`
@@ -139,7 +141,7 @@ const SidebarItem = styled.div<{ $active: boolean }>`
   border-radius: 0 12px 12px 0;
   font-weight: 500;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   &:hover {
     background: ${props => props.$active 
@@ -173,10 +175,37 @@ const SidebarItemIcon = styled.span`
   opacity: 0.8;
 `
 
+const SidebarItemBadge = styled.span`
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: ${css`pulse`} 2s infinite;
+  
+  @media (max-width: 768px) {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    top: 0.25rem;
+    right: 0.75rem;
+  }
+`
+
 const Content = styled.div`
   flex: 1;
   padding: 2rem;
-  animation: ${fadeIn} 0.6s ease-out;
+  animation: ${css`fadeIn`} 0.6s ease-out;
   overflow-y: auto;
 `
 
@@ -252,59 +281,6 @@ const TabButton = styled.button<{ $active: boolean }>`
   }
 `
 
-const StatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-`
-
-const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(20px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    border-color: rgba(102, 126, 234, 0.3);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-`
-
-const StatValue = styled.div`
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`
-
-const StatLabel = styled.div`
-  color: #a0a0a0;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`
-
 const ComingSoonCard = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border: 2px dashed rgba(255, 255, 255, 0.2);
@@ -312,7 +288,7 @@ const ComingSoonCard = styled.div`
   padding: 3rem 2rem;
   text-align: center;
   backdrop-filter: blur(20px);
-  animation: ${pulse} 2s infinite;
+  animation: ${css`pulse`} 2s infinite;
 `
 
 const ComingSoonIcon = styled.div`
@@ -335,16 +311,16 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'manage-zones' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'settings'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'settings'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
   { key: 'zone-constructor', label: 'Конструктор зоны', icon: '🎨' },
-  { key: 'manage-zones', label: 'Управление зонами', icon: '🗺️' },
   { key: 'menu', label: 'Меню', icon: '🍽️' },
   { key: 'bookings', label: 'Бронирования', icon: '📅' },
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
   { key: 'karaoke', label: 'Караоке', icon: '🎤' },
+  { key: 'banquet-requests', label: 'Заявки на банкеты', icon: '🎉' },
   { key: 'settings', label: 'Настройки', icon: '⚙️' }
 ]
 
@@ -353,9 +329,10 @@ export const AdminPage: React.FC = () => {
   const [zones, setZones] = useState<Zone[]>([])
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null)
   const [showCanvas, setShowCanvas] = useState(false)
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0)
 
   // Загружаем зоны при монтировании компонента
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchZones = async () => {
       try {
         const data = await getZones()
@@ -365,6 +342,27 @@ export const AdminPage: React.FC = () => {
       }
     }
     fetchZones()
+  }, [])
+
+  // Загружаем количество ожидающих заявок
+  useEffect(() => {
+    const fetchPendingRequestsCount = async () => {
+      try {
+        const stats = await banquetRequestsApi.getStats()
+        if (stats.success) {
+          setPendingRequestsCount(stats.data.pending)
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки статистики заявок:', error)
+      }
+    }
+    
+    fetchPendingRequestsCount()
+    
+    // Обновляем каждые 30 секунд для актуальности
+    const interval = setInterval(fetchPendingRequestsCount, 30000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const handleZoneSelect = (zone: Zone) => {
@@ -380,6 +378,15 @@ export const AdminPage: React.FC = () => {
     setSelectedZone(null)
   }
 
+  const handleRefreshZones = async () => {
+    try {
+      const data = await getZones()
+      setZones(data)
+    } catch (error) {
+      console.error('Ошибка обновления зон:', error)
+    }
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case 'create-zone':
@@ -387,8 +394,8 @@ export const AdminPage: React.FC = () => {
       case 'zone-constructor':
         return showCanvas ? (
           <ZoneCanvas 
-            zoneId={selectedZone?.id || 0} 
-            zoneName={selectedZone?.name}
+            zoneId={selectedZone?.id || 0}
+            zoneName={selectedZone?.name || 'Неизвестная зона'}
           />
         ) : (
           <ZoneSelector
@@ -396,34 +403,8 @@ export const AdminPage: React.FC = () => {
             onZoneSelect={handleZoneSelect}
             selectedZone={selectedZone}
             onContinue={handleContinueToCanvas}
+            onRefresh={handleRefreshZones}
           />
-        )
-      case 'manage-zones':
-        return (
-          <div>
-            <StatsGrid>
-              <StatCard>
-                <StatValue>{zones.length}</StatValue>
-                <StatLabel>Всего зон</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue>{zones.filter(z => z.isActive).length}</StatValue>
-                <StatLabel>Активных зон</StatLabel>
-              </StatCard>
-              <StatCard>
-                <StatValue>0</StatValue>
-                <StatLabel>Забронировано</StatLabel>
-              </StatCard>
-            </StatsGrid>
-            <ComingSoonCard>
-              <ComingSoonIcon>🚧</ComingSoonIcon>
-              <ComingSoonTitle>Управление зонами</ComingSoonTitle>
-              <ComingSoonText>
-                Функция находится в разработке. Скоро вы сможете редактировать, 
-                удалять и настраивать все зоны ресторана.
-              </ComingSoonText>
-            </ComingSoonCard>
-          </div>
         )
       case 'menu':
         return <MenuManagement />
@@ -431,6 +412,15 @@ export const AdminPage: React.FC = () => {
         return <BilliardsPricing />
       case 'karaoke':
         return <KaraokePricing />
+      case 'banquet-requests':
+        return <BanquetRequestsPage onStatusUpdate={() => {
+          // Обновляем счетчик при изменении статуса
+          banquetRequestsApi.getStats().then(stats => {
+            if (stats.success) {
+              setPendingRequestsCount(stats.data.pending)
+            }
+          }).catch(console.error)
+        }} />
       case 'bookings':
         return (
           <ComingSoonCard>
@@ -462,10 +452,10 @@ export const AdminPage: React.FC = () => {
     const descriptions = {
       'create-zone': 'Создайте новую зону для вашего ресторана',
       'zone-constructor': 'Настройте расположение столов и элементов зоны',
-      'manage-zones': 'Управляйте всеми зонами ресторана',
       'menu': 'Редактируйте меню, категории и блюда',
       'billiards': 'Управляйте ценами и изображениями бильярда',
       'karaoke': 'Управляйте ценами и настройками караоке',
+      'banquet-requests': 'Управляйте заявками на банкеты и мероприятия',
       'bookings': 'Управляйте бронированиями и резервациями',
       'settings': 'Настройки системы и профиля'
     }
@@ -498,6 +488,11 @@ export const AdminPage: React.FC = () => {
               >
                 <SidebarItemIcon>{tab.icon}</SidebarItemIcon>
                 {tab.label}
+                {tab.key === 'banquet-requests' && pendingRequestsCount > 0 && (
+                  <SidebarItemBadge>
+                    {pendingRequestsCount > 99 ? '99+' : pendingRequestsCount}
+                  </SidebarItemBadge>
+                )}
               </SidebarItem>
             ))}
           </Sidebar>

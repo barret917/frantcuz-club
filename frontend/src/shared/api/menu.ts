@@ -235,5 +235,83 @@ export const menuApi = {
       console.error('❌ Ошибка получения полного меню:', error)
       throw error
     }
+  },
+
+  // Получение меню с фильтрацией
+  getFilteredMenu: async (filters?: {
+    searchQuery?: string
+    priceRange?: { min: number; max: number }
+    categoryId?: number
+    menuTypeId?: number
+    allergens?: string[]
+    isPopular?: boolean
+  }): Promise<{
+    types: MenuType[]
+    categories: MenuCategory[]
+    items: MenuItem[]
+    filteredItems: MenuItem[]
+  }> => {
+    console.log('🔍 Запрашиваем отфильтрованное меню...', filters)
+    try {
+      const fullMenu = await menuApi.getFullMenu()
+      
+      let filteredItems = fullMenu.items
+      
+      // Фильтрация по поисковому запросу
+      if (filters?.searchQuery) {
+        const query = filters.searchQuery.toLowerCase()
+        filteredItems = filteredItems.filter(item => 
+          item.name.toLowerCase().includes(query) ||
+          (item.description && item.description.toLowerCase().includes(query))
+        )
+      }
+      
+      // Фильтрация по ценовому диапазону
+      if (filters?.priceRange) {
+        filteredItems = filteredItems.filter(item => 
+          item.price >= filters.priceRange!.min && item.price <= filters.priceRange!.max
+        )
+      }
+      
+      // Фильтрация по категории
+      if (filters?.categoryId) {
+        filteredItems = filteredItems.filter(item => item.categoryId === filters.categoryId)
+      }
+      
+      // Фильтрация по типу меню
+      if (filters?.menuTypeId) {
+        const categoryIds = fullMenu.categories
+          .filter(cat => cat.menuTypeId === filters.menuTypeId)
+          .map(cat => cat.id)
+        filteredItems = filteredItems.filter(item => categoryIds.includes(item.categoryId))
+      }
+      
+      // Фильтрация по аллергенам
+      if (filters?.allergens && filters.allergens.length > 0) {
+        filteredItems = filteredItems.filter(item => 
+          !filters.allergens!.some(allergen => 
+            item.allergens.includes(allergen)
+          )
+        )
+      }
+      
+      // Фильтрация по популярности
+      if (filters?.isPopular !== undefined) {
+        filteredItems = filteredItems.filter(item => item.isPopular === filters.isPopular)
+      }
+      
+      console.log('✅ Отфильтрованное меню получено:', {
+        total: fullMenu.items.length,
+        filtered: filteredItems.length
+      })
+      
+      return {
+        ...fullMenu,
+        filteredItems
+      }
+    } catch (error) {
+      console.error('❌ Ошибка получения отфильтрованного меню:', error)
+      throw error
+    }
   }
 } 

@@ -19,9 +19,14 @@ const FooterWrapper = styled.footer`
 
 const FooterContent = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   margin-bottom: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
@@ -93,86 +98,115 @@ const ContactItem = styled.div`
 
 const SocialLinks = styled.div`
   display: flex;
-  gap: 1.5rem;
+  gap: 0.8rem;
+  align-items: center;
   
   @media (max-width: 768px) {
-    gap: 1.2rem;
+    gap: 0.7rem;
   }
   
   @media (max-width: 480px) {
-    gap: 1rem;
+    gap: 0.6rem;
   }
   
   a {
-    color: #ffffff;
-    font-size: 1.1rem;
-    font-weight: 600;
-    padding: 0.7rem 1.1rem;
-    border-radius: 12px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    text-decoration: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 70px;
+    padding: 0.8rem;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     
-    /* VK стили */
-    &[href*="vk.com"] {
-      background: linear-gradient(135deg, #4C75A3 0%, #5B7BB3 100%);
-      border: 2px solid #4C75A3;
-      
-      &:hover {
-        background: linear-gradient(135deg, #5B7BB3 0%, #6B8BC3 100%);
-        border-color: #6B8BC3;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(76, 117, 163, 0.4);
-      }
-      
-      &:active {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(76, 117, 163, 0.3);
-      }
+                    &:hover {
+                  /* background: rgba(255, 255, 255, 0.2); */
+                  /* border: 1px solid rgba(255, 255, 255, 0.4); */
+                  /* transform: translateY(-3px); */
+                  /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); */
+                }
+    
+    &:active {
+      transform: translateY(-1px);
     }
     
-    /* Telegram стили */
-    &[href*="t.me"] {
-      background: linear-gradient(135deg, #0088CC 0%, #0099DD 100%);
-      border: 2px solid #0088CC;
-      
-      &:hover {
-        background: linear-gradient(135deg, #0099DD 0%, #00AADD 100%);
-        border-color: #00AADD;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
-      }
-      
-      &:active {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
-      }
+    img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      transition: transform 0.3s ease;
     }
     
-    /* Общие hover эффекты */
-    &:hover {
-      color: #ffffff;
-    }
+                    &:hover img {
+                  /* transform: scale(1.1); */
+                }
     
     @media (max-width: 768px) {
-      font-size: 1rem;
-      padding: 0.6rem 1rem;
-      min-width: 60px;
-      border-radius: 10px;
+      padding: 0.6rem;
+      
+      img {
+        width: 28px;
+        height: 28px;
+      }
     }
     
     @media (max-width: 480px) {
-      font-size: 0.9rem;
-      padding: 0.5rem 0.9rem;
-      min-width: 55px;
-      border-radius: 8px;
+      padding: 0.5rem;
+      
+      img {
+        width: 24px;
+        height: 24px;
+      }
     }
+  }
+`
+
+const ProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+  }
+  
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+`
+
+const ProjectImage = styled.img`
+  width: 140px;
+  height: 80px;
+  object-fit: contain;
+  object-position: center;
+  filter: grayscale(20%);
+  transition: filter 0.3s ease;
+  
+  &:hover {
+    filter: grayscale(0%);
+  }
+  
+  @media (max-width: 1200px) {
+    width: 120px;
+    height: 70px;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100px;
+    height: 65px;
+  }
+  
+  @media (max-width: 480px) {
+    width: 70px;
+    height: 70px;
   }
 `
 
@@ -203,25 +237,32 @@ export const Footer: React.FC = () => {
           <FooterSection>
             <h3>Контакты</h3>
             <ContactItem>
-              <a href="tel:+79680905550">+7(968) 090-55-50</a>
+              <a href="tel:+79680905550">+7 968 090-55-50</a>
             </ContactItem>
             <ContactItem>
-              <a href="tel:+79680915550">+7(968) 091-55-50</a>
+              <a href="tel:+79680915550">+7 968 091-55-50</a>
             </ContactItem>
             <ContactItem>
               <a href="mailto:order@wetop.ru">order@wetop.ru</a>
             </ContactItem>
             <ContactItem>
-              <a href="#">город Москва,<br/>ул. Салтыковская, 49А,<br/>ТЦ Волна, Цокольный этаж</a>
+              <a href="#">г. Москва,<br/>ул. Салтыковская, 49А,<br/>ТЦ Волна, -1 этаж</a>
             </ContactItem>
             <ContactItem>
-              <a href="tel:+79680915550">Банкетный менеджер:<br/>+7 (968)091-55-50</a>
+              <a href="tel:+79680915550">Банкетный менеджер:<br/>+7 968 091-55-50</a>
             </ContactItem>
             
-            <h3>Мы в соцсети</h3>
+            <h3>Мы в соц сетях</h3>
             <SocialLinks>
-              <a href="https://vk.com/frant_rk" title="ВКонтакте">VK</a>
-              <a href="https://t.me/francuz_klub" title="Telegram">TG</a>
+              <a href="https://vk.com/dali_hinkali/" target="_blank" rel="noreferrer" title="VK">
+                <img src="/images/vk-logo.svg" alt="VK" />
+              </a>
+              <a href="https://rutube.ru/channel/60860525/" target="_blank" rel="noreferrer" title="Rutube">
+                <img src="/images/rutube-logo.svg" alt="Rutube" />
+              </a>
+              <a href="https://t.me/dali_hinkali/" target="_blank" rel="noreferrer" title="Telegram">
+                <img src="/images/telegram-logo.svg" alt="Telegram" />
+              </a>
             </SocialLinks>
           </FooterSection>
 
@@ -231,17 +272,79 @@ export const Footer: React.FC = () => {
             <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">Работа</a>
             <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">Доставка</a>
             <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">Обучение</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">Продажа киев и аксессуаров</a>
           </FooterSection>
 
           {/* Гостям */}
           <FooterSection>
             <h3>Гостям</h3>
-            <a href="/contact">Правила клуба</a>
+            <a href="/club-rules">Правила клуба</a>
             <a href="/privacy">Политика конфиденциальности</a>
-            <a href="/payment">Правила оплаты</a>
+            <a href="/payment-rules">Правила оплаты</a>
             <a href="/refund">Возврат и отказ от услуги</a>
             <a href="/requisites">Реквизиты</a>
             <a href="/security">Безопасность</a>
+          </FooterSection>
+
+          {/* Наши проекты */}
+          <FooterSection>
+            <h3>Наши проекты</h3>
+            <ProjectsGrid>
+              <a href="https://shashlandia.ru/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-шашландиа.png" 
+                  alt="Шашландия"
+                />
+              </a>
+              <a href="http://dostavka-pominki.ru/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-доставка-поминки.png" 
+                  alt="Доставка поминок"
+                />
+              </a>
+              <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-тут-еда.png" 
+                  alt="ТутЕда"
+                />
+              </a>
+              <a href="https://wetop.ru/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-ветоп.png" 
+                  alt="WeTop"
+                />
+              </a>
+              <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-рейтинг.png" 
+                  alt="Рейтинг"
+                />
+              </a>
+              <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-франтуз-академия.png" 
+                  alt="Франтуз Академия"
+                />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-дали-хинкали.png" 
+                  alt="Дали Хинкали"
+                />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-комикадзе.png" 
+                  alt="Комикадзе"
+                />
+              </a>
+              <a href="#" target="_blank" rel="noopener noreferrer">
+                <ProjectImage 
+                  src="/logo-footer/лого-пою-всегда.png" 
+                  alt="Пою Всегда"
+                />
+              </a>
+            </ProjectsGrid>
           </FooterSection>
         </FooterContent>
 

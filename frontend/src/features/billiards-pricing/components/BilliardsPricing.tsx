@@ -133,6 +133,30 @@ const Textarea = styled.textarea`
   }
 `
 
+const Select = styled.select`
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  option {
+    background: #1a1a1a;
+    color: #fff;
+  }
+`
+
 const Button = styled.button`
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -236,6 +260,16 @@ export const BilliardsPricing: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [newService, setNewService] = useState({
+    name: '',
+    type: 'russian' as 'russian' | 'american' | 'vip',
+    weekdayPrice: 0,
+    weekendPrice: 0,
+    description: '',
+    imageUrl: '',
+    sortOrder: 0
+  })
 
   // Загружаем данные при монтировании компонента
   useEffect(() => {
@@ -270,6 +304,109 @@ export const BilliardsPricing: React.FC = () => {
 
   const handleImageRemove = (id: number) => {
     handlePriceChange(id, 'imageUrl', '')
+  }
+
+  const handleCreateService = async () => {
+    try {
+      setError(null)
+      setSuccess(null)
+      
+      const service = await createBilliardsService(newService)
+      setPricingData(prev => [...prev, service])
+      setShowCreateForm(false)
+      setNewService({
+        name: '',
+        type: 'russian',
+        weekdayPrice: 0,
+        weekendPrice: 0,
+        description: '',
+        imageUrl: '',
+        sortOrder: 0
+      })
+      setSuccess('Новая услуга успешно создана!')
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (err) {
+      setError('Ошибка при создании услуги')
+      console.error('Ошибка создания:', err)
+    }
+  }
+
+  const handleDeleteService = async (id: number) => {
+    if (!confirm('Вы уверены, что хотите удалить эту услугу?')) return
+    
+    try {
+      setError(null)
+      setSuccess(null)
+      
+      await deleteBilliardsService(id)
+      setPricingData(prev => prev.filter(service => service.id !== id))
+      setSuccess('Услуга успешно удалена!')
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (err) {
+      setError('Ошибка при удалении услуги')
+      console.error('Ошибка удаления:', err)
+    }
+  }
+
+  const createSampleData = async () => {
+    try {
+      setError(null)
+      setSuccess(null)
+      setLoading(true)
+      
+      const sampleServices = [
+        {
+          name: 'Русский бильярд',
+          type: 'russian' as const,
+          weekdayPrice: 800,
+          weekendPrice: 1000,
+          description: 'Классический русский бильярд с профессиональными столами',
+          imageUrl: '',
+          sortOrder: 1
+        },
+        {
+          name: 'Американский пул',
+          type: 'american' as const,
+          weekdayPrice: 600,
+          weekendPrice: 800,
+          description: 'Американский пул для любителей быстрой игры',
+          imageUrl: '',
+          sortOrder: 2
+        },
+        {
+          name: 'VIP зал',
+          type: 'vip' as const,
+          weekdayPrice: 1200,
+          weekendPrice: 1500,
+          description: 'Премиум VIP залы с эксклюзивным обслуживанием',
+          imageUrl: '',
+          sortOrder: 3
+        }
+      ]
+      
+      const createdServices = []
+      for (const service of sampleServices) {
+        try {
+          const created = await createBilliardsService(service)
+          createdServices.push(created)
+        } catch (err) {
+          console.error('Ошибка создания услуги:', service.name, err)
+        }
+      }
+      
+      if (createdServices.length > 0) {
+        setPricingData(createdServices)
+        setSuccess(`Создано ${createdServices.length} тестовых услуг!`)
+        setTimeout(() => setSuccess(null), 3000)
+      } else {
+        setError('Не удалось создать тестовые данные')
+      }
+    } catch (err) {
+      setError('Ошибка при создании тестовых данных')
+      console.error('Ошибка создания тестовых данных:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -343,82 +480,220 @@ export const BilliardsPricing: React.FC = () => {
       
       {success && <SuccessMessage>{success}</SuccessMessage>}
       
-      <form onSubmit={handleSubmit}>
-        <PricingGrid>
-          {pricingData.map((item) => (
-            <PricingCard key={item.id}>
-              <CardHeader>
-                <CardIcon>{getTypeIcon(item.type)}</CardIcon>
-                <CardTitle>{item.name}</CardTitle>
-              </CardHeader>
+      {/* Кнопки управления */}
+      <div style={{ marginBottom: '2rem', textAlign: 'center', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <Button 
+          onClick={() => setShowCreateForm(!showCreateForm)}
+          style={{ 
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            fontSize: '1.1rem',
+            padding: '1rem 2rem'
+          }}
+        >
+          {showCreateForm ? '❌ Отменить' : '➕ Добавить новую услугу'}
+        </Button>
+        
+        {pricingData.length === 0 && (
+          <Button 
+            onClick={createSampleData}
+            style={{ 
+              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+              fontSize: '1.1rem',
+              padding: '1rem 2rem'
+            }}
+          >
+            🎯 Создать тестовые данные
+          </Button>
+        )}
+      </div>
+
+      {/* Форма создания новой услуги */}
+      {showCreateForm && (
+        <PricingCard style={{ marginBottom: '2rem', border: '2px solid #10b981' }}>
+          <CardHeader>
+            <CardIcon>🆕</CardIcon>
+            <CardTitle>Новая услуга</CardTitle>
+          </CardHeader>
+          
+          <Form>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <FormGroup>
+                <Label>Название услуги</Label>
+                <Input
+                  type="text"
+                  value={newService.name}
+                  onChange={(e) => setNewService(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Например: Русский бильярд"
+                  required
+                />
+              </FormGroup>
               
-              <Form>
-                <FormGroup>
-                  <Label>Цена в будни (₽/час)</Label>
-                  <Input
-                    type="number"
-                    value={item.weekdayPrice}
-                    onChange={(e) => handlePriceChange(item.id, 'weekdayPrice', parseFloat(e.target.value))}
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label>Цена в выходные (₽/час)</Label>
-                  <Input
-                    type="number"
-                    value={item.weekendPrice}
-                    onChange={(e) => handlePriceChange(item.id, 'weekendPrice', parseFloat(e.target.value))}
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label>Описание</Label>
-                  <Textarea
-                    value={item.description || ''}
-                    onChange={(e) => handlePriceChange(item.id, 'description', e.target.value)}
-                    placeholder="Краткое описание услуги..."
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label>Изображение</Label>
-                  <ImageUpload
-                    onImageUpload={(url) => handleImageUpload(item.id, url)}
-                    onImageRemove={() => handleImageRemove(item.id)}
-                    currentImageUrl={item.imageUrl || ''}
-                  />
-                  {item.imageUrl && (
-                    <ImagePreview>
-                      <img src={item.imageUrl} alt={item.name} />
-                    </ImagePreview>
-                  )}
-                </FormGroup>
-
-                <FormGroup>
-                  <CheckboxLabel>
-                    <input
-                      type="checkbox"
-                      checked={item.isActive}
-                      onChange={(e) => handlePriceChange(item.id, 'isActive', e.target.checked)}
+              <FormGroup>
+                <Label>Тип услуги</Label>
+                <Select
+                  value={newService.type}
+                  onChange={(e) => setNewService(prev => ({ ...prev, type: e.target.value as any }))}
+                  required
+                >
+                  <option value="russian">Русский бильярд</option>
+                  <option value="american">Американский пул</option>
+                  <option value="vip">VIP зал</option>
+                </Select>
+              </FormGroup>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <FormGroup>
+                <Label>Цена в будни (₽/час)</Label>
+                <Input
+                  type="number"
+                  value={newService.weekdayPrice}
+                  onChange={(e) => setNewService(prev => ({ ...prev, weekdayPrice: parseFloat(e.target.value) }))}
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label>Цена в выходные (₽/час)</Label>
+                <Input
+                  type="number"
+                  value={newService.weekendPrice}
+                  onChange={(e) => setNewService(prev => ({ ...prev, weekendPrice: parseFloat(e.target.value) }))}
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </FormGroup>
+            </div>
+            
+            <FormGroup>
+              <Label>Описание</Label>
+              <Textarea
+                value={newService.description}
+                onChange={(e) => setNewService(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Краткое описание услуги..."
+              />
+            </FormGroup>
+            
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <Button 
+                type="button"
+                onClick={handleCreateService}
+                style={{ 
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  fontSize: '1.1rem',
+                  padding: '0.75rem 1.5rem'
+                }}
+                disabled={!newService.name || newService.weekdayPrice <= 0 || newService.weekendPrice <= 0}
+              >
+                ✅ Создать услугу
+              </Button>
+            </div>
+          </Form>
+        </PricingCard>
+      )}
+      
+      {/* Существующие услуги */}
+      {pricingData.length > 0 ? (
+        <form onSubmit={handleSubmit}>
+          <PricingGrid>
+            {pricingData.map((item) => (
+              <PricingCard key={item.id}>
+                <CardHeader>
+                  <CardIcon>{getTypeIcon(item.type)}</CardIcon>
+                  <CardTitle>{item.name}</CardTitle>
+                </CardHeader>
+                
+                <Form>
+                  <FormGroup>
+                    <Label>Цена в будни (₽/час)</Label>
+                    <Input
+                      type="number"
+                      value={item.weekdayPrice}
+                      onChange={(e) => handlePriceChange(item.id, 'weekdayPrice', parseFloat(e.target.value))}
+                      min="0"
+                      step="0.01"
+                      required
                     />
-                    {item.name} активен
-                  </CheckboxLabel>
-                </FormGroup>
-              </Form>
-            </PricingCard>
-          ))}
-        </PricingGrid>
+                  </FormGroup>
 
-        <SaveAllButton type="submit">
-          💾 Сохранить все изменения
-        </SaveAllButton>
-      </form>
+                  <FormGroup>
+                    <Label>Цена в выходные (₽/час)</Label>
+                    <Input
+                      type="number"
+                      value={item.weekendPrice}
+                      onChange={(e) => handlePriceChange(item.id, 'weekendPrice', parseFloat(e.target.value))}
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label>Описание</Label>
+                    <Textarea
+                      value={item.description || ''}
+                      onChange={(e) => handlePriceChange(item.id, 'description', e.target.value)}
+                      placeholder="Краткое описание услуги..."
+                    />
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label>Изображение</Label>
+                    <ImageUpload
+                      onImageUpload={(url) => handleImageUpload(item.id, url)}
+                      onImageRemove={() => handleImageRemove(item.id)}
+                      currentImageUrl={item.imageUrl || ''}
+                    />
+                    {item.imageUrl && (
+                      <ImagePreview>
+                        <img src={item.imageUrl} alt={item.name} />
+                      </ImagePreview>
+                    )}
+                  </FormGroup>
+
+                  <FormGroup>
+                    <CheckboxLabel>
+                      <input
+                        type="checkbox"
+                        checked={item.isActive}
+                        onChange={(e) => handlePriceChange(item.id, 'isActive', e.target.checked)}
+                      />
+                      {item.name} активен
+                    </CheckboxLabel>
+                  </FormGroup>
+                  
+                  <FormGroup>
+                    <Button 
+                      type="button"
+                      onClick={() => handleDeleteService(item.id)}
+                      style={{ 
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        width: '100%',
+                        marginTop: '1rem'
+                      }}
+                    >
+                      🗑️ Удалить услугу
+                    </Button>
+                  </FormGroup>
+                </Form>
+              </PricingCard>
+            ))}
+          </PricingGrid>
+
+          <SaveAllButton type="submit">
+            💾 Сохранить все изменения
+          </SaveAllButton>
+        </form>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎱</div>
+          <div style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Услуги бильярда не найдены</div>
+          <div style={{ fontSize: '1rem' }}>Создайте первую услугу, используя форму выше</div>
+        </div>
+      )}
     </Container>
   )
 } 

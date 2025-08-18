@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { Container } from '@/shared/ui/Container'
 import { ZoneCard } from '@/shared/ui/ZoneCard'
 import { BookingForm } from '@/features/booking'
 import { TableGrid } from '@/features/table-selection/components/TableGrid'
@@ -7,75 +6,160 @@ import { getZones } from '@/shared/api/zones'
 import { getZoneItems } from '@/shared/api/zone-items'
 import { Zone } from '@/shared/model/types'
 import { ZoneItem } from '@/entities/zone-item/model/types'
-import styled from 'styled-components'
+import styled, { keyframes, css } from 'styled-components'
+
+// Анимации
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`
+
+const slideInLeft = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
+
+const pulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+`
 
 const BookingPageContainer = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Main = styled.main`
   flex: 1;
+  padding: 0;
 `
 
 const BookingContent = styled.div`
-  padding: 2rem 0;
+  padding: 3rem 0;
+  animation: ${css`${fadeInUp} 0.8s ease-out`};
+  width: 100%;
 `
 
 const Title = styled.h1`
   text-align: center;
-  color: #ffd700;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ${css`${fadeInUp} 1s ease-out`};
   
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(1.5rem, 3vw, 2rem);
   }
 `
 
 const Subtitle = styled.p`
   text-align: center;
-  color: #ccc;
-  font-size: 1.1rem;
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
   margin-bottom: 3rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  animation: ${css`${fadeInUp} 1.2s ease-out`};
+  padding: 0 clamp(1rem, 3vw, 3rem);
   
   @media (max-width: 768px) {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin-bottom: 2.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    margin-bottom: 2rem;
   }
 `
 
 const StepContainer = styled.div`
   margin-bottom: 3rem;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: ${css`${fadeInUp} 0.8s ease-out`};
+  width: 100%;
+  
+  @media (max-width: 768px) {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border-radius: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border-radius: 12px;
+  }
 `
 
 const StepTitle = styled.h2`
-  color: #ffd700;
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+  color: #667eea;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 2rem;
   text-align: center;
+  animation: ${css`${slideInLeft} 0.8s ease-out`};
+  
+  @media (max-width: 768px) {
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    margin-bottom: 1.25rem;
+  }
 `
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
   justify-content: center;
-  margin-top: 40px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 20px;
-
+  margin-top: 2rem;
+  width: 100%;
+  
   @media (max-width: 768px) {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    padding: 0 15px;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 0 10px;
+    gap: clamp(0.5rem, 1.5vw, 1rem);
   }
 `
 
@@ -83,38 +167,150 @@ const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
-  color: #ffd700;
-  font-size: 1.2rem;
+  height: clamp(150px, 20vh, 200px);
+  color: #667eea;
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  font-weight: 500;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  animation: ${css`${pulse} 2s ease-in-out infinite`};
+  width: 100%;
 `
 
 const ErrorContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
-  color: #ff6b6b;
-  font-size: 1.2rem;
+  height: clamp(150px, 20vh, 200px);
+  color: #ef4444;
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  font-weight: 500;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  width: 100%;
+`
+
+const ZoneInfo = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: clamp(1.25rem, 3vw, 1.5rem);
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  animation: ${css`${fadeInUp} 0.6s ease-out`};
+  width: 100%;
+`
+
+const ZoneInfoText = styled.p`
+  color: #667eea;
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  
+  @media (max-width: 768px) {
+    font-size: clamp(1rem, 2vw, 1.2rem);
+  }
+  
+  @media (max-width: 480px) {
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  }
+`
+
+const StyledButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  background: ${props => props.$variant === 'primary' 
+    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+    : 'transparent'
+  };
+  border: ${props => props.$variant === 'primary' 
+    ? 'none' 
+    : '2px solid #667eea'
+  };
+  color: ${props => props.$variant === 'primary' ? '#ffffff' : '#667eea'};
+  padding: clamp(0.625rem, 2vw, 0.75rem) clamp(1.25rem, 3vw, 1.5rem);
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 1rem;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${props => props.$variant === 'primary' 
+      ? '0 10px 25px rgba(102, 126, 234, 0.4)' 
+      : '0 8px 20px rgba(102, 126, 234, 0.3)'
+    };
+    background: ${props => props.$variant === 'primary' 
+      ? 'linear-gradient(135deg, #7b61ff 0%, #8b71ff 100%)' 
+      : 'rgba(102, 126, 234, 0.1)'
+    };
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    padding: clamp(0.5rem, 1.5vw, 0.625rem) clamp(1rem, 2.5vw, 1.25rem);
+    font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+  }
+  
+  @media (max-width: 480px) {
+    padding: clamp(0.5rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+  }
 `
 
 const StepIndicator = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1.5rem, 4vw, 2rem);
+  width: 100%;
 `
 
 const Step = styled.div<{ $active: boolean; $completed: boolean }>`
-  width: 40px;
-  height: 40px;
+  width: clamp(40px, 8vw, 50px);
+  height: clamp(40px, 8vw, 50px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 1rem;
+  margin: 0 clamp(0.5rem, 2vw, 1rem);
   font-weight: bold;
-  background: ${props => props.$completed ? '#51cf66' : props.$active ? '#ffd700' : '#333'};
-  color: ${props => props.$completed || props.$active ? '#000' : '#fff'};
-  transition: all 0.3s ease;
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  background: ${props => props.$completed ? 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)' : props.$active ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(255, 255, 255, 0.1)'};
+  color: ${props => props.$completed || props.$active ? '#ffffff' : 'rgba(255, 255, 255, 0.6)'};
+  border: ${props => props.$completed || props.$active ? 'none' : '2px solid rgba(255, 255, 255, 0.2)'};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${props => props.$active ? '0 0 20px rgba(102, 126, 234, 0.4)' : 'none'};
+  
+  &:hover {
+    transform: ${props => props.$active || props.$completed ? 'scale(1.1)' : 'scale(1.05)'};
+    box-shadow: ${props => props.$active 
+      ? '0 0 25px rgba(102, 126, 234, 0.6)' 
+      : props.$completed 
+      ? '0 0 25px rgba(81, 207, 102, 0.6)' 
+      : '0 0 15px rgba(255, 255, 255, 0.2)'
+    };
+  }
+  
+  @media (max-width: 768px) {
+    width: clamp(35px, 7vw, 45px);
+    height: clamp(35px, 7vw, 45px);
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    margin: 0 clamp(0.4rem, 1.5vw, 0.75rem);
+  }
+  
+  @media (max-width: 480px) {
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
+    font-size: clamp(0.8rem, 1.5vw, 1rem);
+    margin: 0 clamp(0.3rem, 1vw, 0.5rem);
+  }
 `
 
 export const BookingPage: React.FC = () => {
@@ -182,7 +378,7 @@ export const BookingPage: React.FC = () => {
 
   return (
     <BookingPageContainer>
-      <Container>
+      <div style={{ width: '100%' }}>
         <BookingContent>
           <Title>Бронирование</Title>
           <Subtitle>
@@ -205,14 +401,25 @@ export const BookingPage: React.FC = () => {
                 <ErrorContainer>{error}</ErrorContainer>
               ) : (
                 <Grid>
-                  {zones.map((zone, index) => (
-                    <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
-                      <ZoneCard 
-                        zone={zone} 
-                        $isFullWidth={index % 3 === 2} 
-                      />
+                  {Array.isArray(zones) && zones.length > 0 ? (
+                    zones.map((zone, index) => (
+                      <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
+                        <ZoneCard 
+                          zone={zone} 
+                          $isFullWidth={index % 3 === 2} 
+                        />
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '2rem',
+                      color: '#ffd700',
+                      fontSize: '1.2rem'
+                    }}>
+                      Зоны не найдены
                     </div>
-                  ))}
+                  )}
                 </Grid>
               )}
             </StepContainer>
@@ -220,25 +427,17 @@ export const BookingPage: React.FC = () => {
             <StepContainer>
               <StepTitle>Шаг 2: Выберите стол</StepTitle>
               {selectedZone && (
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                  <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
+                <ZoneInfo>
+                  <ZoneInfoText>
                     Зал: {selectedZone.name}
-                  </p>
-                  <button 
+                  </ZoneInfoText>
+                  <StyledButton 
                     onClick={handleBackToZones}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid #ffd700',
-                      color: '#ffd700',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      marginTop: '1rem'
-                    }}
+                    $variant="secondary"
                   >
                     ← Выбрать другой зал
-                  </button>
-                </div>
+                  </StyledButton>
+                </ZoneInfo>
               )}
               {isLoadingTables ? (
                 <div style={{ 
@@ -262,25 +461,17 @@ export const BookingPage: React.FC = () => {
             <StepContainer>
               <StepTitle>Шаг 3: Заполните форму бронирования</StepTitle>
               {selectedZone && selectedTable && (
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                  <p style={{ color: '#ffd700', fontSize: '1.2rem' }}>
+                <ZoneInfo>
+                  <ZoneInfoText>
                     Зал: {selectedZone.name} | Стол: {selectedTable.label}
-                  </p>
-                  <button 
+                  </ZoneInfoText>
+                  <StyledButton 
                     onClick={handleBackToTables}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid #ffd700',
-                      color: '#ffd700',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      marginTop: '1rem'
-                    }}
+                    $variant="secondary"
                   >
                     ← Выбрать другой стол
-                  </button>
-                </div>
+                  </StyledButton>
+                </ZoneInfo>
               )}
               {selectedZone && selectedTable && (
                 <BookingForm 
@@ -291,7 +482,7 @@ export const BookingPage: React.FC = () => {
             </StepContainer>
           )}
         </BookingContent>
-      </Container>
+      </div>
     </BookingPageContainer>
   )
 } 

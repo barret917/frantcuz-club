@@ -1,3 +1,4 @@
 export { MenuTypesTab } from './components/MenuTypesTab'
 export { MenuCategoriesTab } from './components/MenuCategoriesTab'
-export { MenuItemsTab } from './components/MenuItemsTab' 
+export { MenuItemsTab } from './components/MenuItemsTab'
+export { MenuSearch } from './components/MenuSearch' 

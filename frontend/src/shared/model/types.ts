@@ -4,6 +4,7 @@ export interface Zone {
   openTime: string
   closeTime: string
   imageUrl: string
+  isActive?: boolean
   items?: ZoneItem[]
 }
 

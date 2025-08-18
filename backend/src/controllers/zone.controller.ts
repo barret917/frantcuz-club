@@ -46,7 +46,7 @@ export const saveZoneItems: RequestHandler = async (req, res) => {
       zoneId: number;
       floor: number;
       label: string;
-      type: string;
+      type: 'table' | 'booth' | 'stage' | 'bar' | 'danceFloor' | 'gameTable' | 'lounge' | 'spaRoom' | 'cinemaHall' | 'custom';
       seats?: string | number;
       x: number;
       y: number;
