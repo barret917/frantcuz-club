@@ -17,20 +17,27 @@ const LogoRow = styled.div`
 `;
 
 const Logo = styled.div`
-  font-family: 'Georgia', serif;
-  font-size: 2rem;
-  color: #fff;
-  letter-spacing: 0.15em;
-  font-weight: bold;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   
-  @media (max-width: 768px) {
-    font-size: 1.5rem;
+  img {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
+    
+    @media (max-width: 768px) {
+      height: 45px;
+    }
+    
+    @media (max-width: 480px) {
+      height: 40px;
+    }
   }
 `;
 
 const Nav = styled.nav`
-  max-width: 1450px;
+  max-width: 1500px;
   margin: 0 auto;
   padding: 0.5rem 2rem;
   display: flex;
@@ -144,12 +151,12 @@ const navItems = [
   { path: '/karaoke', label: 'Караоке' },
   { path: '/disco', label: 'Диско-бар' },
   { path: '/playstation', label: 'Playstation' },
-  { path: '/lounge', label: 'Кальян' },
   { path: '/games', label: 'Настольные игры' },
+  { path: '/events', label: 'Мероприятия' },
+  { path: '/lounge', label: 'Кальян' },
+  { path: '/menu', label: 'Меню' },
   { path: '/banquets', label: 'Банкеты' },
   { path: '/booking', label: 'Бронирование' },
-  { path: '/menu', label: 'Меню' },
-  { path: '/events', label: 'Мероприятия' },
   { path: '/contact', label: 'Контакты' },
 ];
 
@@ -160,7 +167,9 @@ const Header: React.FC = () => {
   return (
     <HeaderWrap>
       <LogoRow>
-        <Logo>FRANTSUZ</Logo>
+        <Logo>
+          <img src="/images/frantuz-logo.png" alt="Frantsuz Club" />
+        </Logo>
       </LogoRow>
       <Nav>
         <NavList open={open}>

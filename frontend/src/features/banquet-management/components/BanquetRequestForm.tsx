@@ -205,11 +205,11 @@ const Input = styled.input`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
-  min-height: 100px;
+  min-height: 44px;
   
   &:focus {
     outline: none;
@@ -248,15 +248,17 @@ const Input = styled.input`
   
   /* Адаптивность для планшетов */
   @media (max-width: 768px) {
-    padding: 0.625rem;
-    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    min-height: 40px;
   }
   
   /* Адаптивность для мобильных */
   @media (max-width: 480px) {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
     border-radius: 6px;
+    min-height: 38px;
   }
 `
 
@@ -264,10 +266,11 @@ const Select = styled.select`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
+  min-height: 44px;
   
   &:focus {
     outline: none;
@@ -307,15 +310,17 @@ const Select = styled.select`
   
   /* Адаптивность для планшетов */
   @media (max-width: 768px) {
-    padding: 0.625rem;
-    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    min-height: 40px;
   }
   
   /* Адаптивность для мобильных */
   @media (max-width: 480px) {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
     border-radius: 6px;
+    min-height: 38px;
   }
 `
 
@@ -323,11 +328,11 @@ const Textarea = styled.textarea`
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
-  min-height: 100px;
+  min-height: 80px;
   resize: vertical;
   
   &:focus {
@@ -367,15 +372,17 @@ const Textarea = styled.textarea`
   
   /* Адаптивность для планшетов */
   @media (max-width: 768px) {
-    padding: 0.625rem;
-    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    min-height: 70px;
   }
   
   /* Адаптивность для мобильных */
   @media (max-width: 480px) {
-    padding: 0.5rem;
-    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
     border-radius: 6px;
+    min-height: 60px;
   }
 `
 
@@ -445,9 +452,7 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
     eventType: '',
     budget: '',
     banquetType: '',
-    specialMenu: '',
     music: '',
-    decor: '',
     name: '',
     phone: '',
     email: '',
@@ -465,8 +470,28 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
     }))
   }
 
+  const validateTime = (): boolean => {
+    if (!formData.eventTime || !formData.endTime) return true
+    
+    const startTime = new Date(`2000-01-01T${formData.eventTime}`)
+    const endTime = new Date(`2000-01-01T${formData.endTime}`)
+    
+    if (endTime <= startTime) {
+      setErrorMessage('Время окончания должно быть позже времени начала')
+      return false
+    }
+    
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!validateTime()) {
+      setSubmitStatus('error')
+      return
+    }
+    
     setIsSubmitting(true)
     setSubmitStatus('idle')
     setErrorMessage('')
@@ -482,9 +507,7 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
         eventType: '',
         budget: '',
         banquetType: '',
-        specialMenu: '',
         music: '',
-        decor: '',
         name: '',
         phone: '',
         email: '',
@@ -528,9 +551,11 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
               </FormGroup>
               
               <FormGroup>
-                <Label>Время начала *</Label>
+                <Label>Время начала * (с 12:00 до 22:00)</Label>
                 <Input
                   type="time"
+                  min="12:00"
+                  max="22:00"
                   value={formData.eventTime}
                   onChange={(e) => handleInputChange('eventTime', e.target.value)}
                   required
@@ -540,9 +565,11 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
 
             <FormRow>
               <FormGroup>
-                <Label>Время окончания</Label>
+                <Label>Время окончания (с 12:00 до 22:00)</Label>
                 <Input
                   type="time"
+                  min="12:00"
+                  max="22:00"
                   value={formData.endTime}
                   onChange={(e) => handleInputChange('endTime', e.target.value)}
                 />
@@ -593,62 +620,34 @@ export const BanquetRequestForm: React.FC<BanquetRequestFormProps> = ({ isOpen, 
               </FormGroup>
             </FormRow>
 
-            <FormRow>
-              <FormGroup>
-                <Label>Тип банкета</Label>
-                <Select
-                  value={formData.banquetType}
-                  onChange={(e) => handleInputChange('banquetType', e.target.value)}
-                >
-                  <option value="">Выберите тип</option>
-                  <option value="buffet">Фуршет</option>
-                  <option value="seated">Сидячий</option>
-                  <option value="cocktail">Коктейль</option>
-                  <option value="banquet">Банкет</option>
-                </Select>
-              </FormGroup>
-              
-              <FormGroup>
-                <Label>Особые пожелания по меню</Label>
-                <Input
-                  type="text"
-                  value={formData.specialMenu}
-                  onChange={(e) => handleInputChange('specialMenu', e.target.value)}
-                  placeholder="Например: вегетарианское, без глютена"
-                />
-              </FormGroup>
-            </FormRow>
+            <FormGroup>
+              <Label>Тип банкета</Label>
+              <Select
+                value={formData.banquetType}
+                onChange={(e) => handleInputChange('banquetType', e.target.value)}
+              >
+                <option value="">Выберите тип</option>
+                <option value="buffet">Фуршет</option>
+                <option value="seated">Сидячий</option>
+                <option value="cocktail">Коктейль</option>
+                <option value="banquet">Банкет</option>
+              </Select>
+            </FormGroup>
 
-            <FormRow>
-              <FormGroup>
+                          <FormGroup>
                 <Label>Музыка</Label>
                 <Select
                   value={formData.music}
                   onChange={(e) => handleInputChange('music', e.target.value)}
                 >
                   <option value="">Выберите музыку</option>
+                  <option value="background">Фоновая музыка</option>
                   <option value="dj">DJ</option>
                   <option value="live">Живая музыка</option>
                   <option value="karaoke">Караоке</option>
                   <option value="none">Без музыки</option>
                 </Select>
               </FormGroup>
-              
-              <FormGroup>
-                <Label>Декор</Label>
-                <Select
-                  value={formData.decor}
-                  onChange={(e) => handleInputChange('decor', e.target.value)}
-                >
-                  <option value="">Выберите декор</option>
-                  <option value="simple">Простой</option>
-                  <option value="elegant">Элегантный</option>
-                  <option value="festive">Праздничный</option>
-                  <option value="thematic">Тематический</option>
-                  <option value="none">Без декора</option>
-                </Select>
-              </FormGroup>
-            </FormRow>
 
             <FormRow>
               <FormGroup>

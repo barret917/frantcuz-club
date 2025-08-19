@@ -6,4 +6,7 @@ export { getZoneItems, saveZoneItems } from './zone-items'
 export * from './banquet-requests'
 
 // Экспорт API методов для столов и бронирований
-export * from './tables' 
+export * from './tables'
+
+// Экспорт API методов для мероприятий
+export * from './events' 

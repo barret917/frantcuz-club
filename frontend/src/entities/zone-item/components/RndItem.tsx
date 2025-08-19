@@ -90,8 +90,10 @@ export const RndItem: React.FC<RndItemProps> = ({
       bounds="parent"
       position={{ x: item.x, y: item.y }}
       size={{ width: item.width, height: item.height }}
-      enableResizing={!isSelectable}
-      enableDragging={!isSelectable}
+      {...(!isSelectable && {
+        enableDragging: true,
+        enableResizing: true
+      })}
       onDragStop={(e, d) => {
         if (!isSelectable) {
           updatePosition(item.id, d.x, d.y)

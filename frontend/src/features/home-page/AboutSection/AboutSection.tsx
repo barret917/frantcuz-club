@@ -3,40 +3,55 @@ import styled from 'styled-components'
 import { SectionContainer } from '@/shared/ui/Container'
 
 const AboutSectionContainer = styled.section`
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
   
-  @media (max-width: 768px) {
-    padding: 3rem 0;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    pointer-events: none;
   }
   
-  @media (max-width: 480px) {
-    padding: 2rem 0;
+  @media (max-width: 768px) {
+    padding: 4rem 0;
   }
 `
 
 const AboutContent = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 3rem;
+  gap: 4rem;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
   
   @media (max-width: 1024px) {
-    gap: 2rem;
+    gap: 3rem;
+    max-width: 1000px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 2rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 1.5rem;
+    max-width: 90%;
   }
 `
 
 const TextContent = styled.div`
   color: white;
+  position: relative;
+  z-index: 2;
 `
 
 const Title = styled.h2`
@@ -64,52 +79,75 @@ const Title = styled.h2`
 
 const Paragraph = styled.p`
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.7;
   margin-bottom: 1.5rem;
   opacity: 0.9;
-  
-  @media (max-width: 1024px) {
-    font-size: 1rem;
-    margin-bottom: 1.2rem;
-  }
+  color: white;
   
   @media (max-width: 768px) {
     font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
   }
 `
 
 const ImageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  width: 300px;
+  height: 400px;
+  z-index: 2;
+  
+  @media (max-width: 1024px) {
+    width: 250px;
+    height: 350px;
+  }
   
   @media (max-width: 768px) {
     order: -1;
+    width: 200px;
+    height: 300px;
   }
 `
 
 const AboutImage = styled.img`
   width: 100%;
-  max-width: 300px;
   height: auto;
-  object-fit: cover;
+  position: relative;
+  z-index: 2;
+  filter: brightness(1.1) contrast(1.05);
+  transition: all 0.3s ease;
+`
+
+const Flower = styled.img`
+  position: absolute;
+  top: -20px;
+  right: -30px;
+  width: 80px;
+  height: auto;
+  z-index: 3;
+  filter: brightness(1.1) contrast(1.05);
+  transition: all 0.3s ease;
   
   @media (max-width: 1024px) {
-    max-width: 250px;
+    width: 60px;
+    top: -15px;
+    right: -25px;
   }
+`
+
+const Microphone = styled.img`
+  position: absolute;
+  bottom: 50px;
+  left: -40px;
+  width: 60px;
+  height: auto;
+  z-index: 1;
+  filter: brightness(1.1) contrast(1.05);
+  transition: all 0.3s ease;
   
-  @media (max-width: 768px) {
-    max-width: 200px;
-  }
-  
-  @media (max-width: 480px) {
-    max-width: 180px;
+  @media (max-width: 1024px) {
+    width: 50px;
+    bottom: 40px;
+    left: -30px;
   }
 `
 
@@ -125,26 +163,30 @@ export const AboutSection: React.FC = () => {
             </Title>
             
             <Paragraph>
-              Ищете место для ярких вечеринок и атмосферных посиделок в районе Новогиреево, Реутов? 
+              Ищете место для ярких вечеринок и атмосферных посиделок в районе Новокосино, Реутов? 
               Развлекательный комплекс "Француз" - это место, где можно реализовать свои мечты и 
               получить оригинальные и креативные развлечения для создания праздничной атмосферы.
             </Paragraph>
             
             <Paragraph>
               Мы - идеальное решение для компании или романтического вечера вдвоем в Перово, 
-              Новогиреево и Реутове. Наш комплекс предлагает уникальные развлечения, включая 
+              Новокосино и Реутове. Наш комплекс предлагает уникальные развлечения, включая 
               бильярд и караоке, приглашая вас окунуться в атмосферу незабываемого отдыха и развлечений.
             </Paragraph>
           </TextContent>
           
           <ImageContainer>
             <AboutImage 
-              src="/images/девушка с задумчивым взглядом.png" 
-              alt="Девушка с задумчивым взглядом"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-              }}
+              src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2.png" 
+              alt="Девушка с коктейлем"
+            />
+            <Flower 
+              src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-flower.png" 
+              alt="Цветок"
+            />
+            <Microphone 
+              src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-microphone.png" 
+              alt="Микрофон"
             />
           </ImageContainer>
         </AboutContent>

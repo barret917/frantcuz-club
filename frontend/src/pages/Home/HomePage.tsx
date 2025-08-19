@@ -1,6 +1,6 @@
 import React from 'react'
 import { SectionContainer } from '../../shared/ui/Container'
-import { AboutSection, BilliardsSection, KaraokeSection, PlaystationSection, DiscoBarSection, AdditionalServicesSection } from '@/features/home-page'
+import { AboutSection, BilliardsSection, KaraokeSection, PlaystationSection, DiscoBarSection, AdditionalServicesSection, OurProjectsSection } from '@/features/home-page'
 import styled from 'styled-components'
 
 const HomePageContainer = styled.div`
@@ -19,10 +19,25 @@ const HeroSection = styled.section`
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
   
   @media (max-width: 768px) {
-    min-height: 80vh;
-    padding: 1rem;
+    min-height: 70vh;
+    padding: 0;
   }
 `
 
@@ -58,178 +73,114 @@ const Content = styled.div`
   z-index: 3;
   text-align: center;
   color: white;
-  padding: 2rem;
+  padding: 0;
+  max-width: 1200px;
+  margin: 0 auto;
   
   @media (max-width: 1024px) {
-    padding: 1.5rem;
+    max-width: 1000px;
   }
   
   @media (max-width: 768px) {
-    padding: 1rem;
+    max-width: 90%;
     margin-top: 60px;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 0.5rem;
   }
 `
 
 const Title = styled.h1`
+  text-align: center;
   font-size: 3.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  line-height: 1.2;
-  color: white;
+  font-weight: 800;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
   
-  @media (max-width: 1024px) {
-    font-size: 3rem;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
+    border-radius: 2px;
   }
   
   @media (max-width: 768px) {
-    font-size: 2.2rem;
-    margin-bottom: 0.8rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 1.8rem;
-    margin-bottom: 0.6rem;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
   }
 `
 
 const Subtitle = styled.div`
-  font-size: 1.3rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
   margin-bottom: 3rem;
   opacity: 0.9;
-  line-height: 1.5;
-  
-  @media (max-width: 1024px) {
-    font-size: 1.2rem;
-    margin-bottom: 2.5rem;
-  }
+  text-align: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  color: white;
   
   @media (max-width: 768px) {
     font-size: 1rem;
     margin-bottom: 2rem;
-    line-height: 1.4;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
   }
 `
 
 const ServicesContainer = styled.div`
   display: flex;
   justify-content: center;
-  gap: 3rem;
-  margin-top: 2rem;
+  gap: 2rem;
+  margin-top: 0;
   
   @media (max-width: 1024px) {
-    gap: 2rem;
+    gap: 1.5rem;
   }
   
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    gap: 0.8rem;
-    margin-top: 1rem;
+    gap: 1.5rem;
+    margin-top: 0;
   }
 `
 
 const ServiceItem = styled.div`
-  font-size: 1.2rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 25px;
-  backdrop-filter: blur(10px);
-  white-space: nowrap;
+  background: rgba(34, 34, 34, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
   
-  @media (max-width: 1024px) {
-    font-size: 1.1rem;
-    padding: 0.4rem 0.8rem;
+  &:hover {
+    transform: translateY(-8px) scale(1.05);
+    background: rgba(34, 34, 34, 0.95);
+    border-color: rgba(102, 126, 234, 0.4);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(102, 126, 234, 0.2);
   }
   
   @media (max-width: 768px) {
+    padding: 1.2rem 1.5rem;
     font-size: 1rem;
-    padding: 0.8rem 1.2rem;
-    border-radius: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
   }
 `
 
-const GirlImage = styled.div`
-  position: absolute;
-  right: 10%;
-  bottom: 10%;
-  z-index: 3;
-  
-  @media (max-width: 1024px) {
-    right: 5%;
-    bottom: 5%;
-  }
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`
 
-const GirlImageContainer = styled.div`
-  position: relative;
-  width: 300px;
-  height: 400px;
-  
-  @media (max-width: 1024px) {
-    width: 250px;
-    height: 350px;
-  }
-`
-
-const GirlMain = styled.img`
-  width: 100%;
-  height: auto;
-  position: relative;
-  z-index: 2;
-`
-
-const Flower = styled.img`
-  position: absolute;
-  top: -20px;
-  right: -30px;
-  width: 80px;
-  height: auto;
-  z-index: 3;
-  
-  @media (max-width: 1024px) {
-    width: 60px;
-    top: -15px;
-    right: -25px;
-  }
-`
-
-const Microphone = styled.img`
-  position: absolute;
-  bottom: 50px;
-  left: -40px;
-  width: 60px;
-  height: auto;
-  z-index: 1;
-  
-  @media (max-width: 1024px) {
-    width: 50px;
-    bottom: 40px;
-    left: -30px;
-  }
-`
 
 export const HomePage: React.FC = () => {
   return (
@@ -241,46 +192,32 @@ export const HomePage: React.FC = () => {
           <Content>
             <SectionContainer>
               <Title>
-                Развлекательный комплекс<br />
-                "Француз"
+                Франтцуз<br />
+                развлекательный комплекс
               </Title>
               
               <Subtitle>
-                Уникальное место, идеальное для ярких вечеринок<br />
-                и уютных посиделок с друзьями
+                Основан в 2018
               </Subtitle>
               
               <ServicesContainer>
-                <ServiceItem>Караоке</ServiceItem>
                 <ServiceItem>Бильярд</ServiceItem>
-                <ServiceItem>Диско Бар</ServiceItem>
+                <ServiceItem>Караоке</ServiceItem>
+                <ServiceItem>Диско-бар</ServiceItem>
+                <ServiceItem>Playstation</ServiceItem>
               </ServicesContainer>
             </SectionContainer>
           </Content>
           
-          <GirlImage>
-            <GirlImageContainer>
-              <GirlMain 
-                src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2.png" 
-                alt="Девушка с коктейлем"
-              />
-              <Flower 
-                src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-flower.png" 
-                alt="Цветок"
-              />
-              <Microphone 
-                src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-microphone.png" 
-                alt="Микрофон"
-              />
-            </GirlImageContainer>
-          </GirlImage>
+
         </HeroSection>
         <AboutSection />
         <BilliardsSection />
         <KaraokeSection />
-        <PlaystationSection />
         <DiscoBarSection />
+        <PlaystationSection />
         <AdditionalServicesSection />
+        <OurProjectsSection />
       </Main>
     </HomePageContainer>
   )

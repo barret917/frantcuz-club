@@ -252,7 +252,7 @@ const BanquetsPage: React.FC = () => {
 
         
         <ContactSection>
-          <ContactTitle>Забронировать банкет</ContactTitle>
+          <ContactTitle>Зарезервировать банкет</ContactTitle>
           <ContactInfo>
             <ContactItem>
               <div className="icon">📞</div>
@@ -262,7 +262,7 @@ const BanquetsPage: React.FC = () => {
             <ContactItem>
               <div className="icon">📧</div>
               <div className="label">Email</div>
-              <div className="value">order@wetop.ru</div>
+              <div className="value">Скоро будет другая почта</div>
             </ContactItem>
             <ContactItem>
               <div className="icon">⏰</div>

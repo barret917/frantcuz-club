@@ -146,20 +146,25 @@ const StepTitle = styled.h2`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: clamp(1rem, 3vw, 2rem);
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.5rem, 4vw, 2.5rem);
   justify-content: center;
   margin-top: 2rem;
   width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
   
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: clamp(0.75rem, 2vw, 1.5rem);
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1rem, 3vw, 1.5rem);
+    max-width: 600px;
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: clamp(0.5rem, 1.5vw, 1rem);
+    gap: clamp(0.75rem, 2vw, 1rem);
+    max-width: 100%;
   }
 `
 
@@ -402,11 +407,10 @@ export const BookingPage: React.FC = () => {
               ) : (
                 <Grid>
                   {Array.isArray(zones) && zones.length > 0 ? (
-                    zones.map((zone, index) => (
+                    zones.map((zone) => (
                       <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
                         <ZoneCard 
                           zone={zone} 
-                          $isFullWidth={index % 3 === 2} 
                         />
                       </div>
                     ))

@@ -1,13 +1,31 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 import { SectionContainer } from '../../../shared/ui/Container'
 
 const BilliardsSectionContainer = styled.section`
-  padding: 4rem 0;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  padding: 6rem 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
   
   @media (max-width: 768px) {
-    padding: 3rem 0;
+    padding: 4rem 0;
   }
 `
 
@@ -16,15 +34,19 @@ const BilliardsContent = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
   
   @media (max-width: 1024px) {
     gap: 3rem;
+    max-width: 1000px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 2rem;
     text-align: center;
+    max-width: 90%;
   }
 `
 
@@ -33,6 +55,7 @@ const ImageContainer = styled.div`
   justify-content: center;
   align-items: center;
   position: relative;
+  z-index: 2;
   
   @media (max-width: 768px) {
     order: -1;
@@ -46,6 +69,8 @@ const BilliardsImage = styled.img`
   height: auto;
   border-radius: 20px;
   object-fit: cover;
+  filter: brightness(1.05) contrast(1.05);
+  transition: all 0.3s ease;
   
   @media (max-width: 1024px) {
     max-width: 250px;
@@ -60,28 +85,36 @@ const BilliardsImage = styled.img`
 
 const TextContent = styled.div`
   color: white;
+  position: relative;
+  z-index: 2;
 `
 
 const Title = styled.h2`
-  font-size: 3rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  line-height: 1.2;
-  color: white;
+  text-align: center;
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 4rem;
+  background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
   
-  @media (max-width: 1024px) {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
+    border-radius: 2px;
   }
   
   @media (max-width: 768px) {
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
   }
 `
 
@@ -90,20 +123,11 @@ const Description = styled.p`
   line-height: 1.7;
   margin-bottom: 2rem;
   opacity: 0.9;
-  
-  @media (max-width: 1024px) {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
+  color: white;
   
   @media (max-width: 768px) {
     font-size: 1rem;
     margin-bottom: 1.5rem;
-  }
-  
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    margin-bottom: 1.2rem;
   }
 `
 
@@ -214,8 +238,8 @@ export const BilliardsSection: React.FC = () => {
             </Description>
             
             <ButtonGroup>
-              <PrimaryButton>Забронировать стол</PrimaryButton>
-              <SecondaryButton>Подробнее</SecondaryButton>
+              <PrimaryButton as={Link} to="/booking">Забронировать стол</PrimaryButton>
+              <SecondaryButton as={Link} to="/billiards">Подробнее</SecondaryButton>
             </ButtonGroup>
           </TextContent>
         </BilliardsContent>

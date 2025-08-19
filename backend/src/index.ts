@@ -7,6 +7,7 @@ import billiardsRouter from './routes/billiards';
 import karaokeRouter from './routes/karaoke';
 import banquetRequestsRouter from './routes/banquet-requests';
 import tablesRouter from './routes/tables';
+import eventsRouter from './routes/events';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/billiards', billiardsRouter);
 app.use('/api/karaoke', karaokeRouter);
 app.use('/api/banquet-requests', banquetRequestsRouter);
 app.use('/api', tablesRouter);
+app.use('/api/events', eventsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -3,228 +3,227 @@ import { Container } from '@/shared/ui/Container'
 import styled from 'styled-components'
 
 const FooterWrapper = styled.footer`
-  background: #1a1a1a;
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
   color: white;
-  padding: 3rem 0 1rem;
+  padding: 4rem 0 2rem;
   margin-top: auto;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
   
   @media (max-width: 768px) {
-    padding: 2rem 0 1rem;
+    padding: 3rem 0 1.5rem;
   }
   
   @media (max-width: 480px) {
-    padding: 1.5rem 0 1rem;
+    padding: 2rem 0 1rem;
   }
 `
 
 const FooterContent = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  margin-bottom: 2.5rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
   
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    gap: 2.5rem;
+    max-width: 900px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
   }
   
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
   }
 `
 
 const FooterSection = styled.div`
   text-align: left;
+  position: relative;
+  z-index: 2;
   
   h3 {
     color: #ffffff;
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
+      border-radius: 1px;
+    }
     
     @media (max-width: 768px) {
-      font-size: 1.1rem;
-      margin-bottom: 0.8rem;
+      font-size: 1.2rem;
+      margin-bottom: 1.2rem;
     }
     
     @media (max-width: 480px) {
-      font-size: 1rem;
-      margin-bottom: 0.6rem;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
     }
   }
   
   a {
-    color: #ffffff;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: all 0.3s ease;
     
     @media (max-width: 768px) {
-      font-size: 0.85rem;
-      margin-bottom: 0.4rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.7rem;
     }
     
     @media (max-width: 480px) {
-      font-size: 0.8rem;
-      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+      margin-bottom: 0.6rem;
     }
     
     &:hover {
-      color: #ffd700;
+      color: #667eea;
+      transform: translateX(5px);
     }
   }
 `
 
 const ContactItem = styled.div`
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
   
   @media (max-width: 768px) {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.7rem;
   }
   
   @media (max-width: 480px) {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.6rem;
   }
 `
 
 const SocialLinks = styled.div`
   display: flex;
-  gap: 0.8rem;
+  gap: 1rem;
   align-items: center;
+  margin-top: 1.5rem;
   
   @media (max-width: 768px) {
-    gap: 0.7rem;
+    gap: 0.8rem;
+    margin-top: 1.2rem;
   }
   
   @media (max-width: 480px) {
-    gap: 0.6rem;
+    gap: 0.7rem;
+    margin-top: 1rem;
   }
   
   a {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.8rem;
-    border-radius: 12px;
+    padding: 1rem;
+    border-radius: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-decoration: none;
     position: relative;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     
-                    &:hover {
-                  /* background: rgba(255, 255, 255, 0.2); */
-                  /* border: 1px solid rgba(255, 255, 255, 0.4); */
-                  /* transform: translateY(-3px); */
-                  /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); */
-                }
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    }
     
     &:active {
       transform: translateY(-1px);
     }
     
     img {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
       transition: transform 0.3s ease;
     }
     
-                    &:hover img {
-                  /* transform: scale(1.1); */
-                }
+    &:hover img {
+      transform: scale(1.1);
+    }
     
     @media (max-width: 768px) {
-      padding: 0.6rem;
+      padding: 0.8rem;
+      
+      img {
+        width: 32px;
+        height: 32px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      padding: 0.7rem;
       
       img {
         width: 28px;
         height: 28px;
       }
     }
-    
-    @media (max-width: 480px) {
-      padding: 0.5rem;
-      
-      img {
-        width: 24px;
-        height: 24px;
-      }
-    }
   }
 `
 
-const ProjectsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.2rem;
-  }
-  
-  @media (max-width: 900px) {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
-`
 
-const ProjectImage = styled.img`
-  width: 140px;
-  height: 80px;
-  object-fit: contain;
-  object-position: center;
-  filter: grayscale(20%);
-  transition: filter 0.3s ease;
-  
-  &:hover {
-    filter: grayscale(0%);
-  }
-  
-  @media (max-width: 1200px) {
-    width: 120px;
-    height: 70px;
-  }
-  
-  @media (max-width: 768px) {
-    width: 100px;
-    height: 65px;
-  }
-  
-  @media (max-width: 480px) {
-    width: 70px;
-    height: 70px;
-  }
-`
 
 const Copyright = styled.div`
   text-align: center;
-  padding-top: 2rem;
-  border-top: 1px solid #333;
-  color: #ffffff;
-  font-size: 0.9rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 2;
   
   @media (max-width: 768px) {
-    padding-top: 1.5rem;
-    font-size: 0.85rem;
+    padding-top: 2rem;
+    font-size: 0.9rem;
   }
   
   @media (max-width: 480px) {
-    padding-top: 1rem;
-    font-size: 0.8rem;
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
   }
 `
 
@@ -251,6 +250,15 @@ export const Footer: React.FC = () => {
             <ContactItem>
               <a href="tel:+79680915550">Банкетный менеджер:<br/>+7 968 091-55-50</a>
             </ContactItem>
+          </FooterSection>
+
+          {/* Услуги */}
+          <FooterSection>
+            <h3>Услуги</h3>
+            <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">Работа</a>
+            <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">Доставка</a>
+            <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">Обучение</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">Продажа киев и аксессуаров</a>
             
             <h3>Мы в соц сетях</h3>
             <SocialLinks>
@@ -266,15 +274,6 @@ export const Footer: React.FC = () => {
             </SocialLinks>
           </FooterSection>
 
-          {/* Услуги */}
-          <FooterSection>
-            <h3>Услуги</h3>
-            <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">Работа</a>
-            <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">Доставка</a>
-            <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">Обучение</a>
-            <a href="#" target="_blank" rel="noopener noreferrer">Продажа киев и аксессуаров</a>
-          </FooterSection>
-
           {/* Гостям */}
           <FooterSection>
             <h3>Гостям</h3>
@@ -286,66 +285,7 @@ export const Footer: React.FC = () => {
             <a href="/security">Безопасность</a>
           </FooterSection>
 
-          {/* Наши проекты */}
-          <FooterSection>
-            <h3>Наши проекты</h3>
-            <ProjectsGrid>
-              <a href="https://shashlandia.ru/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-шашландиа.png" 
-                  alt="Шашландия"
-                />
-              </a>
-              <a href="http://dostavka-pominki.ru/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-доставка-поминки.png" 
-                  alt="Доставка поминок"
-                />
-              </a>
-              <a href="https://tyteda.ru/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-тут-еда.png" 
-                  alt="ТутЕда"
-                />
-              </a>
-              <a href="https://wetop.ru/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-ветоп.png" 
-                  alt="WeTop"
-                />
-              </a>
-              <a href="https://reiting.moscow/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-рейтинг.png" 
-                  alt="Рейтинг"
-                />
-              </a>
-              <a href="https://frantsuz.ru/" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-франтуз-академия.png" 
-                  alt="Франтуз Академия"
-                />
-              </a>
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-дали-хинкали.png" 
-                  alt="Дали Хинкали"
-                />
-              </a>
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-комикадзе.png" 
-                  alt="Комикадзе"
-                />
-              </a>
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                <ProjectImage 
-                  src="/logo-footer/лого-пою-всегда.png" 
-                  alt="Пою Всегда"
-                />
-              </a>
-            </ProjectsGrid>
-          </FooterSection>
+
         </FooterContent>
 
         <Copyright>

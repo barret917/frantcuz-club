@@ -8,18 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ZoneType {
-  karaoke      // Зона караоке
-  billiards    // Зона бильярда
-  restaurant   // Зона ресторана
-  disco        // Диско-бар
-  playstation  // Зона игровых приставок
-  bowling      // Боулинг
-  spa          // СПА зона
-  cinema       // Кинотеатр
-  custom       // Пользовательская зона
-}
-
 model Zone {
   id        Int        @id @default(autoincrement())
   name      String
@@ -28,19 +16,6 @@ model Zone {
   closeTime String
   imageUrl  String
   items     ZoneItem[]
-}
-
-enum ZoneItemType {
-  table           // Стол с посадочными местами
-  booth           // Кабинка/бокс (PS, караоке, VIP)
-  stage           // Сцена
-  bar             // Барная стойка
-  danceFloor      // Танцпол
-  gameTable       // Игровой стол (бильярд, боулинг)
-  lounge          // Лаунж зона
-  spaRoom         // СПА комната
-  cinemaHall      // Кинозал
-  custom          // Пользовательский элемент
 }
 
 model ZoneItem {
@@ -55,50 +30,38 @@ model ZoneItem {
   y            Float
   width        Float
   height       Float
-  
-  // Гибкие поля для разных типов элементов
-  seats        Int?          // Количество мест (для table, booth)
-  capacity     Int?          // Вместимость (для booth, gameTable)
-  pricePerHour Decimal?      @db.Decimal(8, 2) // Цена за час
-  pricePerSeat Decimal?      @db.Decimal(8, 2) // Цена за место
-  pricePerSlot Decimal?      @db.Decimal(8, 2) // Цена за слот/сессию
-  
-  // Настройки бронирования
-  minDuration  Int?          // Минимальная длительность (в минутах)
-  maxDuration  Int?          // Максимальная длительность (в минутах)
-  timeSlots    String[]      // Доступные временные слоты (для timeSlot)
-  
-  // Дополнительные настройки
-  description  String?       // Описание элемента
-  features     String[]      // Особенности (WiFi, кондиционер, и т.д.)
-  
+  seats        Int?
+  capacity     Int?
+  pricePerHour Decimal?      @db.Decimal(8, 2)
+  pricePerSeat Decimal?      @db.Decimal(8, 2)
+  pricePerSlot Decimal?      @db.Decimal(8, 2)
+  minDuration  Int?
+  maxDuration  Int?
+  timeSlots    String[]
+  description  String?
+  features     String[]
   reservations Reservation[]
   zone         Zone          @relation(fields: [zoneId], references: [id])
 }
 
 model Reservation {
-  id         Int               @id @default(autoincrement())
-  zoneItemId Int
-  type       ReservationType   @default(seating)
-  userName   String
-  phone      String
-  startsAt   DateTime
-  endsAt     DateTime
-  deposit    Decimal           @db.Decimal(5, 2)
-  status     ReservationStatus @default(booked)
-  
-  // Гибкие поля для разных типов бронирования
-  seatsCount Int?              // Количество забронированных мест (seating)
-  guestsCount Int?              // Количество гостей (fullItem)
-  duration   Int?               // Длительность в минутах
-  
-  // Дополнительная информация
-  comment    String?
-  specialRequests String?       // Особые пожелания
-  totalPrice Decimal?           @db.Decimal(8, 2) // Итоговая цена
-  
-  payments   Payment[]
-  zoneItem   ZoneItem          @relation(fields: [zoneItemId], references: [id])
+  id              Int               @id @default(autoincrement())
+  zoneItemId      Int
+  type            ReservationType   @default(seating)
+  userName        String
+  phone           String
+  startsAt        DateTime
+  endsAt          DateTime
+  deposit         Decimal           @db.Decimal(5, 2)
+  status          ReservationStatus @default(booked)
+  seatsCount      Int?
+  guestsCount     Int?
+  duration        Int?
+  comment         String?
+  specialRequests String?
+  totalPrice      Decimal?          @db.Decimal(8, 2)
+  payments        Payment[]
+  zoneItem        ZoneItem          @relation(fields: [zoneItemId], references: [id])
 }
 
 model Payment {
@@ -181,37 +144,103 @@ model BilliardsSettings {
   updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 }
 
-// ---------- Караоке ----------
 model KaraokeService {
-  id                    Int       @id @default(autoincrement())
-  name                  String    @db.VarChar(255)
-  type                  String    @unique @db.VarChar(50)
-  weekdayPrice          Decimal   @db.Decimal(8, 2)
-  weekendPrice          Decimal   @db.Decimal(8, 2)
-  description           String?
-  imageUrl              String?
-  isActive              Boolean?  @default(true)
-  sortOrder             Int?      @default(0)
-  createdAt             DateTime? @default(now()) @db.Timestamp(6)
-  updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(255)
+  type         String    @unique @db.VarChar(50)
+  weekdayPrice Decimal   @db.Decimal(8, 2)
+  weekendPrice Decimal   @db.Decimal(8, 2)
+  description  String?
+  imageUrl     String?
+  isActive     Boolean?  @default(true)
+  sortOrder    Int?      @default(0)
+  createdAt    DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model KaraokeSettings {
-  id                    Int       @id @default(autoincrement())
-  maxVipGuests          Int?      @default(15)
-  baseVipPrice          Decimal?  @default(21000) @db.Decimal(8, 2)
-  additionalGuestPrice  Decimal?  @default(3500) @db.Decimal(8, 2)
-  depositPolicy         String?   @default("В случае неиспользования суммы депозита, денежные средства не возвращаются.")
-  isActive              Boolean?  @default(true)
-  createdAt             DateTime? @default(now()) @db.Timestamp(6)
-  updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  id                   Int       @id @default(autoincrement())
+  maxVipGuests         Int?      @default(15)
+  baseVipPrice         Decimal?  @default(21000) @db.Decimal(8, 2)
+  additionalGuestPrice Decimal?  @default(3500) @db.Decimal(8, 2)
+  depositPolicy        String?   @default("В случае неиспользования суммы депозита, денежные средства не возвращаются.")
+  isActive             Boolean?  @default(true)
+  createdAt            DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt            DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model BanquetRequest {
+  id               Int                  @id @default(autoincrement())
+  eventDate        DateTime
+  eventTime        String
+  endTime          String?
+  guestCount       Int
+  eventType        String
+  budget           String
+  banquetType      String?
+  specialMenu      String?
+  music            String?
+  decor            String?
+  name             String
+  phone            String
+  email            String?
+  additionalWishes String?
+  status           BanquetRequestStatus @default(pending)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String
+  date        DateTime
+  time        String   @db.VarChar(100)
+  price       String?  @db.VarChar(100)
+  category    String   @db.VarChar(100)
+  isUpcoming  Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  imageUrl    String?
+  maxGuests   Int?
+  location    String?  @db.VarChar(255)
+  organizer   String?  @db.VarChar(255)
+  contactInfo String?
+  tags        String[]
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ZoneType {
+  karaoke
+  billiards
+  restaurant
+  disco
+  playstation
+  bowling
+  spa
+  cinema
+  custom
+}
+
+enum ZoneItemType {
+  table
+  booth
+  stage
+  bar
+  danceFloor
+  gameTable
+  lounge
+  spaRoom
+  cinemaHall
+  custom
 }
 
 enum ReservationType {
-  seating     // Бронь места за столом (караоке, ресторан)
-  fullItem    // Бронь всего элемента (PS кабинка, бильярдный стол)
-  event       // Бронь мероприятия (сцена, танцпол)
-  timeSlot    // Бронь временного слота (SPA, кино)
+  seating
+  fullItem
+  event
+  timeSlot
 }
 
 enum ReservationStatus {
@@ -219,28 +248,6 @@ enum ReservationStatus {
   arrived
   no_show
   cancelled
-}
-
-// ---------- Заявки на банкеты ----------
-model BanquetRequest {
-  id              Int                @id @default(autoincrement())
-  eventDate       DateTime
-  eventTime       String
-  endTime         String?
-  guestCount      Int
-  eventType       String
-  budget          String
-  banquetType     String?
-  specialMenu     String?
-  music           String?
-  decor           String?
-  name            String
-  phone           String
-  email           String?
-  additionalWishes String?
-  status          BanquetRequestStatus @default(pending)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
 }
 
 enum BanquetRequestStatus {

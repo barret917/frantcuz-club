@@ -8,6 +8,7 @@ import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab
 import { BilliardsPricing } from '@/features/billiards-pricing'
 import { KaraokePricing } from '@/features/karaoke-pricing'
 import { BanquetRequestsPage } from './BanquetRequestsPage'
+import { EventsForm } from '@/features/events-management'
 import { getZones } from '@/shared/api/zones'
 import { banquetRequestsApi } from '@/shared/api/banquet-requests'
 import { Zone } from '@/shared/model/types'
@@ -311,7 +312,7 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'settings'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'events'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
@@ -321,7 +322,7 @@ const tabs = [
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
   { key: 'karaoke', label: 'Караоке', icon: '🎤' },
   { key: 'banquet-requests', label: 'Заявки на банкеты', icon: '🎉' },
-  { key: 'settings', label: 'Настройки', icon: '⚙️' }
+  { key: 'events', label: 'Мероприятия', icon: '🎭' }
 ]
 
 export const AdminPage: React.FC = () => {
@@ -421,6 +422,8 @@ export const AdminPage: React.FC = () => {
             }
           }).catch(console.error)
         }} />
+      case 'events':
+        return <EventsForm />
       case 'bookings':
         return (
           <ComingSoonCard>
@@ -432,17 +435,7 @@ export const AdminPage: React.FC = () => {
             </ComingSoonText>
           </ComingSoonCard>
         )
-      case 'settings':
-        return (
-          <ComingSoonCard>
-            <ComingSoonIcon>🔧</ComingSoonIcon>
-            <ComingSoonTitle>Настройки системы</ComingSoonTitle>
-            <ComingSoonText>
-              Настройки профиля, уведомлений, безопасности и другие 
-              параметры системы будут доступны в ближайшее время.
-            </ComingSoonText>
-          </ComingSoonCard>
-        )
+
       default:
         return <CreateZoneForm />
     }
@@ -457,7 +450,7 @@ export const AdminPage: React.FC = () => {
       'karaoke': 'Управляйте ценами и настройками караоке',
       'banquet-requests': 'Управляйте заявками на банкеты и мероприятия',
       'bookings': 'Управляйте бронированиями и резервациями',
-      'settings': 'Настройки системы и профиля'
+      'events': 'Создавайте и управляйте мероприятиями клуба'
     }
     return descriptions[activeTab] || ''
   }

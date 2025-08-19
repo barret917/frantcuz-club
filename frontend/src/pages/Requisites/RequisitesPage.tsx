@@ -313,7 +313,8 @@ export const RequisitesPage: React.FC = () => {
                 <ItemContent>
                   <ItemLabel>Телефон</ItemLabel>
                   <ItemValue>
-                    <a href="tel:+79680915553">+7 968 091-55-53</a>
+                    <a href="tel:+79680905550">+7 968 090-55-50</a><br />
+                    <a href="tel:+79680915550">+7 968 091-55-50</a>
                   </ItemValue>
                 </ItemContent>
               </RequisitesItem>
@@ -330,9 +331,7 @@ export const RequisitesPage: React.FC = () => {
                 <ItemIcon>📧</ItemIcon>
                 <ItemContent>
                   <ItemLabel>E-mail</ItemLabel>
-                  <ItemValue>
-                    <a href="mailto:info@tyteda.ru">info@tyteda.ru</a>
-                  </ItemValue>
+                  <ItemValue>Скоро будет другая почта</ItemValue>
                 </ItemContent>
               </RequisitesItem>
             </RequisitesGrid>
@@ -344,21 +343,21 @@ export const RequisitesPage: React.FC = () => {
             </ContactTitle>
             <ContactGrid>
               <ContactCard>
-                <ContactCardIcon>📮</ContactCardIcon>
-                <ContactCardTitle>Почтовый адрес</ContactCardTitle>
-                <ContactCardValue>г. Москва, ул. Салтыковская, д. 49А</ContactCardValue>
-              </ContactCard>
-              
-              <ContactCard>
                 <ContactCardIcon>🏠</ContactCardIcon>
-                <ContactCardTitle>Физический адрес</ContactCardTitle>
-                <ContactCardValue>г. Москва, ул. Салтыковская, д. 49А</ContactCardValue>
+                <ContactCardTitle>Фактический адрес</ContactCardTitle>
+                <ContactCardValue>г. Москва,<br />ул. Салтыковская, 49А,<br />ТЦ Волна, -1 этаж</ContactCardValue>
               </ContactCard>
               
               <ContactCard>
                 <ContactCardIcon>⚖️</ContactCardIcon>
                 <ContactCardTitle>Юридический адрес</ContactCardTitle>
-                <ContactCardValue>г. Москва, ул. Салтыковская, д. 49А</ContactCardValue>
+                <ContactCardValue>г. Москва,<br />ул. Салтыковская, 49А,<br />ТЦ Волна, -1 этаж</ContactCardValue>
+              </ContactCard>
+              
+              <ContactCard>
+                <ContactCardIcon>📮</ContactCardIcon>
+                <ContactCardTitle>Почтовый адрес</ContactCardTitle>
+                <ContactCardValue>г. Москва,<br />ул. Салтыковская, 49А,<br />ТЦ Волна, -1 этаж<br />111672</ContactCardValue>
               </ContactCard>
             </ContactGrid>
           </ContactSection>

@@ -87,6 +87,7 @@ const RuleCard = styled.div`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: ${css`fadeIn`} 0.6s ease-out;
+  height: fit-content;
   
   &:hover {
     transform: translateY(-5px);
@@ -143,65 +144,6 @@ const CardContent = styled.div`
   }
 `
 
-const ScheduleGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-`
-
-const ScheduleItem = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  h4 {
-    color: #667eea;
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
-  }
-  
-  p {
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0;
-    font-size: 1rem;
-  }
-`
-
-const DepositGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-`
-
-const DepositItem = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1.5rem;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  
-  h4 {
-    color: #667eea;
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
-  }
-  
-  .price {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #4CAF50;
-    margin-bottom: 0.5rem;
-  }
-  
-  .description {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-  }
-`
-
 const DamageTable = styled.div`
   background: rgba(255, 255, 255, 0.03);
   border-radius: 15px;
@@ -250,14 +192,6 @@ const DamageItem = styled.div`
 const Icon = styled.span`
   font-size: 1.5rem;
   
-  &.schedule {
-    color: #4CAF50;
-  }
-  
-  &.deposit {
-    color: #ff9800;
-  }
-  
   &.rules {
     color: #ff6b6b;
   }
@@ -278,51 +212,6 @@ export const ClubRulesPage: React.FC = () => {
           </Subtitle>
           
           <RulesGrid>
-            {/* График работы */}
-            <RuleCard>
-              <CardTitle>
-                <Icon className="schedule">🕒</Icon>
-                График работы
-              </CardTitle>
-              <CardContent>
-                <ScheduleGrid>
-                  <ScheduleItem>
-                    <h4>Караоке</h4>
-                    <p>Вс-Чт: с 20:00 до 05:00</p>
-                    <p>Пт и Сб: с 18:00 до 06:00</p>
-                  </ScheduleItem>
-                  <ScheduleItem>
-                    <h4>Бильярд</h4>
-                    <p>Вс-Чт: с 14:00 до 05:00</p>
-                    <p>Пт и Сб: с 14:00 до 06:00</p>
-                  </ScheduleItem>
-                </ScheduleGrid>
-              </CardContent>
-            </RuleCard>
-
-            {/* Входные депозиты */}
-            <RuleCard>
-              <CardTitle>
-                <Icon className="deposit">💰</Icon>
-                Входные депозиты
-              </CardTitle>
-              <CardContent>
-                <DepositGrid>
-                  <DepositItem>
-                    <h4>Обычные дни</h4>
-                    <div className="price">1500 ₽</div>
-                    <div className="description">Пн-Чт, Вс</div>
-                  </DepositItem>
-                  <DepositItem>
-                    <h4>Выходные и праздники</h4>
-                    <div className="price">2000 ₽</div>
-                    <div className="description">Пт, Сб, праздники</div>
-                  </DepositItem>
-                </DepositGrid>
-                <p><strong>⚠️ В случае неиспользования суммы депозита, денежные средства не возвращаются!</strong></p>
-              </CardContent>
-            </RuleCard>
-
             {/* Правила поведения */}
             <RuleCard>
               <CardTitle>
