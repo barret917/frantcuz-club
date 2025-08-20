@@ -456,16 +456,6 @@ const MapSection = styled.section`
   }
 `
 
-const MapContainer = styled.div`
-  background: rgba(34, 34, 34, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  padding: 2rem;
-  text-align: center;
-  animation: ${fadeInUp} 0.8s ease-out 0.4s both;
-`
-
 const MapWrapper = styled.div`
   width: 100%;
   height: 400px;
@@ -606,45 +596,44 @@ export const ContactPage: React.FC = () => {
   }
 
   // Загрузка Яндекс.Карт
-  // Для продакшена рекомендуется получить API ключ на https://developer.tech.yandex.ru/
-  // и заменить URL на: https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU
   useEffect(() => {
     const loadYandexMaps = () => {
+      console.log('🔄 Начинаем загрузку Яндекс.Карт...')
+      
       // Проверяем, загружены ли уже карты
       if (window.ymaps) {
+        console.log('✅ Яндекс.Карты уже загружены')
         initMap()
         return
       }
 
-      // Создаем скрипт для загрузки Яндекс.Карт (поддержка API ключа через VITE_YANDEX_MAPS_API_KEY)
+      // Создаем скрипт для загрузки Яндекс.Карт
       const script = document.createElement('script')
-      const apiKey = import.meta.env.VITE_YANDEX_MAPS_API_KEY
-      script.src = apiKey 
-        ? `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`
-        : 'https://api-maps.yandex.ru/2.1/?lang=ru_RU'
+      script.src = 'https://api-maps.yandex.ru/2.1/?lang=ru_RU'
       script.async = true
       
-
-      
       script.onerror = () => {
-        console.error('Ошибка загрузки Яндекс.Карт')
+        console.error('❌ Ошибка загрузки скрипта Яндекс.Карт')
         setMapState('error')
       }
       
       // Таймаут для загрузки
       const timeout = setTimeout(() => {
         if (mapState === 'loading') {
-          console.warn('Таймаут загрузки Яндекс.Карт')
+          console.warn('⏰ Таймаут загрузки Яндекс.Карт')
           setMapState('error')
         }
-      }, 20000) // 20 секунд
+      }, 10000) // 10 секунд
       
       script.onload = () => {
+        console.log('📦 Скрипт Яндекс.Карт загружен')
         clearTimeout(timeout)
         // Ждем инициализации API
         const checkYMaps = () => {
           if (window.ymaps) {
+            console.log('🎯 API Яндекс.Карт готов')
             window.ymaps.ready(() => {
+              console.log('🚀 Инициализируем карту...')
               initMap()
             })
           } else {
@@ -658,37 +647,43 @@ export const ContactPage: React.FC = () => {
     }
 
     const initMap = () => {
-      if (!mapRef.current) return
+      console.log('🗺️ Начинаем инициализацию карты...')
+      if (!mapRef.current) {
+        console.error('❌ mapRef не найден')
+        return
+      }
       
       try {
+        console.log('🔧 Создаем карту...')
         window.ymaps.ready(() => {
-                     const map = new window.ymaps.Map(mapRef.current, {
-             center: [55.7447, 37.8641], // Координаты Салтыковская 49а
-             zoom: 15,
-             controls: ['zoomControl', 'fullscreenControl']
-           }, {
-             suppressMapOpenBlock: true,
-             yandexMapDisablePoiInteractivity: true
-           })
+          const map = new window.ymaps.Map(mapRef.current, {
+            center: [55.7447, 37.8641], // Координаты Салтыковская 49а
+            zoom: 15,
+            controls: ['zoomControl', 'fullscreenControl']
+          }, {
+            suppressMapOpenBlock: true,
+            yandexMapDisablePoiInteractivity: true
+          })
 
-           // Добавляем метку
-                      const placemark = new window.ymaps.Placemark([55.7447, 37.8641], {
-             balloonContent: `
-               <div style="padding: 10px;">
-                 <h3 style="margin: 0 0 10px 0; color: #333;">Клуб "Франтцуз"</h3>
-                 <p style="margin: 0; color: #666;">г. Москва, ул. Салтыковская, д. 49а</p>
-                 <p style="margin: 5px 0 0 0; color: #666;">Метро: Новокосино (10 минут пешком)</p>
-               </div>
-             `
-           }, {
+          // Добавляем метку
+          const placemark = new window.ymaps.Placemark([55.7447, 37.8641], {
+            balloonContent: `
+              <div style="padding: 10px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">Клуб "Франтцуз"</h3>
+                <p style="margin: 0; color: #666;">г. Москва, ул. Салтыковская, д. 49а</p>
+                <p style="margin: 5px 0 0 0; color: #666;">Метро: Новокосино (10 минут пешком)</p>
+              </div>
+            `
+          }, {
             preset: 'islands#redDotIcon'
           })
 
-                     map.geoObjects.add(placemark)
-           setMapState('loaded')
-         })
+          map.geoObjects.add(placemark)
+          console.log('✅ Карта успешно загружена!')
+          setMapState('loaded')
+        })
       } catch (error) {
-        console.error('Ошибка инициализации карты:', error)
+        console.error('❌ Ошибка инициализации карты:', error)
         setMapState('error')
       }
     }
@@ -717,19 +712,19 @@ export const ContactPage: React.FC = () => {
               <ContactInfo>
                 <InfoTitle>Информация о клубе</InfoTitle>
                 
-                                 <InfoItem>
-                   <InfoIcon>📍</InfoIcon>
-                   <InfoContent>
-                     <h4>Адрес</h4>
-                     <p>г. Москва, ул. Салтыковская, д. 49а</p>
-                   </InfoContent>
-                 </InfoItem>
+                <InfoItem>
+                  <InfoIcon>📍</InfoIcon>
+                  <InfoContent>
+                    <h4>Адрес</h4>
+                    <p>г. Москва, ул. Салтыковская, д. 49а</p>
+                  </InfoContent>
+                </InfoItem>
                 
                 <InfoItem>
                   <InfoIcon>📞</InfoIcon>
                   <InfoContent>
                     <h4>Телефон</h4>
-                    <p>+7 (495) 123-45-67</p>
+                    <p>+7 968 090-55-50<br />+7 968 091-55-50</p>
                   </InfoContent>
                 </InfoItem>
                 
@@ -737,7 +732,7 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>✉️</InfoIcon>
                   <InfoContent>
                     <h4>Email</h4>
-                    <p>info@frantsuz-club.ru</p>
+                    <p>Скоро будет другая почта</p>
                   </InfoContent>
                 </InfoItem>
                 
@@ -745,25 +740,25 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>🕒</InfoIcon>
                   <InfoContent>
                     <h4>Режим работы</h4>
-                    <p>Ежедневно с 12:00 до 02:00</p>
+                    <p>Ежедневно с 11:00 до 23:00</p>
                   </InfoContent>
                 </InfoItem>
                 
-                                 <InfoItem>
-                   <InfoIcon>🚇</InfoIcon>
-                   <InfoContent>
-                     <h4>Метро</h4>
-                     <p>Новокосино (10 минут пешком)</p>
-                   </InfoContent>
-                 </InfoItem>
-                 
-                 <InfoItem>
-                   <InfoIcon>🌐</InfoIcon>
-                   <InfoContent>
-                     <h4>Социальные сети</h4>
-                     <p>VK, Telegram, Rutube</p>
-                   </InfoContent>
-                 </InfoItem>
+                <InfoItem>
+                  <InfoIcon>🚇</InfoIcon>
+                  <InfoContent>
+                    <h4>Метро</h4>
+                    <p>Новокосино (10 минут пешком)</p>
+                  </InfoContent>
+                </InfoItem>
+                
+                <InfoItem>
+                  <InfoIcon>🌐</InfoIcon>
+                  <InfoContent>
+                    <h4>Социальные сети</h4>
+                    <p>VK, Telegram, Rutube</p>
+                  </InfoContent>
+                </InfoItem>
               </ContactInfo>
               
               <ContactForm>
@@ -840,32 +835,32 @@ export const ContactPage: React.FC = () => {
                     {isSubmitting ? 'Отправка...' : 'Отправить сообщение'}
                   </SubmitButton>
                   
-                                     {submitStatus === 'success' && (
-                     <div style={{ 
-                       marginTop: '1rem', 
-                       padding: '1rem', 
-                       background: 'rgba(34, 197, 94, 0.2)', 
-                       border: '1px solid rgba(34, 197, 94, 0.3)',
-                       borderRadius: '8px',
-                       color: '#22c55e',
-                       textAlign: 'center'
-                     }}>
-                       Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.
-                     </div>
-                   )}
-                 </form>
-                 
-                 <QuickActions>
-                   <QuickActionsTitle>Быстрые действия</QuickActionsTitle>
-                   <QuickActionsGrid>
-                     <QuickActionButton href="tel:+74951234567">
+                  {submitStatus === 'success' && (
+                    <div style={{ 
+                      marginTop: '1rem', 
+                      padding: '1rem', 
+                      background: 'rgba(34, 197, 94, 0.2)', 
+                      border: '1px solid rgba(34, 197, 94, 0.3)',
+                      borderRadius: '8px',
+                      color: '#22c55e',
+                      textAlign: 'center'
+                    }}>
+                      Сообщение успешно отправлено! Мы свяжемся с вами в ближайшее время.
+                    </div>
+                  )}
+                </form>
+                
+                <QuickActions>
+                  <QuickActionsTitle>Быстрые действия</QuickActionsTitle>
+                  <QuickActionsGrid>
+                                         <QuickActionButton href="tel:+79680905550">
                        📞 Позвонить
                      </QuickActionButton>
-                     <QuickActionButton href="https://t.me/frantsuz_club" target="_blank" rel="noopener noreferrer">
-                       💬 Написать в Telegram
-                     </QuickActionButton>
-                   </QuickActionsGrid>
-                 </QuickActions>
+                    <QuickActionButton href="https://t.me/frantsuz_club" target="_blank" rel="noopener noreferrer">
+                      💬 Написать в Telegram
+                    </QuickActionButton>
+                  </QuickActionsGrid>
+                </QuickActions>
               </ContactForm>
             </ContactGrid>
           </SectionContainer>
@@ -884,41 +879,33 @@ export const ContactPage: React.FC = () => {
               
               {mapState === 'error' && (
                 <MapError>
-                  <MapErrorIcon>❌</MapErrorIcon>
+                  <MapErrorIcon>🗺️</MapErrorIcon>
                   <MapErrorText>
-                    Не удалось загрузить карту.<br />
+                    <strong>Интерактивная карта недоступна</strong><br />
+                    Но вы можете найти нас по адресу: <strong>г. Москва, ул. Салтыковская, д. 49а</strong><br />
                     <a 
                       href="https://yandex.ru/maps/213/moscow/?ll=37.8641%2C55.7447&z=15&text=Салтыковская%2049а&mode=search" 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      style={{ color: '#667eea', textDecoration: 'none' }}
+                      style={{ color: '#667eea', textDecoration: 'none', fontWeight: 'bold' }}
                     >
-                      Открыть в Яндекс.Картах
+                      🔗 Открыть в Яндекс.Картах
                     </a>
                   </MapErrorText>
-                  <div style={{ marginTop: '12px', width: '100%', height: '300px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 6px 20px rgba(0,0,0,0.2)' }}>
-                    <iframe 
-                      title="yandex-map-fallback"
-                      src="https://yandex.ru/map-widget/v1/?text=Москва%2C%20Салтыковская%2049А&z=16"
-                      width="100%" 
-                      height="300" 
-                      frameBorder="0" 
-                      allowFullScreen={true}
-                    />
-                  </div>
                 </MapError>
               )}
               
               <MapContainerStyled ref={mapRef} />
             </MapWrapper>
-                          <MapText>
-                Мы находимся в удобном месте на улице Салтыковская. 
-                Добраться можно на автомобиле или общественном транспорте. 
-                Есть парковка для гостей.
-              </MapText>
+            
+            <MapText>
+              Мы находимся в удобном месте на улице Салтыковская. 
+              Добраться можно на автомобиле или общественном транспорте. 
+              Есть парковка для гостей.
+            </MapText>
           </SectionContainer>
         </MapSection>
       </Main>
     </PageContainer>
   )
-} 
+}
