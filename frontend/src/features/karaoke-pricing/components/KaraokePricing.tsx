@@ -273,8 +273,7 @@ export const KaraokePricing: React.FC = () => {
         await updateKaraokeService(item.id, {
           name: item.name,
           type: item.type,
-          weekdayPrice: item.weekdayPrice,
-          weekendPrice: item.weekendPrice,
+          price: item.price,
           description: item.description,
           imageUrl: item.imageUrl,
           isActive: item.isActive,
@@ -358,26 +357,13 @@ export const KaraokePricing: React.FC = () => {
               </FormGroup>
 
               <FormGroup>
-                <Label>Цена в будни (₽):</Label>
+                <Label>Цена (₽):</Label>
                 <Input
                   type="number"
-                  value={item.weekdayPrice}
+                  value={item.price}
                   onChange={(e) => {
                     const newData = [...pricingData]
-                    newData[index].weekdayPrice = parseFloat(e.target.value) || 0
-                    setPricingData(newData)
-                  }}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <Label>Цена в выходные (₽):</Label>
-                <Input
-                  type="number"
-                  value={item.weekendPrice}
-                  onChange={(e) => {
-                    const newData = [...pricingData]
-                    newData[index].weekendPrice = parseFloat(e.target.value) || 0
+                    newData[index].price = parseFloat(e.target.value) || 0
                     setPricingData(newData)
                   }}
                 />

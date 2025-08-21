@@ -264,8 +264,7 @@ export const BilliardsPricing: React.FC = () => {
   const [newService, setNewService] = useState({
     name: '',
     type: 'russian' as 'russian' | 'american' | 'vip',
-    weekdayPrice: 0,
-    weekendPrice: 0,
+    price: 0,
     description: '',
     imageUrl: '',
     sortOrder: 0
@@ -317,8 +316,7 @@ export const BilliardsPricing: React.FC = () => {
       setNewService({
         name: '',
         type: 'russian',
-        weekdayPrice: 0,
-        weekendPrice: 0,
+        price: 0,
         description: '',
         imageUrl: '',
         sortOrder: 0
@@ -358,8 +356,7 @@ export const BilliardsPricing: React.FC = () => {
         {
           name: 'Русский бильярд',
           type: 'russian' as const,
-          weekdayPrice: 800,
-          weekendPrice: 1000,
+          price: 800,
           description: 'Классический русский бильярд с профессиональными столами',
           imageUrl: '',
           sortOrder: 1
@@ -367,8 +364,7 @@ export const BilliardsPricing: React.FC = () => {
         {
           name: 'Американский пул',
           type: 'american' as const,
-          weekdayPrice: 600,
-          weekendPrice: 800,
+          price: 600,
           description: 'Американский пул для любителей быстрой игры',
           imageUrl: '',
           sortOrder: 2
@@ -376,8 +372,7 @@ export const BilliardsPricing: React.FC = () => {
         {
           name: 'VIP зал',
           type: 'vip' as const,
-          weekdayPrice: 1200,
-          weekendPrice: 1500,
+          price: 1200,
           description: 'Премиум VIP залы с эксклюзивным обслуживанием',
           imageUrl: '',
           sortOrder: 3
@@ -421,8 +416,7 @@ export const BilliardsPricing: React.FC = () => {
         updateBilliardsService(service.id, {
           name: service.name,
           type: service.type,
-          weekdayPrice: service.weekdayPrice,
-          weekendPrice: service.weekendPrice,
+          price: service.price,
           description: service.description,
           imageUrl: service.imageUrl,
           isActive: service.isActive,
@@ -544,23 +538,11 @@ export const BilliardsPricing: React.FC = () => {
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <FormGroup>
-                <Label>Цена в будни (₽/час)</Label>
+                <Label>Цена (₽/час)</Label>
                 <Input
                   type="number"
-                  value={newService.weekdayPrice}
-                  onChange={(e) => setNewService(prev => ({ ...prev, weekdayPrice: parseFloat(e.target.value) }))}
-                  min="0"
-                  step="0.01"
-                  required
-                />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label>Цена в выходные (₽/час)</Label>
-                <Input
-                  type="number"
-                  value={newService.weekendPrice}
-                  onChange={(e) => setNewService(prev => ({ ...prev, weekendPrice: parseFloat(e.target.value) }))}
+                  value={newService.price}
+                  onChange={(e) => setNewService(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
                   min="0"
                   step="0.01"
                   required
@@ -586,7 +568,7 @@ export const BilliardsPricing: React.FC = () => {
                   fontSize: '1.1rem',
                   padding: '0.75rem 1.5rem'
                 }}
-                disabled={!newService.name || newService.weekdayPrice <= 0 || newService.weekendPrice <= 0}
+                disabled={!newService.name || newService.price <= 0}
               >
                 ✅ Создать услугу
               </Button>
@@ -608,23 +590,11 @@ export const BilliardsPricing: React.FC = () => {
                 
                 <Form>
                   <FormGroup>
-                    <Label>Цена в будни (₽/час)</Label>
+                    <Label>Цена (₽/час)</Label>
                     <Input
                       type="number"
-                      value={item.weekdayPrice}
-                      onChange={(e) => handlePriceChange(item.id, 'weekdayPrice', parseFloat(e.target.value))}
-                      min="0"
-                      step="0.01"
-                      required
-                    />
-                  </FormGroup>
-
-                  <FormGroup>
-                    <Label>Цена в выходные (₽/час)</Label>
-                    <Input
-                      type="number"
-                      value={item.weekendPrice}
-                      onChange={(e) => handlePriceChange(item.id, 'weekendPrice', parseFloat(e.target.value))}
+                      value={item.price}
+                      onChange={(e) => handlePriceChange(item.id, 'price', parseFloat(e.target.value))}
                       min="0"
                       step="0.01"
                       required

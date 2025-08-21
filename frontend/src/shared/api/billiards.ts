@@ -4,8 +4,7 @@ export interface BilliardsService {
   id: number
   name: string
   type: 'russian' | 'american' | 'vip'
-  weekdayPrice: number
-  weekendPrice: number
+  price: number
   description?: string
   imageUrl?: string
   isActive: boolean
@@ -28,8 +27,7 @@ export interface BilliardsSettings {
 export interface CreateBilliardsServiceData {
   name: string
   type: 'russian' | 'american' | 'vip'
-  weekdayPrice: number
-  weekendPrice: number
+  price: number
   description?: string
   imageUrl?: string
   sortOrder?: number
@@ -38,8 +36,7 @@ export interface CreateBilliardsServiceData {
 export interface UpdateBilliardsServiceData {
   name?: string
   type?: 'russian' | 'american' | 'vip'
-  weekdayPrice?: number
-  weekendPrice?: number
+  price?: number
   description?: string
   imageUrl?: string
   isActive?: boolean

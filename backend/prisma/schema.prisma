@@ -100,37 +100,58 @@ model MenuCategory {
 }
 
 model MenuItem {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   categoryId  Int
   name        String
   description String?
-  price       Decimal      @db.Decimal(8, 2)
-  currency    String       @default("₽")
+  price       Decimal       @db.Decimal(8, 2)
   imageUrl    String?
-  isActive    Boolean      @default(true)
-  isPopular   Boolean      @default(false)
-  allergens   String[]
-  weight      String?
-  calories    Int?
-  preparation String?
-  sortOrder   Int          @default(0)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  category    MenuCategory  @relation(fields: [categoryId], references: [id])
+}
+
+model Hookah {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?
+  price       Decimal  @db.Decimal(8, 2)
+  features    String[]
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BoardGame {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?
+  price       Decimal  @db.Decimal(8, 2)
+  duration    String?  @db.VarChar(100)
+  players     String?  @db.VarChar(100)
+  difficulty  String?  @db.VarChar(100)
+  category    String?  @db.VarChar(100)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model BilliardsService {
-  id           Int       @id @default(autoincrement())
-  name         String    @db.VarChar(255)
-  type         String    @unique @db.VarChar(50)
-  weekdayPrice Decimal   @db.Decimal(8, 2)
-  weekendPrice Decimal   @db.Decimal(8, 2)
-  description  String?
-  imageUrl     String?
-  isActive     Boolean?  @default(true)
-  sortOrder    Int?      @default(0)
-  createdAt    DateTime? @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  type        String    @unique @db.VarChar(50)
+  price       Decimal   @db.Decimal(8, 2)
+  description String?
+  imageUrl    String?
+  isActive    Boolean?  @default(true)
+  sortOrder   Int?      @default(0)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model BilliardsSettings {
@@ -145,17 +166,16 @@ model BilliardsSettings {
 }
 
 model KaraokeService {
-  id           Int       @id @default(autoincrement())
-  name         String    @db.VarChar(255)
-  type         String    @unique @db.VarChar(50)
-  weekdayPrice Decimal   @db.Decimal(8, 2)
-  weekendPrice Decimal   @db.Decimal(8, 2)
-  description  String?
-  imageUrl     String?
-  isActive     Boolean?  @default(true)
-  sortOrder    Int?      @default(0)
-  createdAt    DateTime? @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  type        String    @unique @db.VarChar(50)
+  price       Decimal   @db.Decimal(8, 2)
+  description String?
+  imageUrl    String?
+  isActive    Boolean?  @default(true)
+  sortOrder   Int?      @default(0)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime? @default(now()) @updatedAt @db.Timestamp(6)
 }
 
 model KaraokeSettings {

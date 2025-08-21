@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { eventsApi, CreateEventData } from '@/shared/api/events'
+import { ImageUpload } from '@/shared/ui/ImageUpload'
 
 const FormContainer = styled.div`
   background: rgba(255, 255, 255, 0.05);
@@ -209,6 +210,7 @@ interface EventFormData {
   price: string
   category: string
   isUpcoming: boolean
+  imageUrl: string
 }
 
 const initialFormData: EventFormData = {
@@ -218,7 +220,8 @@ const initialFormData: EventFormData = {
   description: '',
   price: '',
   category: '',
-  isUpcoming: true
+  isUpcoming: true,
+  imageUrl: ''
 }
 
 const categories = [
@@ -240,23 +243,82 @@ export const EventsForm: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
+  // Логирование при монтировании компонента
+  console.log('🚀 EventsForm компонент загружен')
+  console.log('☁️ Проверяем Cloudinary переменные:')
+  console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
+  console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+  console.log('☁️ Все env переменные:', import.meta.env)
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+    console.log('📝 Изменение поля:', name, '=', value)
+    
+    setFormData(prev => {
+      console.log('📝 Предыдущие данные формы:', prev)
+      const newData = { ...prev, [name]: value }
+      console.log('📝 Новые данные формы:', newData)
+      return newData
+    })
   }
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      isUpcoming: e.target.checked
-    }))
+    console.log('☑️ Изменение чекбокса isUpcoming:', e.target.checked)
+    
+    setFormData(prev => {
+      console.log('☑️ Предыдущие данные формы:', prev)
+      const newData = { ...prev, isUpcoming: e.target.checked }
+      console.log('☑️ Новые данные формы:', newData)
+      return newData
+    })
+  }
+
+  const handleImageUpload = (imageUrl: string) => {
+    console.log('🖼️ === НАЧАЛО ЗАГРУЗКИ ИЗОБРАЖЕНИЯ ===')
+    console.log('🖼️ Получен URL изображения:', imageUrl)
+    console.log('🖼️ Тип URL:', typeof imageUrl)
+    
+    // Проверяем переменные окружения
+    console.log('☁️ Cloudinary переменные:')
+    console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
+    console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+    
+    if (imageUrl && typeof imageUrl === 'string') {
+      console.log('🖼️ Длина URL:', imageUrl.length)
+      console.log('🖼️ URL начинается с:', imageUrl.substring(0, 50) + '...')
+    } else {
+      console.log('🖼️ ВНИМАНИЕ: imageUrl не является строкой или пустой:', imageUrl)
+    }
+    
+    setFormData(prev => {
+      console.log('🖼️ Предыдущие данные формы:', prev)
+      const newData = { ...prev, imageUrl }
+      console.log('🖼️ Новые данные формы:', newData)
+      console.log('🖼️ Новое значение imageUrl:', newData.imageUrl)
+      return newData
+    })
+    
+    console.log('🖼️ === КОНЕЦ ЗАГРУЗКИ ИЗОБРАЖЕНИЯ ===')
+  }
+
+  const handleImageRemove = () => {
+    console.log('🗑️ === НАЧАЛО УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
+    console.log('🗑️ Текущий imageUrl перед удалением:', formData.imageUrl)
+    
+    setFormData(prev => {
+      console.log('🗑️ Предыдущие данные формы:', prev)
+      const newData = { ...prev, imageUrl: '' }
+      console.log('🗑️ Новые данные формы после удаления:', newData)
+      return newData
+    })
+    
+    console.log('🗑️ === КОНЕЦ УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('🚀 Отправляем данные мероприятия:', formData)
+    
     setIsSubmitting(true)
     setSuccessMessage('')
     setErrorMessage('')
@@ -269,8 +331,12 @@ export const EventsForm: React.FC = () => {
         time: formData.time,
         price: formData.price || undefined,
         category: formData.category,
-        isUpcoming: formData.isUpcoming
+        isUpcoming: formData.isUpcoming,
+        imageUrl: formData.imageUrl || undefined
       }
+
+      console.log('🚀 Отправляем данные мероприятия:', eventData)
+      console.log('🖼️ URL изображения:', eventData.imageUrl)
 
       const response = await eventsApi.createEvent(eventData)
       
@@ -404,6 +470,32 @@ export const EventsForm: React.FC = () => {
               placeholder="Подробное описание мероприятия, что будет происходить, что включено в стоимость и т.д."
               required
             />
+          </FormGroupFull>
+
+          <FormGroupFull>
+            <Label>Изображение мероприятия</Label>
+            <ImageUpload
+              onImageUpload={handleImageUpload}
+              onImageRemove={handleImageRemove}
+              currentImageUrl={formData.imageUrl}
+            />
+            {formData.imageUrl && (
+              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                <p style={{ color: '#28a745', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                  ✅ Изображение загружено
+                </p>
+                <img 
+                  src={formData.imageUrl} 
+                  alt="Предпросмотр" 
+                  style={{ 
+                    maxWidth: '200px', 
+                    maxHeight: '150px', 
+                    borderRadius: '8px',
+                    border: '2px solid #28a745'
+                  }} 
+                />
+              </div>
+            )}
           </FormGroupFull>
         </FormGrid>
 

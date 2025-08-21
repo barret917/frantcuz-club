@@ -269,6 +269,12 @@ export const MenuItemsTab: React.FC = () => {
     sortOrder: 0
   })
 
+  // Логирование Cloudinary переменных для сравнения
+  console.log('🍽️ MenuItemsTab компонент загружен')
+  console.log('☁️ Cloudinary переменные в меню:')
+  console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
+  console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+
   useEffect(() => {
     loadData()
   }, [])

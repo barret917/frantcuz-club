@@ -22,6 +22,7 @@ import { ClubRulesPage } from '@/pages/ClubRules'
 import { PrivacyPage } from '@/pages/Privacy'
 import { RequisitesPage } from '@/pages/Requisites'
 import { BanquetsPage } from '@/pages/Banquets'
+import { HookahPage } from '@/pages/Hookah'
 import { AdminPage } from '@/pages/Admin/AdminPage'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ErrorPage } from '@/pages/Error'
@@ -37,7 +38,7 @@ function App() {
           <Route path="/karaoke" element={<KaraokePage />} />
           <Route path="/disco" element={<DiscoPage />} />
           <Route path="/playstation" element={<PlaystationPage />} />
-          <Route path="/lounge" element={<LoungePage />} />
+          <Route path="/hookah" element={<HookahPage />} />
           <Route path="/games" element={<GamesPage />} />
           <Route path="/banquets" element={<BanquetsPage />} />
           <Route path="/booking" element={<BookingPage />} />

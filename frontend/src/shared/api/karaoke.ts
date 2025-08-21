@@ -4,9 +4,8 @@ import { apiClient } from './client'
 export interface KaraokeService {
   id: number
   name: string
-  type: 'deposit' | 'vip'
-  weekdayPrice: number
-  weekendPrice: number
+  type: 'standard' | 'vip' | 'premium'
+  price: number
   description?: string
   imageUrl?: string
   isActive: boolean
@@ -28,20 +27,17 @@ export interface KaraokeSettings {
 
 export interface CreateKaraokeServiceData {
   name: string
-  type: 'deposit' | 'vip'
-  weekdayPrice: number
-  weekendPrice: number
+  type: 'standard' | 'vip' | 'premium'
+  price: number
   description?: string
   imageUrl?: string
-  isActive?: boolean
   sortOrder?: number
 }
 
 export interface UpdateKaraokeServiceData {
   name?: string
-  type?: 'deposit' | 'vip'
-  weekdayPrice?: number
-  weekendPrice?: number
+  type?: 'standard' | 'vip' | 'premium'
+  price?: number
   description?: string
   imageUrl?: string
   isActive?: boolean

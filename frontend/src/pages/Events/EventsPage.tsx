@@ -200,6 +200,33 @@ const EventCard = styled.div`
   }
 `
 
+const EventImage = styled.div`
+  width: 100%;
+  height: 250px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
+  }
+  
+  @media (max-width: 768px) {
+    height: 200px;
+  }
+`
+
 const EventDate = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
   color: white;
@@ -441,6 +468,11 @@ export const EventsPage: React.FC = () => {
               <EventsGrid>
                 {filteredEvents.map((event) => (
                   <EventCard key={event.id}>
+                    {event.imageUrl && (
+                      <EventImage>
+                        <img src={event.imageUrl} alt={event.title} />
+                      </EventImage>
+                    )}
                     <EventDate>{formatDate(event.date)}</EventDate>
                     <EventTitle>{event.title}</EventTitle>
                     <EventDescription>{event.description}</EventDescription>
@@ -466,4 +498,4 @@ export const EventsPage: React.FC = () => {
       </Main>
     </PageContainer>
   )
-} 
+}

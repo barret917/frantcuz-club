@@ -76,6 +76,8 @@ router.get('/:id', async (req, res) => {
 // Создать новое мероприятие
 router.post('/', async (req, res) => {
   try {
+    console.log('🚀 Backend: Получен запрос на создание мероприятия:', req.body)
+    
     const {
       title,
       description,
@@ -84,12 +86,15 @@ router.post('/', async (req, res) => {
       price,
       category,
       isUpcoming,
+      imageUrl,
       maxGuests,
       location,
       organizer,
       contactInfo,
       tags
     } = req.body
+    
+    console.log('🖼️ Backend: URL изображения:', imageUrl)
     
     // Валидация обязательных полей
     if (!title || !description || !date || !time || !category) {
@@ -99,22 +104,29 @@ router.post('/', async (req, res) => {
       })
     }
     
+    const eventData = {
+      title,
+      description,
+      date: new Date(date),
+      time,
+      price: price || null,
+      category,
+      isUpcoming: isUpcoming !== undefined ? isUpcoming : true,
+      imageUrl: imageUrl || null,
+      maxGuests: maxGuests ? parseInt(maxGuests) : null,
+      location: location || null,
+      organizer: organizer || null,
+      contactInfo: contactInfo || null,
+      tags: tags || []
+    }
+    
+    console.log('💾 Backend: Создаем мероприятие в БД:', eventData)
+    
     const event = await prisma.event.create({
-      data: {
-        title,
-        description,
-        date: new Date(date),
-        time,
-        price: price || null,
-        category,
-        isUpcoming: isUpcoming !== undefined ? isUpcoming : true,
-        maxGuests: maxGuests ? parseInt(maxGuests) : null,
-        location: location || null,
-        organizer: organizer || null,
-        contactInfo: contactInfo || null,
-        tags: tags || []
-      }
+      data: eventData
     })
+    
+    console.log('✅ Backend: Мероприятие создано в БД:', event)
     
     res.status(201).json({
       success: true,

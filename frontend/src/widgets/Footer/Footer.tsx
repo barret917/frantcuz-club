@@ -271,6 +271,12 @@ export const Footer: React.FC = () => {
               <a href="https://t.me/dali_hinkali/" target="_blank" rel="noreferrer" title="Telegram">
                 <img src="/images/telegram-logo.svg" alt="Telegram" />
               </a>
+              <a href="#" target="_blank" rel="noreferrer" title="Max">
+                <img src="/images/max.svg" alt="Max" />
+              </a>
+              <a href="#" target="_blank" rel="noreferrer" title="WhatsApp">
+                <img src="/images/WhatsApp.svg" alt="WhatsApp" />
+              </a>
             </SocialLinks>
           </FooterSection>
 

@@ -8,6 +8,8 @@ import karaokeRouter from './routes/karaoke';
 import banquetRequestsRouter from './routes/banquet-requests';
 import tablesRouter from './routes/tables';
 import eventsRouter from './routes/events';
+import hookahRouter from './routes/hookah';
+import boardGamesRouter from './routes/board-games';
 
 dotenv.config();
 
@@ -27,6 +29,8 @@ app.use('/api/karaoke', karaokeRouter);
 app.use('/api/banquet-requests', banquetRequestsRouter);
 app.use('/api', tablesRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/hookah', hookahRouter);
+app.use('/api/board-games', boardGamesRouter);
 
 // Health check
 app.get('/health', (req, res) => {

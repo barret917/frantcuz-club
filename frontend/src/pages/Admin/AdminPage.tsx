@@ -7,6 +7,8 @@ import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCat
 import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
 import { BilliardsPricing } from '@/features/billiards-pricing'
 import { KaraokePricing } from '@/features/karaoke-pricing'
+import { HookahList } from '@/features/hookah-management'
+import { BoardGameList } from '@/features/board-games-management'
 import { BanquetRequestsPage } from './BanquetRequestsPage'
 import { EventsForm } from '@/features/events-management'
 import { getZones } from '@/shared/api/zones'
@@ -312,7 +314,7 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'events'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'events' | 'hookah' | 'board-games'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
@@ -322,7 +324,9 @@ const tabs = [
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
   { key: 'karaoke', label: 'Караоке', icon: '🎤' },
   { key: 'banquet-requests', label: 'Заявки на банкеты', icon: '🎉' },
-  { key: 'events', label: 'Мероприятия', icon: '🎭' }
+  { key: 'events', label: 'Мероприятия', icon: '🎭' },
+  { key: 'hookah', label: 'Кальян', icon: '💨' },
+  { key: 'board-games', label: 'Настольные игры', icon: '🎲' }
 ]
 
 export const AdminPage: React.FC = () => {
@@ -424,6 +428,10 @@ export const AdminPage: React.FC = () => {
         }} />
       case 'events':
         return <EventsForm />
+      case 'hookah':
+        return <HookahList />
+      case 'board-games':
+        return <BoardGameList />
       case 'bookings':
         return (
           <ComingSoonCard>
@@ -431,7 +439,7 @@ export const AdminPage: React.FC = () => {
             <ComingSoonTitle>Управление бронированиями</ComingSoonTitle>
             <ComingSoonText>
               Скоро здесь появится полная система управления бронированиями 
-              с календарем, уведомлениями и статистикой.
+              и резервациями.
             </ComingSoonText>
           </ComingSoonCard>
         )
@@ -450,7 +458,9 @@ export const AdminPage: React.FC = () => {
       'karaoke': 'Управляйте ценами и настройками караоке',
       'banquet-requests': 'Управляйте заявками на банкеты и мероприятия',
       'bookings': 'Управляйте бронированиями и резервациями',
-      'events': 'Создавайте и управляйте мероприятиями клуба'
+      'events': 'Создавайте и управляйте мероприятиями клуба',
+      'hookah': 'Управляйте тарифами и особенностями кальяна',
+      'board-games': 'Управляйте настольными играми и их ценами'
     }
     return descriptions[activeTab] || ''
   }

@@ -41,7 +41,7 @@ export class BilliardsController {
   // Создать новую услугу бильярда
   async createService(req: Request, res: Response) {
     try {
-      const { name, type, weekdayPrice, weekendPrice, description, imageUrl, sortOrder } = req.body
+      const { name, type, price, description, imageUrl, sortOrder } = req.body
 
       // Проверяем, что тип уникален
       const existingService = await prisma.billiardsService.findUnique({
@@ -56,8 +56,7 @@ export class BilliardsController {
         data: {
           name,
           type,
-          weekdayPrice: parseFloat(weekdayPrice),
-          weekendPrice: parseFloat(weekendPrice),
+          price: parseFloat(price),
           description,
           imageUrl,
           sortOrder: sortOrder || 0
@@ -75,7 +74,7 @@ export class BilliardsController {
   async updateService(req: Request, res: Response) {
     try {
       const { id } = req.params
-      const { name, type, weekdayPrice, weekendPrice, description, imageUrl, isActive, sortOrder } = req.body
+      const { name, type, price, description, imageUrl, isActive, sortOrder } = req.body
 
       // Проверяем, что услуга существует
       const existingService = await prisma.billiardsService.findUnique({
@@ -102,12 +101,11 @@ export class BilliardsController {
         data: {
           name,
           type,
-          weekdayPrice: weekdayPrice ? parseFloat(weekdayPrice) : undefined,
-          weekendPrice: weekendPrice ? parseFloat(weekendPrice) : undefined,
+          price: price ? parseFloat(price) : undefined,
           description,
           imageUrl,
           isActive,
-          sortOrder: sortOrder !== undefined ? sortOrder : undefined
+          sortOrder
         }
       })
 

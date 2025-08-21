@@ -419,13 +419,8 @@ export const KaraokePage: React.FC = () => {
                   <CardDescription>{service.description}</CardDescription>
                   
                   <PriceContainer>
-                    <PriceLabel>Воскресенье - четверг</PriceLabel>
-                    <Price>{service.weekdayPrice} ₽</Price>
-                  </PriceContainer>
-                  
-                  <PriceContainer>
-                    <PriceLabel>Пятница, суббота, воскресенье и праздничные дни</PriceLabel>
-                    <Price>{service.weekendPrice} ₽</Price>
+                    <PriceLabel>Цена за час</PriceLabel>
+                    <Price>{service.price} ₽</Price>
                   </PriceContainer>
                 </PricingCard>
               ))}

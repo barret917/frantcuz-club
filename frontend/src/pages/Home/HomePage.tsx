@@ -91,28 +91,39 @@ const Title = styled.h1`
   text-align: center;
   font-size: 3.5rem;
   font-weight: 800;
-  margin-bottom: 4rem;
+  margin-bottom: 1rem;
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   position: relative;
   
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 4px;
-    background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
-    border-radius: 2px;
+  /* Уменьшаем шрифт для второй строки */
+  span:first-of-type {
+    font-size: 2.8rem;
   }
   
   @media (max-width: 768px) {
     font-size: 2.5rem;
     margin-bottom: 3rem;
+    
+    span:first-of-type {
+      font-size: 2rem;
+    }
+  }
+`
+
+const FoundedDate = styled.div`
+  display: block;
+  text-align: center;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: white;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
   }
 `
 
@@ -139,6 +150,10 @@ const ServicesContainer = styled.div`
   gap: 2rem;
   margin-top: 0;
   
+  @media (max-width: 1200px) {
+    gap: 1.8rem;
+  }
+  
   @media (max-width: 1024px) {
     gap: 1.5rem;
   }
@@ -148,20 +163,25 @@ const ServicesContainer = styled.div`
     gap: 1.5rem;
     margin-top: 0;
   }
+  
+  @media (max-width: 480px) {
+    gap: 1rem;
+    margin-top: 0;
+  }
 `
 
 const ServiceItem = styled.div`
   background: rgba(34, 34, 34, 0.9);
   backdrop-filter: blur(20px);
   border-radius: 24px;
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 2.5rem;
   text-align: center;
   border: 1px solid rgba(102, 126, 234, 0.2);
   transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: white;
   
@@ -174,9 +194,20 @@ const ServiceItem = styled.div`
       0 0 20px rgba(102, 126, 234, 0.2);
   }
   
+  @media (max-width: 1024px) {
+    padding: 1.8rem 2.2rem;
+    font-size: 1.2rem;
+  }
+  
   @media (max-width: 768px) {
+    padding: 1.5rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 480px) {
     padding: 1.2rem 1.5rem;
     font-size: 1rem;
+    border-radius: 20px;
   }
 `
 
@@ -192,13 +223,11 @@ export const HomePage: React.FC = () => {
           <Content>
             <SectionContainer>
               <Title>
-                Франтцуз<br />
-                развлекательный комплекс
+                Француз<br />
+                <span>развлекательный комплекс</span>
               </Title>
               
-              <Subtitle>
-                Основан в 2018
-              </Subtitle>
+              <FoundedDate>основан в 2018</FoundedDate>
               
               <ServicesContainer>
                 <ServiceItem>Бильярд</ServiceItem>

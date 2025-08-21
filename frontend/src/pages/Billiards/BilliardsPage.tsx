@@ -423,16 +423,14 @@ export const BilliardsPage: React.FC = () => {
           <VIPPricingInfo>
             <VIPPriceRow>
               <VIPPriceLabel>VIP зал русского бильярда:</VIPPriceLabel>
-              <VIPPriceValue>Понедельник - четверг - {service.weekdayPrice}₽</VIPPriceValue>
-              <VIPPriceValue>Пятница, суббота, воскресенье и праздничные дни - {service.weekendPrice}₽</VIPPriceValue>
+              <VIPPriceValue>{service.price}₽</VIPPriceValue>
             </VIPPriceRow>
             <VIPPriceRow>
               <VIPPriceLabel>VIP зал пула:</VIPPriceLabel>
-              <VIPPriceValue>Понедельник - четверг - {service.weekdayPrice}₽</VIPPriceValue>
-              <VIPPriceValue>Пятница, суббота, воскресенье и праздничные дни - {service.weekendPrice}₽</VIPPriceValue>
+              <VIPPriceValue>{service.price}₽</VIPPriceValue>
             </VIPPriceRow>
           </VIPPricingInfo>
-          <CardBookButton href="https://frantsuz-club.ru/booking-new/" target="_self">
+          <CardBookButton href="/booking" target="_self">
             Забронировать стол
           </CardBookButton>
         </PricingCard>
@@ -444,15 +442,11 @@ export const BilliardsPage: React.FC = () => {
         <CardTitle>{service.name}</CardTitle>
         <PricingInfo>
           <PriceRow>
-            <PriceLabel>Понедельник - четверг:</PriceLabel>
-            <PriceValue>{service.weekdayPrice}₽</PriceValue>
-          </PriceRow>
-          <PriceRow>
-            <PriceLabel>Пятница, суббота, воскресенье и праздничные дни:</PriceLabel>
-            <PriceValue>{service.weekendPrice}₽</PriceValue>
+            <PriceLabel>Цена за час:</PriceLabel>
+            <PriceValue>{service.price}₽</PriceValue>
           </PriceRow>
         </PricingInfo>
-        <CardBookButton href="https://frantsuz-club.ru/booking-new/" target="_self">
+        <CardBookButton href="/booking" target="_self">
           Забронировать стол
         </CardBookButton>
       </PricingCard>
@@ -500,7 +494,7 @@ export const BilliardsPage: React.FC = () => {
                 <Description>
                   Проведите приятное время в компании друзей, наслаждаясь игрой в бильярд
                 </Description>
-                <BookButton href="https://frantsuz-club.ru/booking-new/" target="_self">
+                <BookButton href="/booking" target="_self">
                   Забронировать стол
                 </BookButton>
               </LeftContent>

@@ -40,7 +40,7 @@ export class KaraokeController {
   // Создать новую услугу караоке
   async createService(req: Request, res: Response) {
     try {
-      const { name, type, weekdayPrice, weekendPrice, description, imageUrl, isActive, sortOrder } = req.body
+      const { name, type, price, description, imageUrl, isActive, sortOrder } = req.body
 
       // Проверяем уникальность типа
       const existingService = await prisma.karaokeService.findUnique({
@@ -55,8 +55,7 @@ export class KaraokeController {
         data: {
           name,
           type,
-          weekdayPrice: parseFloat(weekdayPrice),
-          weekendPrice: parseFloat(weekendPrice),
+          price: parseFloat(price),
           description,
           imageUrl,
           isActive: isActive !== undefined ? isActive : true,
@@ -75,7 +74,7 @@ export class KaraokeController {
   async updateService(req: Request, res: Response) {
     try {
       const { id } = req.params
-      const { name, type, weekdayPrice, weekendPrice, description, imageUrl, isActive, sortOrder } = req.body
+      const { name, type, price, description, imageUrl, isActive, sortOrder } = req.body
 
       // Проверяем существование услуги
       const existingService = await prisma.karaokeService.findUnique({
@@ -102,8 +101,7 @@ export class KaraokeController {
         data: {
           name,
           type,
-          weekdayPrice: weekdayPrice ? parseFloat(weekdayPrice) : undefined,
-          weekendPrice: weekendPrice ? parseFloat(weekendPrice) : undefined,
+          price: price ? parseFloat(price) : undefined,
           description,
           imageUrl,
           isActive,

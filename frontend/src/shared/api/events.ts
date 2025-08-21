@@ -29,6 +29,7 @@ export interface CreateEventData {
   price?: string
   category: string
   isUpcoming: boolean
+  imageUrl?: string
   maxGuests?: number
   location?: string
   organizer?: string
@@ -98,11 +99,15 @@ export const eventsApi = {
 
   // Создать новое мероприятие
   async createEvent(eventData: CreateEventData): Promise<CreateEventResponse> {
+    console.log('🚀 API: Создаем мероприятие:', eventData)
+    console.log('🖼️ API: URL изображения:', eventData.imageUrl)
+    
     try {
       const response = await apiClient.post('/events', eventData)
+      console.log('✅ API: Мероприятие создано:', response.data)
       return response.data
     } catch (error) {
-      console.error('Ошибка при создании мероприятия:', error)
+      console.error('❌ API: Ошибка при создании мероприятия:', error)
       throw error
     }
   },
