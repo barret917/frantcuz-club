@@ -10,7 +10,6 @@ import { KaraokePricing } from '@/features/karaoke-pricing'
 import { HookahList } from '@/features/hookah-management'
 import { BoardGameList } from '@/features/board-games-management'
 import { BanquetRequestsPage } from './BanquetRequestsPage'
-import { EventsForm } from '@/features/events-management'
 import { getZones } from '@/shared/api/zones'
 import { banquetRequestsApi } from '@/shared/api/banquet-requests'
 import { Zone } from '@/shared/model/types'
@@ -314,7 +313,7 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'events' | 'hookah' | 'board-games'
+type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'
 
 const tabs = [
   { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
@@ -324,7 +323,6 @@ const tabs = [
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
   { key: 'karaoke', label: 'Караоке', icon: '🎤' },
   { key: 'banquet-requests', label: 'Заявки на банкеты', icon: '🎉' },
-  { key: 'events', label: 'Мероприятия', icon: '🎭' },
   { key: 'hookah', label: 'Кальян', icon: '💨' },
   { key: 'board-games', label: 'Настольные игры', icon: '🎲' }
 ]
@@ -426,8 +424,6 @@ export const AdminPage: React.FC = () => {
             }
           }).catch(console.error)
         }} />
-      case 'events':
-        return <EventsForm />
       case 'hookah':
         return <HookahList />
       case 'board-games':
@@ -458,7 +454,6 @@ export const AdminPage: React.FC = () => {
       'karaoke': 'Управляйте ценами и настройками караоке',
       'banquet-requests': 'Управляйте заявками на банкеты и мероприятия',
       'bookings': 'Управляйте бронированиями и резервациями',
-      'events': 'Создавайте и управляйте мероприятиями клуба',
       'hookah': 'Управляйте тарифами и особенностями кальяна',
       'board-games': 'Управляйте настольными играми и их ценами'
     }

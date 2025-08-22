@@ -12,7 +12,6 @@ import { LoungePage } from '@/pages/Lounge'
 import { GamesPage } from '@/pages/Games'
 import { BookingPage } from '@/pages/Booking'
 import { MenuPage } from '@/pages/Menu'
-import { EventsPage } from '@/pages/Events'
 import { CardsPage } from '@/pages/Cards'
 import { ThreeDTourPage } from '@/pages/3DTour'
 import { SecurityPage } from '@/pages/Security'
@@ -43,7 +42,6 @@ function App() {
           <Route path="/banquets" element={<BanquetsPage />} />
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/menu" element={<MenuPage />} />
-          <Route path="/events" element={<EventsPage />} />
           <Route path="/cards" element={<CardsPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/security" element={<SecurityPage />} />
