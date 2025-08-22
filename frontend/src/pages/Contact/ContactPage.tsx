@@ -732,7 +732,7 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>✉️</InfoIcon>
                   <InfoContent>
                     <h4>Email</h4>
-                    <p>Скоро будет другая почта</p>
+                    <p>online@frantsuz-club.ru</p>
                   </InfoContent>
                 </InfoItem>
                 
@@ -747,8 +747,10 @@ export const ContactPage: React.FC = () => {
                 <InfoItem>
                   <InfoIcon>🚇</InfoIcon>
                   <InfoContent>
-                    <h4>Метро</h4>
-                    <p>Новокосино (10 минут пешком)</p>
+                    <h4>Метро и транспорт</h4>
+                    <p><strong>Метро:</strong> Новокосино</p>
+                    <p><strong>Автобусы:</strong> 142, 706, 760 до Носовихинское шоссе</p>
+                    <p><strong>Пешком:</strong> 6 минут до ТЦ Волна</p>
                   </InfoContent>
                 </InfoItem>
                 

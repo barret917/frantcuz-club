@@ -1,7 +1,11 @@
 import express from 'express'
 import { zonesController } from '../controllers/zones.controller'
+import { createZone } from '../controllers/zone.controller'
 
 const router = express.Router()
+
+// Создать зону
+router.post('/', createZone)
 
 // Получить все зоны
 router.get('/', zonesController.getZones)

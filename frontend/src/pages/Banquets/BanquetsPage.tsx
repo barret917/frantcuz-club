@@ -262,7 +262,7 @@ const BanquetsPage: React.FC = () => {
             <ContactItem>
               <div className="icon">📧</div>
               <div className="label">Email</div>
-              <div className="value">Скоро будет другая почта</div>
+              <div className="value">banket@frantsuz-club.ru</div>
             </ContactItem>
             <ContactItem>
               <div className="icon">⏰</div>

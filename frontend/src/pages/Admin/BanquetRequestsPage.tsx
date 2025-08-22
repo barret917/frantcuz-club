@@ -57,6 +57,17 @@ const PageTitle = styled.h1`
   }
 `
 
+const PageSubtitle = styled.p`
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 2rem;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+`
+
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -469,6 +480,7 @@ export const BanquetRequestsPage: React.FC<BanquetRequestsPageProps> = ({ onStat
     <PageWrapper>
       <Container>
         <PageTitle>🎉 Заявки на банкеты</PageTitle>
+        <PageSubtitle>Здесь вы можете просматривать и управлять заявками на банкеты.</PageSubtitle>
         
         {/* Статистика */}
         {stats && (
