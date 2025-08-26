@@ -657,7 +657,7 @@ export const ContactPage: React.FC = () => {
         console.log('🔧 Создаем карту...')
         window.ymaps.ready(() => {
           const map = new window.ymaps.Map(mapRef.current, {
-            center: [55.7447, 37.8641], // Координаты Салтыковская 49а
+            center: [55.7452, 37.88 ], // Координаты Салтыковская 49а
             zoom: 15,
             controls: ['zoomControl', 'fullscreenControl']
           }, {
@@ -666,7 +666,7 @@ export const ContactPage: React.FC = () => {
           })
 
           // Добавляем метку
-          const placemark = new window.ymaps.Placemark([55.7447, 37.8641], {
+          const placemark = new window.ymaps.Placemark([55.7452, 37.88 ], {
             balloonContent: `
               <div style="padding: 10px;">
                 <h3 style="margin: 0 0 10px 0; color: #333;">Клуб "Франтцуз"</h3>
@@ -716,7 +716,7 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>📍</InfoIcon>
                   <InfoContent>
                     <h4>Адрес</h4>
-                    <p>г. Москва, ул. Салтыковская, д. 49а</p>
+                    <p>г. Москва, ул. Салтыковская, 49А, ТЦ Волна, -1 этаж</p>
                   </InfoContent>
                 </InfoItem>
                 
@@ -748,8 +748,9 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>🚇</InfoIcon>
                   <InfoContent>
                     <h4>Метро и транспорт</h4>
-                    <p><strong>Метро:</strong> Новокосино</p>
-                    <p><strong>Автобусы:</strong> 142, 706, 760 до Носовихинское шоссе</p>
+                    <p><strong>Метро:</strong> Новокосино (2-й выход)</p>
+                    <p><strong>Автобусы:</strong> 760К, Н4, 706, 723, 760 до Новокосинская улица 51</p>
+                    <p><strong>Остановка:</strong> В1</p>
                     <p><strong>Пешком:</strong> 6 минут до ТЦ Волна</p>
                   </InfoContent>
                 </InfoItem>
@@ -758,7 +759,7 @@ export const ContactPage: React.FC = () => {
                   <InfoIcon>🌐</InfoIcon>
                   <InfoContent>
                     <h4>Социальные сети</h4>
-                    <p>VK, Telegram, Rutube</p>
+                    <p>VK, Telegram, Rutube, WhatsApp, Max</p>
                   </InfoContent>
                 </InfoItem>
               </ContactInfo>
@@ -903,7 +904,7 @@ export const ContactPage: React.FC = () => {
             <MapText>
               Мы находимся в удобном месте на улице Салтыковская. 
               Добраться можно на автомобиле или общественном транспорте. 
-              Есть парковка для гостей.
+              Есть бесплатная парковка для гостей.
             </MapText>
           </SectionContainer>
         </MapSection>

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import zonesRouter from './routes/zones';
+import hallsRouter from './routes/halls';
 import menuRouter from './routes/menu';
 import billiardsRouter from './routes/billiards';
 import karaokeRouter from './routes/karaoke';
@@ -22,6 +23,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
+app.use('/api/halls', hallsRouter);
 app.use('/api/zones', zonesRouter);
 app.use('/api', menuRouter);
 app.use('/api/billiards', billiardsRouter);

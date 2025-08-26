@@ -22,12 +22,4 @@ export const getZones = async (): Promise<Zone[]> => {
   }
 }
 
-export const createZone = async (zoneData: {
-  name: string
-  openTime: string
-  closeTime: string
-  imageUrl: string
-}): Promise<Zone> => {
-  const response = await apiClient.post('/zones', zoneData)
-  return response.data
-} 
+ 

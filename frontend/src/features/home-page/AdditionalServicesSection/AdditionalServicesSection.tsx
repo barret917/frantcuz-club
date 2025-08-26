@@ -384,14 +384,12 @@ const AdditionalServicesSection: React.FC = () => {
           >
             <ServiceIcon $isHovered={hoveredCard === 4}>
               <svg viewBox="0 0 24 24">
-                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09v6L12 23 1 15v-6l11-6z" fill="white"/>
-                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" fill="white"/>
-                <path d="M12 12l3-1.64L12 9l-3 1.64L12 12z" fill="white"/>
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="white"/>
               </svg>
             </ServiceIcon>
-            <ServiceTitle>🎯 Академия франтцуз</ServiceTitle>
+            <ServiceTitle>🔧 Ремонтная мастерская киев</ServiceTitle>
             <ServiceDescription>
-              Вы можете пройти образовательные курсы по 12 дисциплинам
+              Профессиональный ремонт и восстановление киев для бильярда
             </ServiceDescription>
           </ServiceCard>
           
@@ -418,12 +416,14 @@ const AdditionalServicesSection: React.FC = () => {
           >
             <ServiceIcon $isHovered={hoveredCard === 6}>
               <svg viewBox="0 0 24 24">
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="white"/>
+                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09v6L12 23 1 15v-6l11-6z" fill="white"/>
+                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" fill="white"/>
+                <path d="M12 12l3-1.64L12 9l-3 1.64L12 12z" fill="white"/>
               </svg>
             </ServiceIcon>
-            <ServiceTitle>🔧 Ремонтная мастерская киев</ServiceTitle>
+            <ServiceTitle>🎯 Академия франтцуз</ServiceTitle>
             <ServiceDescription>
-              Профессиональный ремонт и восстановление киев для бильярда
+              Вы можете пройти образовательные курсы по 12 дисциплинам
             </ServiceDescription>
           </ServiceCard>
           
@@ -437,7 +437,7 @@ const AdditionalServicesSection: React.FC = () => {
                 <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z" fill="white"/>
               </svg>
             </ServiceIcon>
-            <ServiceTitle>🍕 Заказать доставку еды</ServiceTitle>
+            <ServiceTitle>🍕 Тут Еда</ServiceTitle>
             <ServiceDescription>
               Быстрая доставка вкусных блюд прямо к вашему столику или на дом
             </ServiceDescription>

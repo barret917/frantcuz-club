@@ -91,7 +91,7 @@ const Title = styled.h1`
   text-align: center;
   font-size: 3.5rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 0.2rem;
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -148,7 +148,7 @@ const ServicesContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 2rem;
-  margin-top: 0;
+  margin-top: 3rem;
   
   @media (max-width: 1200px) {
     gap: 1.8rem;

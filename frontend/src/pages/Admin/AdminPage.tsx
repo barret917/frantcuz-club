@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { CreateZoneForm } from '@/features/create-zone'
 import { ZoneCanvas } from '@/features/zone-constructor/components/ZoneCanvas'
 import { ZoneSelector } from '@/features/zone-constructor/components/ZoneSelector'
-import { MenuTypesTab } from '@/features/menu-management/components/MenuTypesTab'
-import { MenuCategoriesTab } from '@/features/menu-management/components/MenuCategoriesTab'
-import { MenuItemsTab } from '@/features/menu-management/components/MenuItemsTab'
+import { MenuManagement } from '@/features/menu-management'
 import { BilliardsPricing } from '@/features/billiards-pricing'
 import { KaraokePricing } from '@/features/karaoke-pricing'
 import { HookahList } from '@/features/hookah-management'
 import { BoardGameList } from '@/features/board-games-management'
+import { ZoneManager, HallsManagement } from '@/features/hall-management'
 import { BanquetRequestsPage } from './BanquetRequestsPage'
-import { getZones } from '@/shared/api/zones'
+import { getZones } from '@/shared/api/halls'
 import { banquetRequestsApi } from '@/shared/api/banquet-requests'
-import { Zone } from '@/shared/model/types'
+import { Zone } from '@/shared/api/halls'
 import styled, { keyframes, css } from 'styled-components'
 
 // Анимации
@@ -313,11 +311,11 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'create-zone' | 'zone-constructor' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'
+type AdminTab = 'zone-constructor' | 'halls' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'
 
 const tabs = [
-  { key: 'create-zone', label: 'Создать зону', icon: '🏗️' },
   { key: 'zone-constructor', label: 'Конструктор зоны', icon: '🎨' },
+  { key: 'halls', label: 'Залы', icon: '🏢' },
   { key: 'menu', label: 'Меню', icon: '🍽️' },
   { key: 'bookings', label: 'Бронирования', icon: '📅' },
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
@@ -328,7 +326,7 @@ const tabs = [
 ]
 
 export const AdminPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<AdminTab>('create-zone')
+  const [activeTab, setActiveTab] = useState<AdminTab>('halls')
   const [zones, setZones] = useState<Zone[]>([])
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null)
   const [showCanvas, setShowCanvas] = useState(false)
@@ -392,8 +390,6 @@ export const AdminPage: React.FC = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'create-zone':
-        return <CreateZoneForm />
       case 'zone-constructor':
         return showCanvas ? (
           <ZoneCanvas 
@@ -409,6 +405,8 @@ export const AdminPage: React.FC = () => {
             onRefresh={handleRefreshZones}
           />
         )
+      case 'halls':
+        return <HallsManagement />
       case 'menu':
         return <MenuManagement />
       case 'billiards':
@@ -440,15 +438,13 @@ export const AdminPage: React.FC = () => {
           </ComingSoonCard>
         )
 
-      default:
-        return <CreateZoneForm />
     }
   }
 
   const getTabDescription = () => {
     const descriptions = {
-      'create-zone': 'Создайте новую зону для вашего ресторана',
       'zone-constructor': 'Настройте расположение столов и элементов зоны',
+      'halls': 'Создавайте залы и управляйте зонами внутри них',
       'menu': 'Редактируйте меню, категории и блюда',
       'billiards': 'Управляйте ценами и изображениями бильярда',
       'karaoke': 'Управляйте ценами и настройками караоке',
@@ -508,38 +504,6 @@ export const AdminPage: React.FC = () => {
   )
 }
 
-// Компонент управления меню
-const MenuManagement: React.FC = () => {
-  const [activeMenuTab, setActiveMenuTab] = useState<'types' | 'categories' | 'items'>('types')
 
-  return (
-    <TabContainer>
-      <TabButtons>
-        <TabButton
-          $active={activeMenuTab === 'types'}
-          onClick={() => setActiveMenuTab('types')}
-        >
-          Типы меню
-        </TabButton>
-        <TabButton
-          $active={activeMenuTab === 'categories'}
-          onClick={() => setActiveMenuTab('categories')}
-        >
-          Категории
-        </TabButton>
-        <TabButton
-          $active={activeMenuTab === 'items'}
-          onClick={() => setActiveMenuTab('items')}
-        >
-          Блюда
-        </TabButton>
-      </TabButtons>
-
-      {activeMenuTab === 'types' && <MenuTypesTab />}
-      {activeMenuTab === 'categories' && <MenuCategoriesTab />}
-      {activeMenuTab === 'items' && <MenuItemsTab />}
-    </TabContainer>
-  )
-}
 
  

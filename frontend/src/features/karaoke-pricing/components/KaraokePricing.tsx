@@ -302,14 +302,7 @@ export const KaraokePricing: React.FC = () => {
   }
 
   const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'deposit':
-        return '💰'
-      case 'vip':
-        return '👑'
-      default:
-        return '🎤'
-    }
+    return '🎤'
   }
 
   if (loading) {

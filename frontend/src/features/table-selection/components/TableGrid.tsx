@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { RndItem } from '@/entities/zone-item'
 import { ZoneItem } from '@/entities/zone-item/model/types'
@@ -50,9 +50,11 @@ const GridWrapper = styled.div`
   background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
   border: 2px solid #95a5a6;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 0 100px rgba(255, 255, 255, 0.05);
   position: relative;
+  padding: 50px;
+  min-height: 600px;
 
   &::before {
     content: '';
@@ -223,6 +225,73 @@ const ContinueButton = styled.button`
   }
 `
 
+const FloorSwitcher = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+    margin: 1.25rem 0;
+  }
+`
+
+const FloorButton = styled.button<{ $active: boolean }>`
+  padding: 0.75rem 1.5rem;
+  background: ${props => props.$active 
+    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+    : 'rgba(255, 255, 255, 0.1)'
+  };
+  color: ${props => props.$active ? '#ffffff' : '#667eea'};
+  border: 2px solid ${props => props.$active 
+    ? 'transparent' 
+    : 'rgba(102, 126, 234, 0.3)'
+  };
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${props => props.$active 
+    ? '0 4px 16px rgba(102, 126, 234, 0.3)' 
+    : '0 2px 8px rgba(0, 0, 0, 0.1)'
+  };
+  
+  &:hover {
+    background: ${props => props.$active 
+      ? 'linear-gradient(135deg, #7b61ff 0%, #8b71ff 100%)' 
+      : 'rgba(102, 126, 234, 0.1)'
+    };
+    transform: translateY(-2px);
+    box-shadow: ${props => props.$active 
+      ? '0 6px 20px rgba(102, 126, 234, 0.4)' 
+      : '0 4px 12px rgba(102, 126, 234, 0.2)'
+    };
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+`
+
 interface TableGridProps {
   zoneItems: ZoneItem[]
   onTableSelect: (table: ZoneItem) => void
@@ -238,6 +307,28 @@ export const TableGrid: React.FC<TableGridProps> = ({
 }) => {
   // Фильтруем столы и кабинки (booth)
   const tables = zoneItems.filter(item => item.type === 'table' || item.type === 'booth')
+  
+  // Группируем столы по этажам
+  const tablesByFloor = tables.reduce((acc, table) => {
+    const floor = table.floor || 1
+    if (!acc[floor]) {
+      acc[floor] = []
+    }
+    acc[floor].push(table)
+    return acc
+  }, {} as Record<number, typeof tables>)
+  
+  // Сортируем этажи
+  const sortedFloors = Object.keys(tablesByFloor).map(Number).sort((a, b) => a - b)
+  
+  // Состояние для выбранного этажа
+  const [selectedFloor, setSelectedFloor] = useState(sortedFloors[0] || 1)
+  
+  // Логируем данные для отладки
+  console.log('🔍 TableGrid: zoneItems:', zoneItems)
+  console.log('🔍 TableGrid: tables:', tables)
+  console.log('🔍 TableGrid: tables by floor:', tablesByFloor)
+  console.log('🔍 TableGrid: selected floor:', selectedFloor)
 
   const handleTableClick = (table: ZoneItem) => {
     onTableSelect(table)
@@ -263,8 +354,24 @@ export const TableGrid: React.FC<TableGridProps> = ({
           </SelectedTableInfo>
         )}
 
+        {/* Переключатели этажей */}
+        {sortedFloors.length > 1 && (
+          <FloorSwitcher>
+            {sortedFloors.map(floor => (
+              <FloorButton
+                key={floor}
+                $active={selectedFloor === floor}
+                onClick={() => setSelectedFloor(floor)}
+              >
+                {floor === 1 ? '1 этаж' : `${floor} этаж`}
+              </FloorButton>
+            ))}
+          </FloorSwitcher>
+        )}
+
+        {/* Отображение столов выбранного этажа */}
         <GridWrapper>
-          {tables.map(table => (
+          {tablesByFloor[selectedFloor]?.map(table => (
             <RndItem
               key={table.id}
               item={table}

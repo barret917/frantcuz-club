@@ -219,7 +219,7 @@ const ScrollHint = styled.div`
 const projects = [
   {
     id: 1,
-    name: 'Ветоп',
+    name: 'Витоп',
     logo: '/logo-footer/лого-ветоп.png'
   },
   {
@@ -229,17 +229,17 @@ const projects = [
   },
   {
     id: 3,
-    name: 'Кор Питание',
+    name: 'Корп Питание',
     logo: '/logo-footer/лого-кор-питание.png'
   },
   {
     id: 4,
-    name: 'Шашландиа',
+    name: 'Шашляндия',
     logo: '/logo-footer/лого-шашландиа.png'
   },
   {
     id: 5,
-    name: 'Франтцуз Шоп',
+    name: 'Француз Шоп',
     logo: '/logo-footer/лого-фратцуз-шоп.png'
   },
   {
@@ -269,7 +269,7 @@ const projects = [
   },
   {
     id: 11,
-    name: 'Франтцуз Академия',
+    name: 'Француз Академия',
     logo: '/logo-footer/лого-франтуз-академия.png'
   }
 ]

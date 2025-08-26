@@ -67,16 +67,12 @@ export default function PanoramViewer() {
   const [currentZone, setCurrentZone] = useState<ZoneKey>('main-hall');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Зоны клуба с панорамами (используем простые изображения)
+  // Зоны клуба с панорамами
   const zones: Record<ZoneKey, Zone> = {
     'main-hall': {
       name: 'Главный зал',
       description: 'Центральная зона клуба с баром и танцполом',
-      panorama: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="2048" height="1024" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#667eea"/>
-        </svg>
-      `),
+      panorama: '/panorama360/хата.jpg',
       hotspots: [
         { pitch: 0, yaw: 90, text: 'Бар', zone: 'bar' },
         { pitch: 0, yaw: -90, text: 'Танцпол', zone: 'dance-floor' },
@@ -86,11 +82,7 @@ export default function PanoramViewer() {
     'bar': {
       name: 'Бар',
       description: 'Стильный бар с широким выбором напитков',
-      panorama: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="2048" height="1024" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#f59e0b"/>
-        </svg>
-      `),
+      panorama: '/panorama360/хата.jpg',
       hotspots: [
         { pitch: 0, yaw: 0, text: 'Вернуться в главный зал', zone: 'main-hall' }
       ]
@@ -98,11 +90,7 @@ export default function PanoramViewer() {
     'dance-floor': {
       name: 'Танцпол',
       description: 'Просторная танцевальная зона с профессиональным звуком',
-      panorama: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="2048" height="1024" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#ec4899"/>
-        </svg>
-      `),
+      panorama: '/panorama360/хата.jpg',
       hotspots: [
         { pitch: 0, yaw: 0, text: 'Вернуться в главный зал', zone: 'main-hall' }
       ]
@@ -110,11 +98,7 @@ export default function PanoramViewer() {
     'vip': {
       name: 'VIP зона',
       description: 'Эксклюзивная зона для особых гостей',
-      panorama: 'data:image/svg+xml;base64,' + btoa(`
-        <svg width="2048" height="1024" xmlns="http://www.w3.org/2000/svg">
-          <rect width="100%" height="100%" fill="#10b981"/>
-        </svg>
-      `),
+      panorama: '/panorama360/хата.jpg',
       hotspots: [
         { pitch: 0, yaw: 0, text: 'Вернуться в главный зал', zone: 'main-hall' }
       ]
@@ -125,7 +109,6 @@ export default function PanoramViewer() {
     if (!mountRef.current) return;
 
     console.log('🚀 Инициализация pannellum для зоны:', currentZone);
-    console.log('📸 URL панорамы:', zones[currentZone].panorama);
 
     // Очищаем предыдущий viewer
     if (mountRef.current.children.length > 0) {
@@ -139,13 +122,9 @@ export default function PanoramViewer() {
           throw new Error('Не удалось загрузить pannellum');
         }
 
-        console.log('🔍 Структура pannellum модуля:', pannellumModule);
-        console.log('🔍 Доступные методы:', Object.keys(pannellumModule));
-
         // Проверяем разные варианты вызова
         let viewer;
         if (typeof pannellumModule.viewer === 'function') {
-          console.log('✅ Используем pannellumModule.viewer');
           viewer = pannellumModule.viewer(mountRef.current, {
             type: 'equirectangular',
             panorama: zones[currentZone].panorama,
@@ -157,38 +136,10 @@ export default function PanoramViewer() {
               text: hotspot.text,
               cssClass: 'custom-hotspot',
               clickHandlerFunc: () => {
-                console.log('🔄 Переход в зону:', hotspot.zone);
                 setCurrentZone(hotspot.zone as ZoneKey);
               }
             })),
             onLoad: () => {
-              console.log('✅ Панорама загружена успешно');
-              setIsLoading(false);
-            },
-            onError: (error: any) => {
-              console.error('❌ Ошибка загрузки панорамы:', error);
-              setIsLoading(false);
-            }
-          });
-        } else if (typeof pannellumModule.default?.viewer === 'function') {
-          console.log('✅ Используем pannellumModule.default.viewer');
-          viewer = pannellumModule.default.viewer(mountRef.current, {
-            type: 'equirectangular',
-            panorama: zones[currentZone].panorama,
-            autoLoad: true,
-            showControls: true,
-            hotSpots: zones[currentZone].hotspots.map(hotspot => ({
-              pitch: hotspot.pitch,
-              yaw: hotspot.yaw,
-              text: hotspot.text,
-              cssClass: 'custom-hotspot',
-              clickHandlerFunc: () => {
-                console.log('🔄 Переход в зону:', hotspot.zone);
-                setCurrentZone(hotspot.zone as ZoneKey);
-              }
-            })),
-            onLoad: () => {
-              console.log('✅ Панорама загружена успешно');
               setIsLoading(false);
             },
             onError: (error: any) => {
@@ -197,7 +148,6 @@ export default function PanoramViewer() {
             }
           });
         } else {
-          console.log('❌ Метод viewer не найден, доступные методы:', Object.keys(pannellumModule));
           throw new Error('Метод viewer не найден в pannellum модуле');
         }
 

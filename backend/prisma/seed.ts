@@ -10,24 +10,21 @@ async function main() {
     {
       name: 'Русский бильярд',
       type: 'russian',
-      weekdayPrice: 800,
-      weekendPrice: 1000,
+      price: 800,
       description: 'Классический русский бильярд',
       sortOrder: 1
     },
     {
       name: 'Американский пул',
       type: 'american',
-      weekdayPrice: 600,
-      weekendPrice: 800,
+      price: 600,
       description: 'Американский пул',
       sortOrder: 2
     },
     {
       name: 'VIP зал',
       type: 'vip',
-      weekdayPrice: 1200,
-      weekendPrice: 1500,
+      price: 1200,
       description: 'VIP зал с премиум обслуживанием',
       sortOrder: 3
     }
@@ -63,16 +60,14 @@ async function main() {
     {
       name: 'Стандарт',
       type: 'standard',
-      weekdayPrice: 500,
-      weekendPrice: 700,
+      price: 500,
       description: 'Стандартный зал караоке',
       sortOrder: 1
     },
     {
       name: 'VIP',
       type: 'vip',
-      weekdayPrice: 1000,
-      weekendPrice: 1500,
+      price: 1000,
       description: 'VIP зал караоке',
       sortOrder: 2
     }
@@ -102,6 +97,23 @@ async function main() {
   })
 
   console.log('✅ Настройки караоке созданы')
+
+  // Создаем дефолтный зал
+  await prisma.hall.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      name: 'Основной зал',
+      description: 'Главный зал ресторана',
+      type: 'restaurant',
+      imageUrl: null,
+      isActive: true,
+      sortOrder: 1
+    }
+  })
+
+  console.log('✅ Дефолтный зал создан')
 
   console.log('🎉 База данных успешно заполнена!')
 }

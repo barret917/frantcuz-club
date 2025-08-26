@@ -88,7 +88,7 @@ export const RndItem: React.FC<RndItemProps> = ({
   return (
     <Rnd
       bounds="parent"
-      position={{ x: item.x, y: item.y }}
+      position={{ x: item.x + 50, y: item.y + 50 }}
       size={{ width: item.width, height: item.height }}
       {...(!isSelectable && {
         enableDragging: true,
@@ -96,7 +96,7 @@ export const RndItem: React.FC<RndItemProps> = ({
       })}
       onDragStop={(e, d) => {
         if (!isSelectable) {
-          updatePosition(item.id, d.x, d.y)
+          updatePosition(item.id, d.x - 50, d.y - 50)
         }
       }}
       onResizeStop={(e, dir, ref, delta, position) => {
@@ -104,7 +104,7 @@ export const RndItem: React.FC<RndItemProps> = ({
           const newWidth = parseFloat(ref.style.width)
           const newHeight = parseFloat(ref.style.height)
           updateSize(item.id, newWidth, newHeight)
-          updatePosition(item.id, position.x, position.y)
+          updatePosition(item.id, position.x - 50, position.y - 50)
         }
       }}
     >

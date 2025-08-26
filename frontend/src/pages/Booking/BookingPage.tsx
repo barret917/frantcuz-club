@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { ZoneCard } from '@/shared/ui/ZoneCard'
 import { BookingForm } from '@/features/booking'
 import { TableGrid } from '@/features/table-selection/components/TableGrid'
-import { getZones } from '@/shared/api/zones'
+import { getHalls } from '@/shared/api/halls'
 import { getZoneItems } from '@/shared/api/zone-items'
-import { Zone } from '@/shared/model/types'
+import { Hall } from '@/shared/api/halls'
 import { ZoneItem } from '@/entities/zone-item/model/types'
 import styled, { keyframes, css } from 'styled-components'
 
@@ -319,51 +319,63 @@ const Step = styled.div<{ $active: boolean; $completed: boolean }>`
 `
 
 export const BookingPage: React.FC = () => {
-  const [zones, setZones] = useState<Zone[]>([])
+  const [halls, setHalls] = useState<Hall[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState(1)
-  const [selectedZone, setSelectedZone] = useState<Zone | null>(null)
+  const [selectedHall, setSelectedHall] = useState<Hall | null>(null)
   const [selectedTable, setSelectedTable] = useState<ZoneItem | null>(null)
   const [zoneItems, setZoneItems] = useState<ZoneItem[]>([])
   const [isLoadingTables, setIsLoadingTables] = useState(false)
 
   React.useEffect(() => {
-    const fetchZones = async () => {
+    const fetchHalls = async () => {
       try {
         setIsLoading(true)
-        const data = await getZones()
-        setZones(data)
+        const data = await getHalls()
+        setHalls(data)
       } catch (err) {
-        setError('Ошибка загрузки зон')
+        setError('Ошибка загрузки залов')
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchZones()
+    fetchHalls()
   }, [])
 
-  const handleZoneSelect = async (zone: Zone) => {
-    setSelectedZone(zone)
+  const handleHallSelect = async (hall: Hall) => {
+    setSelectedHall(hall)
     setCurrentStep(2)
     setIsLoadingTables(true)
     
     try {
-      // Загружаем реальные столы для выбранной зоны
-      const zoneItems = await getZoneItems(zone.id)
-      setZoneItems(zoneItems)
+      // Загружаем все столы из всех зон выбранного зала
+      const allZoneItems: ZoneItem[] = []
+      
+      // Получаем зоны зала и их столы
+      if (hall.zones && hall.zones.length > 0) {
+        for (const zone of hall.zones) {
+          try {
+            const zoneItems = await getZoneItems(zone.id)
+            allZoneItems.push(...zoneItems)
+          } catch (error) {
+            console.error(`Ошибка загрузки столов зоны ${zone.id}:`, error)
+          }
+        }
+      }
+      
+      setZoneItems(allZoneItems)
     } catch (error) {
-      console.error('Ошибка загрузки столов зоны:', error)
-      // Если не удалось загрузить, показываем пустой список
+      console.error('Ошибка загрузки столов зала:', error)
       setZoneItems([])
     } finally {
       setIsLoadingTables(false)
     }
   }
 
-  const handleBackToZones = () => {
-    setSelectedZone(null)
+  const handleBackToHalls = () => {
+    setSelectedHall(null)
     setSelectedTable(null)
     setCurrentStep(1)
   }
@@ -401,16 +413,16 @@ export const BookingPage: React.FC = () => {
               <StepTitle>Шаг 1: Выберите зал</StepTitle>
               
               {isLoading ? (
-                <LoadingContainer>Загрузка зон...</LoadingContainer>
+                <LoadingContainer>Загрузка залов...</LoadingContainer>
               ) : error ? (
                 <ErrorContainer>{error}</ErrorContainer>
               ) : (
                 <Grid>
-                  {Array.isArray(zones) && zones.length > 0 ? (
-                    zones.map((zone) => (
-                      <div key={zone.id} onClick={() => handleZoneSelect(zone)}>
+                  {Array.isArray(halls) && halls.length > 0 ? (
+                    halls.map((hall) => (
+                      <div key={hall.id} onClick={() => handleHallSelect(hall)}>
                         <ZoneCard 
-                          zone={zone} 
+                          entity={hall} 
                         />
                       </div>
                     ))
@@ -421,7 +433,7 @@ export const BookingPage: React.FC = () => {
                       color: '#ffd700',
                       fontSize: '1.2rem'
                     }}>
-                      Зоны не найдены
+                      Залы не найдены
                     </div>
                   )}
                 </Grid>
@@ -430,13 +442,13 @@ export const BookingPage: React.FC = () => {
           ) : currentStep === 2 ? (
             <StepContainer>
               <StepTitle>Шаг 2: Выберите стол</StepTitle>
-              {selectedZone && (
+              {selectedHall && (
                 <ZoneInfo>
                   <ZoneInfoText>
-                    Зал: {selectedZone.name}
+                    Зал: {selectedHall.name}
                   </ZoneInfoText>
                   <StyledButton 
-                    onClick={handleBackToZones}
+                    onClick={handleBackToHalls}
                     $variant="secondary"
                   >
                     ← Выбрать другой зал
@@ -464,10 +476,10 @@ export const BookingPage: React.FC = () => {
           ) : (
             <StepContainer>
               <StepTitle>Шаг 3: Заполните форму бронирования</StepTitle>
-              {selectedZone && selectedTable && (
+              {selectedHall && selectedTable && (
                 <ZoneInfo>
                   <ZoneInfoText>
-                    Зал: {selectedZone.name} | Стол: {selectedTable.label}
+                    Зал: {selectedHall.name} | Стол: {selectedTable.label}
                   </ZoneInfoText>
                   <StyledButton 
                     onClick={handleBackToTables}
@@ -477,9 +489,9 @@ export const BookingPage: React.FC = () => {
                   </StyledButton>
                 </ZoneInfo>
               )}
-              {selectedZone && selectedTable && (
+              {selectedHall && selectedTable && (
                 <BookingForm 
-                  selectedZone={selectedZone}
+                  selectedZone={selectedHall}
                   selectedTable={selectedTable}
                 />
               )}

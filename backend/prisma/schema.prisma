@@ -8,13 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Hall {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?
+  type        HallType @default(restaurant)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  zones       Zone[]
+}
+
 model Zone {
   id        Int        @id @default(autoincrement())
-  name      String
+  name      String     @db.VarChar(255)
   type      ZoneType   @default(restaurant)
+  hallId    Int        @default(1)
   openTime  String
   closeTime String
-  imageUrl  String
+  imageUrl  String?
+  description String?
+  isActive  Boolean    @default(true)
+  sortOrder Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt @default(now())
+  hall      Hall       @relation(fields: [hallId], references: [id])
   items     ZoneItem[]
 }
 
@@ -229,6 +249,19 @@ model Event {
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+enum HallType {
+  restaurant
+  karaoke
+  billiards
+  disco
+  playstation
+  bowling
+  spa
+  cinema
+  banquet
+  custom
 }
 
 enum ZoneType {

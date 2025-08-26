@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import { Container } from '@/shared/ui/Container'
-import { createZone } from '@/shared/api/zones'
 import { uploadImage } from '@/shared/config/cloudinary'
+import { createHall, CreateHallData } from '@/shared/api/halls'
 
 const FormWrapper = styled.div`
   max-width: 600px;
@@ -167,22 +167,15 @@ const SuccessMessage = styled.div`
   border: 1px solid rgba(81, 207, 102, 0.2);
 `
 
-interface CreateZoneData {
-  name: string
-  openTime: string
-  closeTime: string
-  imageUrl: string
+interface CreateHallFormProps {
+  onHallCreated?: () => void;
 }
 
-interface CreateZoneFormProps {
-  onZoneCreated?: () => void
-}
-
-export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated }) => {
-  const [formData, setFormData] = useState<CreateZoneData>({
+export const CreateHallForm: React.FC<CreateHallFormProps> = ({ onHallCreated }) => {
+  const [formData, setFormData] = useState<CreateHallData>({
     name: '',
-    openTime: '',
-    closeTime: '',
+    description: '',
+    type: 'restaurant',
     imageUrl: ''
   })
   const [errors, setErrors] = useState<string[]>([])
@@ -190,7 +183,7 @@ export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated })
   const [isLoading, setIsLoading] = useState(false)
   const [imageUploading, setImageUploading] = useState(false)
 
-  const handleInputChange = (field: keyof CreateZoneData, value: string | number) => {
+  const handleInputChange = (field: keyof CreateHallData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
@@ -218,8 +211,6 @@ export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated })
     // Валидация
     const newErrors: string[] = []
     if (!formData.name) newErrors.push('Введите название зала')
-    if (!formData.openTime) newErrors.push('Укажите время открытия')
-    if (!formData.closeTime) newErrors.push('Укажите время закрытия')
     if (!formData.imageUrl) newErrors.push('Загрузите изображение')
 
     if (newErrors.length > 0) {
@@ -230,20 +221,21 @@ export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated })
 
     try {
       // Здесь был бы API запрос
-      console.log('Создание зоны:', formData)
-      await createZone(formData)
+      console.log('🔍 Создание зала - данные:', formData)
+      const result = await createHall(formData)
+      console.log('✅ Зал создан успешно:', result)
       
       setSuccess(true)
       setFormData({
         name: '',
-        openTime: '',
-        closeTime: '',
+        description: '',
+        type: 'restaurant',
         imageUrl: ''
       })
       
-      // Вызываем callback для обновления списка зон
-      if (onZoneCreated) {
-        onZoneCreated()
+      // Вызываем callback для обновления списка залов
+      if (onHallCreated) {
+        onHallCreated()
       }
     } catch (error) {
       setErrors(['Ошибка создания зала'])
@@ -262,28 +254,47 @@ export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated })
             <Label>Название зала</Label>
             <Input
               type="text"
-              placeholder="Например: Караоке, Бильярд"
+              placeholder="Например: Основной зал, VIP зал"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
             />
           </FormItem>
 
           <FormItem>
-            <Label>Время открытия</Label>
-            <Input
-              type="time"
-              value={formData.openTime}
-              onChange={(e) => handleInputChange('openTime', e.target.value)}
+            <Label>Описание зала</Label>
+            <TextArea
+              placeholder="Опишите особенности зала..."
+              value={formData.description || ''}
+              onChange={(e) => handleInputChange('description', e.target.value)}
             />
           </FormItem>
 
           <FormItem>
-            <Label>Время закрытия</Label>
-            <Input
-              type="time"
-              value={formData.closeTime}
-              onChange={(e) => handleInputChange('closeTime', e.target.value)}
-            />
+            <Label>Тип зала</Label>
+            <select
+              value={formData.type}
+              onChange={(e) => handleInputChange('type', e.target.value)}
+              style={{
+                padding: '1rem',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#fff',
+                fontSize: '1rem',
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+              }}
+            >
+              <option value="restaurant">Ресторан</option>
+              <option value="karaoke">Караоке</option>
+              <option value="billiards">Бильярд</option>
+              <option value="disco">Дискотека</option>
+              <option value="playstation">Игровая зона</option>
+              <option value="bowling">Боулинг</option>
+              <option value="spa">СПА</option>
+              <option value="cinema">Кинотеатр</option>
+              <option value="banquet">Банкетный зал</option>
+              <option value="custom">Другое</option>
+            </select>
           </FormItem>
 
           <FormItem>
@@ -322,7 +333,7 @@ export const CreateZoneForm: React.FC<CreateZoneFormProps> = ({ onZoneCreated })
             type="submit"
             disabled={isLoading}
           >
-            {isLoading ? 'Создается...' : 'Создать зал'}
+            {isLoading ? 'Создание...' : 'Создать зал'}
           </SubmitButton>
         </Form>
       </FormWrapper>

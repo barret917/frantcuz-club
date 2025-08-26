@@ -1,9 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Zone } from '@/shared/model/types'
 
-interface ZoneCardProps {
-  zone: Zone
+interface EntityCardProps {
+  entity: {
+    name: string
+    imageUrl?: string
+  }
   $isFullWidth?: boolean
 }
 
@@ -59,22 +61,25 @@ const Overlay = styled.div`
   transition: opacity 0.3s ease;
 `
 
-const ZoneName = styled.h3`
+const EntityName = styled.h3`
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 0.5rem;
   color: #ffd700;
 `
 
-export const ZoneCard: React.FC<ZoneCardProps> = ({ zone, $isFullWidth }) => {
+export const EntityCard: React.FC<EntityCardProps> = ({ entity, $isFullWidth }) => {
   return (
     <Card $isFullWidth={$isFullWidth}>
       <ImageContainer>
-        <Image src={zone.imageUrl} alt={zone.name} />
+        <Image src={entity.imageUrl} alt={entity.name} />
         <Overlay>
-          <ZoneName>{zone.name}</ZoneName>
+          <EntityName>{entity.name}</EntityName>
         </Overlay>
       </ImageContainer>
     </Card>
   )
 }
+
+// Оставляем обратную совместимость
+export const ZoneCard = EntityCard

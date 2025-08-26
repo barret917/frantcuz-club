@@ -1,6 +1,12 @@
 import express from 'express'
 import { zonesController } from '../controllers/zones.controller'
-import { createZone } from '../controllers/zone.controller'
+import { 
+  createZone, 
+  getZones, 
+  getZoneById, 
+  updateZone, 
+  deleteZone 
+} from '../controllers/zone.controller'
 
 const router = express.Router()
 
@@ -8,10 +14,16 @@ const router = express.Router()
 router.post('/', createZone)
 
 // Получить все зоны
-router.get('/', zonesController.getZones)
+router.get('/', getZones)
 
 // Получить зону по ID
-router.get('/:id', zonesController.getZoneById)
+router.get('/:id', getZoneById)
+
+// Обновить зону
+router.put('/:id', updateZone)
+
+// Удалить зону
+router.delete('/:id', deleteZone)
 
 // Получить элементы зоны по типу (более специфичный маршрут)
 router.get('/type/:zoneType/items', zonesController.getZoneItemsByType)

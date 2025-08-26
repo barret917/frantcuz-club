@@ -1,127 +1,155 @@
-import { prisma } from "../prisma";
-import { NextFunction, Request, RequestHandler, Response} from "express";
+import { Request, Response } from 'express'
+import { prisma } from '../prisma'
 
 export const createZone = async (req: Request, res: Response) => {
-    try {
-        const {
-            name,
-            openTime,
-            closeTime,
-            imageUrl
-        } = req.body
-        const response = await prisma.zone.create({
-            data: {
-                name,
-                closeTime,
-                openTime,
-                imageUrl
-            }
-        })
+  try {
+    const { name, type, hallId, openTime, closeTime, imageUrl, description } = req.body
 
-      res.status(200).json(response)
-       
-    } catch (error) {
-        console.error('Ошибка создания зоны', error)
-        res.status(500).json({ error: 'Не удалось создать зону' })
+    if (!name || !hallId) {
+      return res.status(400).json({ error: 'Название зоны и ID зала обязательны' })
     }
-};
 
-export const getZones = async (req: Request, res: Response) => {
-    try {
-        const response = await prisma.zone.findMany();
-        res.status(200).json(response);
-    } catch (error) {
-        console.error('Ошибка получения всех зон', error)
-        res.status(500).json({error:'Не удалось получить зоны'})
+    // Проверяем, существует ли зал
+    const hall = await prisma.hall.findUnique({
+      where: { id: parseInt(hallId) }
+    })
+
+    if (!hall) {
+      return res.status(400).json({ error: 'Зал не найден' })
     }
+
+    const zone = await prisma.zone.create({
+      data: {
+        name,
+        type: type || 'restaurant',
+        hallId: parseInt(hallId),
+        openTime: openTime || '09:00',
+        closeTime: closeTime || '23:00',
+        imageUrl,
+        description,
+        isActive: true,
+        sortOrder: 0
+      }
+    })
+
+    res.status(201).json(zone)
+  } catch (error) {
+    console.error('Ошибка создания зоны:', error)
+    res.status(500).json({ error: 'Ошибка создания зоны' })
+  }
 }
 
-export const saveZoneItems: RequestHandler = async (req, res) => {
+export const getZones = async (req: Request, res: Response) => {
   try {
-    console.log('🔧 Начинаем сохранение элементов зоны...')
-    console.log('📥 Полученные данные:', JSON.stringify(req.body, null, 2))
-    
-    // 1) Забираем из тела массива items
-    const items = req.body as Array<{
-      zoneId: number;
-      floor: number;
-      label: string;
-      type: 'table' | 'booth' | 'stage' | 'bar' | 'danceFloor' | 'gameTable' | 'lounge' | 'spaRoom' | 'cinemaHall' | 'custom';
-      seats?: string | number;
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-      isBooking?: boolean;
-      isActive?: boolean;
-    }>;
+    const { hallId } = req.query
 
-    console.log('📋 Обработанные элементы:', items.length)
-
-    if (!items.length) {
-      console.log('❌ Пустой массив элементов')
-      res.status(400).json({ error: 'Нужен непустой массив' });
-      return;
+    const where: any = { isActive: true }
+    if (hallId) {
+      where.hallId = parseInt(hallId as string)
     }
 
-    const zoneId = items[0].zoneId;
-    console.log('🎯 ZoneId:', zoneId)
+    const zones = await prisma.zone.findMany({
+      where,
+      include: {
+        hall: {
+          select: {
+            id: true,
+            name: true,
+            type: true
+          }
+        },
+        items: {
+          where: { isActive: true }
+        }
+      },
+      orderBy: { sortOrder: 'asc' }
+    })
 
-    // 2) Удаляем старые элементы для этой зоны
-    console.log('🗑️ Удаляем старые элементы для зоны', zoneId)
-    await prisma.zoneItem.deleteMany({ where: { zoneId } });
-
-    // 3) Готовим данные — приводим seats к number|null
-    const data = items.map(it => {
-      const seatsNum =
-        it.seats == null
-          ? null
-          : Number(it.seats);            // явно number
-
-      const itemData = {
-        zoneId: it.zoneId,
-        floor:  it.floor,
-        label:  it.label,
-        type:   it.type,
-        seats:  seatsNum,               // теперь number | null
-        x:      it.x,                   // Float - не нужно масштабирование
-        y:      it.y,                   // Float - не нужно масштабирование
-        width:  it.width,               // Float - не нужно масштабирование
-        height: it.height,              // Float - не нужно масштабирование
-        isBooking: it.isBooking ?? false,
-        isActive: it.isActive ?? true,
-      };
-      
-      console.log('📝 Подготовленный элемент:', itemData)
-      return itemData;
-    });
-
-    console.log('💾 Сохраняем', data.length, 'элементов в базу данных')
-
-    // 4) Массовая вставка
-    const result = await prisma.zoneItem.createMany({ data });
-
-    console.log('✅ Успешно сохранено:', result.count, 'элементов')
-    res.status(200).json({ inserted: result.count });
-  } catch (err) {
-    console.error('❌ Ошибка сохранения элементов зоны:', err);
-    res
-      .status(500)
-      .json({ error: 'Не удалось сохранить элементы зоны' });
+    res.json(zones)
+  } catch (error) {
+    console.error('Ошибка получения зон:', error)
+    res.status(500).json({ error: 'Ошибка получения зон' })
   }
-};
+}
 
-export const getZoneItems: RequestHandler = async (req, res) => {
-  const zoneId = Number(req.params.zoneId);
+export const getZoneById = async (req: Request, res: Response) => {
   try {
-    const items = await prisma.zoneItem.findMany({
-      where: { zoneId },
-      orderBy: { id: 'asc' }
-    });
-    
-    res.status(200).json(items);
-  } catch (err) {
-    console.error('Ошибка получения элементов зоны', err);
-    res.status(500).json({ error: 'Не удалось получить элементы зоны' });
+    const { id } = req.params
+    const zone = await prisma.zone.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        hall: {
+          select: {
+            id: true,
+            name: true,
+            type: true
+          }
+        },
+        items: {
+          where: { isActive: true }
+        }
+      }
+    })
+
+    if (!zone) {
+      return res.status(404).json({ error: 'Зона не найдена' })
+    }
+
+    res.json(zone)
+  } catch (error) {
+    console.error('Ошибка получения зоны:', error)
+    res.status(500).json({ error: 'Ошибка получения зоны' })
   }
-}; 
+}
+
+export const updateZone = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const { name, type, openTime, closeTime, imageUrl, description, isActive, sortOrder } = req.body
+
+    const zone = await prisma.zone.update({
+      where: { id: parseInt(id) },
+      data: {
+        name,
+        type,
+        openTime,
+        closeTime,
+        imageUrl,
+        description,
+        isActive,
+        sortOrder
+      }
+    })
+
+    res.json(zone)
+  } catch (error) {
+    console.error('Ошибка обновления зоны:', error)
+    res.status(500).json({ error: 'Ошибка обновления зоны' })
+  }
+}
+
+export const deleteZone = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+
+    // Проверяем, есть ли столы в зоне
+    const itemsCount = await prisma.zoneItem.count({
+      where: { zoneId: parseInt(id) }
+    })
+
+    if (itemsCount > 0) {
+      return res.status(400).json({ 
+        error: 'Нельзя удалить зону, в которой есть столы. Сначала удалите все столы.' 
+      })
+    }
+
+    await prisma.zone.delete({
+      where: { id: parseInt(id) }
+    })
+
+    res.json({ message: 'Зона успешно удалена' })
+  } catch (error) {
+    console.error('Ошибка удаления зоны:', error)
+    res.status(500).json({ error: 'Ошибка удаления зоны' })
+  }
+} 

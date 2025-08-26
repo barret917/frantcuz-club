@@ -4,7 +4,7 @@ import { apiClient } from './client'
 export interface KaraokeService {
   id: number
   name: string
-  type: 'standard' | 'vip' | 'premium'
+  type: 'standard'
   price: number
   description?: string
   imageUrl?: string
@@ -14,20 +14,9 @@ export interface KaraokeService {
   updatedAt: string
 }
 
-export interface KaraokeSettings {
-  id: number
-  maxVipGuests: number
-  baseVipPrice: number
-  additionalGuestPrice: number
-  depositPolicy: string
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-}
-
 export interface CreateKaraokeServiceData {
   name: string
-  type: 'standard' | 'vip' | 'premium'
+  type: 'standard'
   price: number
   description?: string
   imageUrl?: string
@@ -36,20 +25,12 @@ export interface CreateKaraokeServiceData {
 
 export interface UpdateKaraokeServiceData {
   name?: string
-  type?: 'standard' | 'vip' | 'premium'
+  type?: 'standard'
   price?: number
   description?: string
   imageUrl?: string
   isActive?: boolean
   sortOrder?: number
-}
-
-export interface UpdateKaraokeSettingsData {
-  maxVipGuests?: number
-  baseVipPrice?: number
-  additionalGuestPrice?: number
-  depositPolicy?: string
-  isActive?: boolean
 }
 
 // API функции для караоке
@@ -75,14 +56,4 @@ export const updateKaraokeService = async (id: number, data: UpdateKaraokeServic
 
 export const deleteKaraokeService = async (id: number): Promise<void> => {
   await apiClient.delete(`/karaoke/services/${id}`)
-}
-
-export const getKaraokeSettings = async (): Promise<KaraokeSettings> => {
-  const response = await apiClient.get('/karaoke/settings')
-  return response.data
-}
-
-export const updateKaraokeSettings = async (data: UpdateKaraokeSettingsData): Promise<KaraokeSettings> => {
-  const response = await apiClient.put('/karaoke/settings', data)
-  return response.data
 } 
