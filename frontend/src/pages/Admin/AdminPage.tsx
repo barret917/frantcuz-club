@@ -11,7 +11,10 @@ import { BanquetRequestsPage } from './BanquetRequestsPage'
 import { getZones } from '@/shared/api/halls'
 import { banquetRequestsApi } from '@/shared/api/banquet-requests'
 import { Zone } from '@/shared/api/halls'
+import { EventsList } from '@/features/events-management'
 import styled, { keyframes, css } from 'styled-components'
+// import { Zone } from '@/entities/Zone'
+
 
 // Анимации
 const fadeIn = keyframes`
@@ -311,7 +314,7 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'zone-constructor' | 'halls' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'
+type AdminTab = 'zone-constructor' | 'halls' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'| 'events'
 
 const tabs = [
   { key: 'zone-constructor', label: 'Конструктор зоны', icon: '🎨' },
@@ -322,7 +325,8 @@ const tabs = [
   { key: 'karaoke', label: 'Караоке', icon: '🎤' },
   { key: 'banquet-requests', label: 'Заявки на банкеты', icon: '🎉' },
   { key: 'hookah', label: 'Кальян', icon: '💨' },
-  { key: 'board-games', label: 'Настольные игры', icon: '🎲' }
+  { key: 'board-games', label: 'Настольные игры', icon: '🎲' },
+  { key: 'events', label: 'Мероприятия', icon: '🎲' },
 ]
 
 export const AdminPage: React.FC = () => {
@@ -437,7 +441,8 @@ export const AdminPage: React.FC = () => {
             </ComingSoonText>
           </ComingSoonCard>
         )
-
+      case 'events':
+        return <EventsList />
     }
   }
 
@@ -451,7 +456,8 @@ export const AdminPage: React.FC = () => {
       'banquet-requests': 'Управляйте заявками на банкеты и мероприятия',
       'bookings': 'Управляйте бронированиями и резервациями',
       'hookah': 'Управляйте тарифами и особенностями кальяна',
-      'board-games': 'Управляйте настольными играми и их ценами'
+      'board-games': 'Управляйте настольными играми и их ценами',
+      'events': 'Управляйте мероприятиями'
     }
     return descriptions[activeTab] || ''
   }

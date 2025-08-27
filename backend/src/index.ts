@@ -11,6 +11,10 @@ import tablesRouter from './routes/tables';
 import eventsRouter from './routes/events';
 import hookahRouter from './routes/hookah';
 import boardGamesRouter from './routes/board-games';
+import ticketRouter from './routes/ticket/ticket'
+import paymentRouter from './routes/ticket/payment'
+import orderRouter from './routes/ticket/order'
+import CronService from './seed/cronService';
 
 dotenv.config();
 
@@ -33,6 +37,11 @@ app.use('/api', tablesRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/hookah', hookahRouter);
 app.use('/api/board-games', boardGamesRouter);
+app.use('/api/tickets', ticketRouter);
+app.use('/api/orders', orderRouter);
+app.use('/api/payments', paymentRouter);
+
+
 
 // Health check
 app.get('/health', (req, res) => {
@@ -43,4 +52,6 @@ app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 API base URL: http://localhost:${PORT}/api`);
+
+  CronService.init()
 }); 

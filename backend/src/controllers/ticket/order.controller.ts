@@ -19,7 +19,7 @@ class OrderController {
             }
 
             // Создаем заказ
-            const order = await prisma.order.create({
+            const order = await prisma.orders.create({
                 data: {
                     first_name: userData.first_name,
                     last_name: userData.last_name || '',
@@ -28,22 +28,22 @@ class OrderController {
                     status: OrderStatus.pending,
                     total_amount: tickets.reduce((total, ticket) => 
                         total + (parseFloat(ticket.price) * ticket.quantity), 0).toString(),
-                    // payment_id: paymentData.id,
                     payment_method: paymentData.method,
-                    user_id: userData.user_id || null
+                    user_id: userData.user_id || null,
+                    updated_at: new Date()
                 },
                 include: {
-                    items: {
+                    order_items: {
                         include: {
-                            ticket: {
+                            user_tickets: {
                                 include: {
-                                    ticket: true,
-                                    user: true
+                                    tickets: true,
+                                    users: true
                                 }
                             }
                         }
                     },
-                    tickets: true
+                    user_tickets: true
                 }
             })
 
@@ -62,12 +62,12 @@ class OrderController {
                 return res.status(400).json({ error: 'Необходимы orderId и paymentId' })
             }
 
-            const order = await prisma.order.update({
+            const order = await prisma.orders.update({
                 where: { id: orderId },
                 data: { payment_id: paymentId },
                 include: {
-                    items: true,
-                    tickets: true
+                    order_items: true,
+                    user_tickets: true
                 }
             })
 
@@ -85,26 +85,26 @@ class OrderController {
         try {
             const { orderId } = req.params
 
-            const order = await prisma.order.findUnique({
+            const order = await prisma.orders.findUnique({
                 where: { id: parseInt(orderId) },
                 include: {
-                    items: {
+                    order_items: {
                         include: {
-                            ticket: {
+                            user_tickets: {
                                 include: {
-                                    ticket: true,
-                                    user: true
+                                    tickets: true,
+                                    users: true
                                 }
                             }
                         }
                     },
-                    tickets: {
+                    user_tickets: {
                         include: {
-                            ticket: true,
-                            user: true
+                            tickets: true,
+                            users: true
                         }
                     },
-                    user: true
+                    users: true
                 }
             })
 
@@ -126,26 +126,26 @@ class OrderController {
         try {
             const { paymentId } = req.params
 
-            const order = await prisma.order.findFirst({
+            const order = await prisma.orders.findFirst({
                 where: { payment_id: paymentId },
                 include: {
-                    items: {
+                    order_items: {
                         include: {
-                            ticket: {
+                            user_tickets: {
                                 include: {
-                                    ticket: true,
-                                    user: true
+                                    tickets: true,
+                                    users: true
                                 }
                             }
                         }
                     },
-                    tickets: {
+                    user_tickets: {
                         include: {
-                            ticket: true,
-                            user: true
+                            tickets: true,
+                            users: true
                         }
                     },
-                    user: true
+                    users: true
                 }
             })
 
@@ -167,26 +167,26 @@ class OrderController {
         try {
             const { email } = req.params
 
-            const orders = await prisma.order.findMany({
+            const orders = await prisma.orders.findMany({
                 where: { email },
                 include: {
-                    items: {
+                    order_items: {
                         include: {
-                            ticket: {
+                            user_tickets: {
                                 include: {
-                                    ticket: true,
-                                    user: true
+                                    tickets: true,
+                                    users: true
                                 }
                             }
                         }
                     },
-                    tickets: {
+                    user_tickets: {
                         include: {
-                            ticket: true,
-                            user: true
+                            tickets: true,
+                            users: true
                         }
                     },
-                    user: true
+                    users: true
                 },
                 orderBy: {
                     created_at: 'desc'
@@ -207,26 +207,26 @@ class OrderController {
         try {
             const { phone } = req.params
 
-            const orders = await prisma.order.findMany({
+            const orders = await prisma.orders.findMany({
                 where: { phone },
                 include: {
-                    items: {
+                    order_items: {
                         include: {
-                            ticket: {
+                            user_tickets: {
                                 include: {
-                                    ticket: true,
-                                    user: true
+                                    tickets: true,
+                                    users: true
                                 }
                             }
                         }
                     },
-                    tickets: {
+                    user_tickets: {
                         include: {
-                            ticket: true,
-                            user: true
+                            tickets: true,
+                            users: true
                         }
                     },
-                    user: true
+                    users: true
                 },
                 orderBy: {
                     created_at: 'desc'

@@ -23,6 +23,7 @@ import { RequisitesPage } from '@/pages/Requisites'
 import { BanquetsPage } from '@/pages/Banquets'
 import { HookahPage } from '@/pages/Hookah'
 import { AdminPage } from '@/pages/Admin/AdminPage'
+import { EventsPage } from '@/pages/Events'
 import { NotFoundPage } from '@/pages/NotFound'
 import { ErrorPage } from '@/pages/Error'
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="/requisites" element={<RequisitesPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/events" element={<EventsPage/>} />
           
           {/* Тестовый роут для страницы ошибки 500 */}
           <Route path="/error" element={<ErrorPage />} />

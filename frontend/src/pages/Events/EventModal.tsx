@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled, { keyframes, css } from 'styled-components'
 import { Event, eventUtils } from '@/shared/api/events'
 

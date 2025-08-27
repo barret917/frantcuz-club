@@ -1,42 +1,71 @@
 import { Router } from 'express'
 import { PrismaClient } from '@prisma/client'
+import QRCode from 'qrcode'
 
 const router = Router()
 const prisma = new PrismaClient()
 
-// Получить все мероприятия
+async function generateQRCode(ticketNumber: string): Promise<string | null> {
+  try {
+    const ticketId = ticketNumber.replace('Мероприятия_Француз-', '');
+    const telegramUrl = `https://t.me/${process.env.BOT_USERNAME}?start=${ticketId}`;
+
+    console.log('Генерация QR с ссылкой:', telegramUrl);
+    return await QRCode.toDataURL(telegramUrl, {
+      width: 200,
+      margin: 1,
+      color: { dark: '#000', light: '#fff' }
+    });
+  } catch (err) {
+    console.error('Ошибка генерации QR-кода:', err);
+    return null;
+  }
+}
+
+// Получить все мероприятия (билеты)
 router.get('/', async (req, res) => {
   try {
     const { filter } = req.query
     
-    let whereClause: any = { isActive: true }
+    let whereClause: any = {}
+    
+    // Для фильтрации используем UTC время с поправкой
+    const nowUTC = new Date()
+    const nowMoscow = new Date(nowUTC.getTime() + 3 * 60 * 60 * 1000) // Текущее время в UTC+3
     
     if (filter === 'upcoming') {
-      whereClause.isUpcoming = true
+      whereClause.event_date = {
+        gte: nowMoscow
+      }
     } else if (filter === 'past') {
-      whereClause.isUpcoming = false
+      whereClause.event_date = {
+        lt: nowMoscow
+      }
     }
     
-    const events = await prisma.event.findMany({
+    const events = await prisma.tickets.findMany({
       where: whereClause,
       orderBy: [
-        { isUpcoming: 'desc' },
-        { date: 'asc' },
-        { sortOrder: 'asc' }
+        { event_date: 'asc' }
       ]
     })
     
-    // Всегда возвращаем успешный ответ, даже если мероприятий нет
+    // Преобразуем Decimal price в string и корректируем время для отображения
+    const formattedEvents = events.map(event => ({
+      ...event,
+      price: event.price.toString(),
+      event_date: new Date(event.event_date.getTime() - 3 * 60 * 60 * 1000).toISOString(), // Вычитаем 3 часа
+      created_at: event.created_at.toISOString(),
+      updated_at: event.updated_at.toISOString()
+    }))
+    
     res.json({
       success: true,
-      data: events || [],
+      data: formattedEvents,
       message: events.length === 0 ? 'Мероприятий не найдено' : undefined
     })
   } catch (error) {
     console.error('Ошибка при получении мероприятий:', error)
-    
-    // В случае любой ошибки Prisma возвращаем пустой массив
-    // Это безопаснее, чем пытаться анализировать конкретные коды ошибок
     return res.json({
       success: true,
       data: [],
@@ -49,7 +78,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const event = await prisma.event.findUnique({
+    const event = await prisma.tickets.findUnique({
       where: { id: parseInt(id) }
     })
     
@@ -60,9 +89,17 @@ router.get('/:id', async (req, res) => {
       })
     }
     
+    const formattedEvent = {
+      ...event,
+      price: event.price.toString(),
+      event_date: new Date(event.event_date.getTime() - 3 * 60 * 60 * 1000).toISOString(), // Вычитаем 3 часа
+      created_at: event.created_at.toISOString(),
+      updated_at: event.updated_at.toISOString()
+    }
+    
     res.json({
       success: true,
-      data: event
+      data: formattedEvent
     })
   } catch (error) {
     console.error('Ошибка при получении мероприятия:', error)
@@ -73,64 +110,73 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// Создать новое мероприятие
+// Создать новое мероприятие (с автоматической генерацией QR-кода)
 router.post('/', async (req, res) => {
   try {
-    console.log('🚀 Backend: Получен запрос на создание мероприятия:', req.body)
-    
     const {
       title,
+      short_description,
       description,
-      date,
-      time,
+      event_date,
+      event_location,
       price,
-      category,
-      isUpcoming,
-      imageUrl,
-      maxGuests,
-      location,
-      organizer,
-      contactInfo,
-      tags
+      image_url
     } = req.body
     
-    console.log('🖼️ Backend: URL изображения:', imageUrl)
-    
     // Валидация обязательных полей
-    if (!title || !description || !date || !time || !category) {
+    if (!title || !event_date || !event_location || !price) {
       return res.status(400).json({
         success: false,
-        error: 'Не все обязательные поля заполнены'
+        error: 'Не все обязательные поля заполнены (название, дата, место, цена)'
       })
     }
     
-    const eventData = {
-      title,
-      description,
-      date: new Date(date),
-      time,
-      price: price || null,
-      category,
-      isUpcoming: isUpcoming !== undefined ? isUpcoming : true,
-      imageUrl: imageUrl || null,
-      maxGuests: maxGuests ? parseInt(maxGuests) : null,
-      location: location || null,
-      organizer: organizer || null,
-      contactInfo: contactInfo || null,
-      tags: tags || []
+    // Конвертируем дату в московское время (UTC+3)
+    const eventDate = new Date(event_date)
+    // Добавляем 3 часа для сохранения в UTC
+    const moscowEventDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000)
+    
+    // Генерация номера билета
+    const ticketNumber = `Мероприятия_Француз-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
+    // АВТОМАТИЧЕСКАЯ генерация QR-кода при создании мероприятия
+    const qr_code = await generateQRCode(ticketNumber)
+    
+    if (!qr_code) {
+      return res.status(500).json({
+        success: false,
+        error: 'Ошибка генерации QR-кода'
+      })
     }
     
-    console.log('💾 Backend: Создаем мероприятие в БД:', eventData)
-    
-    const event = await prisma.event.create({
-      data: eventData
+    const event = await prisma.tickets.create({
+      data: {
+        title,
+        short_description: short_description || '',
+        description: description || '',
+        event_date: moscowEventDate, // Сохраняем с поправкой на UTC
+        event_location,
+        price: parseFloat(price),
+        image_url: image_url || null,
+        ticket_number: ticketNumber,
+        qr_code: qr_code,
+        is_used: false,
+        updated_at: new Date()
+      }
     })
     
-    console.log('✅ Backend: Мероприятие создано в БД:', event)
+    // Преобразуем Decimal price в string и корректируем время для отображения
+    const formattedEvent = {
+      ...event,
+      price: event.price.toString(),
+      event_date: new Date(event.event_date.getTime() - 3 * 60 * 60 * 1000).toISOString(), // Вычитаем 3 часа для правильного отображения
+      created_at: event.created_at.toISOString(),
+      updated_at: event.updated_at.toISOString()
+    }
     
     res.status(201).json({
       success: true,
-      data: event,
+      data: formattedEvent,
       message: 'Мероприятие успешно создано'
     })
   } catch (error) {
@@ -148,27 +194,38 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params
     const updateData = req.body
     
-    // Если передана дата, конвертируем её
-    if (updateData.date) {
-      updateData.date = new Date(updateData.date)
+    // Если передана дата, конвертируем её в московское время (UTC+3)
+    if (updateData.event_date) {
+      const eventDate = new Date(updateData.event_date)
+      // Добавляем 3 часа для сохранения в UTC
+      updateData.event_date = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000)
     }
     
-    // Если передано количество гостей, конвертируем в число
-    if (updateData.maxGuests) {
-      updateData.maxGuests = parseInt(updateData.maxGuests)
+    // Если передана цена, конвертируем в число
+    if (updateData.price) {
+      updateData.price = parseFloat(updateData.price)
     }
     
-    const event = await prisma.event.update({
+    const event = await prisma.tickets.update({
       where: { id: parseInt(id) },
       data: {
         ...updateData,
-        updatedAt: new Date()
+        updated_at: new Date()
       }
     })
     
+    // Преобразуем Decimal price в string и корректируем время для отображения
+    const formattedEvent = {
+      ...event,
+      price: event.price.toString(),
+      event_date: new Date(event.event_date.getTime() - 3 * 60 * 60 * 1000).toISOString(), // Вычитаем 3 часа
+      created_at: event.created_at.toISOString(),
+      updated_at: event.updated_at.toISOString()
+    }
+    
     res.json({
       success: true,
-      data: event,
+      data: formattedEvent,
       message: 'Мероприятие успешно обновлено'
     })
   } catch (error) {
@@ -180,14 +237,25 @@ router.put('/:id', async (req, res) => {
   }
 })
 
-// Удалить мероприятие (мягкое удаление)
+// Удалить мероприятие
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params
     
-    const event = await prisma.event.update({
-      where: { id: parseInt(id) },
-      data: { isActive: false }
+    // Проверяем, есть ли связанные билеты у пользователей
+    const userTickets = await prisma.user_tickets.count({
+      where: { ticket_id: parseInt(id) }
+    })
+    
+    if (userTickets > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Нельзя удалить мероприятие, на которое уже проданы билеты'
+      })
+    }
+    
+    await prisma.tickets.delete({
+      where: { id: parseInt(id) }
     })
     
     res.json({
@@ -206,11 +274,25 @@ router.delete('/:id', async (req, res) => {
 // Получить статистику мероприятий
 router.get('/stats/overview', async (req, res) => {
   try {
-    const [totalEvents, upcomingEvents, pastEvents, activeEvents] = await Promise.all([
-      prisma.event.count({ where: { isActive: true } }),
-      prisma.event.count({ where: { isActive: true, isUpcoming: true } }),
-      prisma.event.count({ where: { isActive: true, isUpcoming: false } }),
-      prisma.event.count({ where: { isActive: true } })
+    const nowUTC = new Date()
+    const nowMoscow = new Date(nowUTC.getTime() + 3 * 60 * 60 * 1000) // Текущее время в UTC+3
+    
+    const [totalEvents, upcomingEvents, pastEvents] = await Promise.all([
+      prisma.tickets.count(),
+      prisma.tickets.count({
+        where: {
+          event_date: {
+            gte: nowMoscow
+          }
+        }
+      }),
+      prisma.tickets.count({
+        where: {
+          event_date: {
+            lt: nowMoscow
+          }
+        }
+      })
     ])
     
     res.json({
@@ -218,24 +300,20 @@ router.get('/stats/overview', async (req, res) => {
       data: {
         total: totalEvents || 0,
         upcoming: upcomingEvents || 0,
-        past: pastEvents || 0,
-        active: activeEvents || 0
+        past: pastEvents || 0
       }
     })
   } catch (error) {
     console.error('Ошибка при получении статистики мероприятий:', error)
-    
-    // В случае ошибки возвращаем нулевую статистику
     return res.json({
       success: true,
       data: {
         total: 0,
         upcoming: 0,
-        past: 0,
-        active: 0
+        past: 0
       }
     })
   }
 })
 
-export default router 
+export default router

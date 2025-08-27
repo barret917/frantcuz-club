@@ -122,10 +122,10 @@ router.get('/tickets/:paymentId', async (req, res) => {
     }
 
     // Используем Prisma напрямую, так как в сервисе нет этого метода
-    const userTickets = await prisma.userTicket.findMany({
+    const userTickets = await prisma.user_tickets.findMany({
       where: { payment_id: paymentId },
       include: {
-        ticket: {
+        tickets: {
           select: {
             id: true,
             title: true,
@@ -237,10 +237,10 @@ router.get('/ticket/:ticketNumber', async (req, res) => {
     }
 
     // Используем Prisma напрямую
-    const userTicket = await prisma.userTicket.findUnique({
+    const userTicket = await prisma.user_tickets.findUnique({
       where: { ticket_number: ticketNumber },
       include: {
-        ticket: {
+        tickets: {
           select: {
             id: true,
             title: true,
@@ -291,11 +291,11 @@ router.post('/ticket/:ticketNumber/use', async (req, res) => {
     }
 
     // Используем Prisma напрямую
-    const userTicket = await prisma.userTicket.update({
+    const userTicket = await prisma.user_tickets.update({
       where: { ticket_number: ticketNumber },
       data: { is_used: true },
       include: {
-        ticket: {
+        tickets: {
           select: {
             id: true,
             title: true,

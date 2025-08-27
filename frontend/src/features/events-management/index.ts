@@ -1,1 +1,3 @@
-export { EventsForm } from './components/EventsForm' 
+import { EventsList } from './components/EventList';
+
+export { EventsList }

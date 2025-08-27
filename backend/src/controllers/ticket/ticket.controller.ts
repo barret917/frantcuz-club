@@ -54,7 +54,7 @@ class TicketController {
             }
 
             // Проверяем существование типа билета
-            const ticketTypeExists = await prisma.ticket.findUnique({
+            const ticketTypeExists = await prisma.tickets.findUnique({
                 where: { id: ticketId }
             })
 
@@ -82,13 +82,14 @@ class TicketController {
                 first_name: userData.first_name,
                 last_name: userData.last_name || null,
                 email: userData.email || null,
-                phone: userData.phone
+                phone: userData.phone,
+                updated_at: new Date()
             }
 
             // Добавляем user_id только если он передан и валиден
             if (userData.user_id && typeof userData.user_id === 'number') {
                 // Проверяем существование пользователя
-                const userExists = await prisma.user.findUnique({
+                const userExists = await prisma.users.findUnique({
                     where: { id: userData.user_id }
                 })
                 if (userExists) {
@@ -97,23 +98,23 @@ class TicketController {
             }
 
             // Создаем UserTicket
-            const userTicket = await prisma.userTicket.create({
+            const userTicket = await prisma.user_tickets.create({
                 data: ticketData,
                 include: {
-                    ticket: true,
-                    user: true
+                    tickets: true,
+                    users: true
                 }
             })
 
             // Установка таймера для автоматического удаления
             setTimeout(async () => {
                 try {
-                    const freshTicket = await prisma.userTicket.findUnique({
+                    const freshTicket = await prisma.user_tickets.findUnique({
                         where: { id: userTicket.id }
                     })
                     
                     if (freshTicket && freshTicket.payment_status === PaymentStatus.pending) {
-                        await prisma.userTicket.delete({
+                        await prisma.user_tickets.delete({
                             where: { id: freshTicket.id }
                         })
                         console.log(`Билет ${userTicket.id} автоматически удален`)
@@ -141,7 +142,7 @@ class TicketController {
                 return res.status(400).json({ error: 'Необходимы ticketId и paymentId' })
             }
 
-            const ticket = await prisma.userTicket.findUnique({
+            const ticket = await prisma.user_tickets.findUnique({
                 where: { id: ticketId }
             })
 
@@ -149,12 +150,12 @@ class TicketController {
                 return res.status(404).json({ error: 'Билет не найден' })
             }
 
-            const updatedTicket = await prisma.userTicket.update({
+            const updatedTicket = await prisma.user_tickets.update({
                 where: { id: ticketId },
                 data: { payment_id: paymentId },
                 include: {
-                    ticket: true,
-                    user: true
+                    tickets: true,
+                    users: true
                 }
             })
 
@@ -176,7 +177,7 @@ class TicketController {
                 return res.status(400).json({ error: 'Необходим paymentId' })
             }
 
-            const ticket = await prisma.userTicket.findFirst({
+            const ticket = await prisma.user_tickets.findFirst({
                 where: { payment_id: paymentId }
             })
 
@@ -184,7 +185,7 @@ class TicketController {
                 return res.status(404).json({ error: 'Билет не найден' })
             }
 
-            const updatedTicket = await prisma.userTicket.update({
+            const updatedTicket = await prisma.user_tickets.update({
                 where: { id: ticket.id },
                 data: {
                     payment_status: PaymentStatus.paid,
@@ -192,8 +193,8 @@ class TicketController {
                     purchase_date: new Date()
                 },
                 include: {
-                    ticket: true,
-                    user: true
+                    tickets: true,
+                    users: true
                 }
             })
 
@@ -211,11 +212,11 @@ class TicketController {
         try {
             const { ticketNumber } = req.params
 
-            const ticket = await prisma.userTicket.findUnique({
+            const ticket = await prisma.user_tickets.findUnique({
                 where: { ticket_number: ticketNumber },
                 include: {
-                    user: true,
-                    ticket: true
+                    users: true,
+                    tickets: true
                 }
             })
 
@@ -241,7 +242,7 @@ class TicketController {
                 return res.status(400).json({ error: 'Необходим ticketNumber' })
             }
 
-            const ticket = await prisma.userTicket.findUnique({
+            const ticket = await prisma.user_tickets.findUnique({
                 where: { ticket_number: ticketNumber }
             })
 
@@ -257,15 +258,15 @@ class TicketController {
                 return res.status(400).json({ error: 'Билет не оплачен' })
             }
 
-            const updatedTicket = await prisma.userTicket.update({
+            const updatedTicket = await prisma.user_tickets.update({
                 where: { id: ticket.id },
                 data: {
                     is_used: true,
                     used_at: new Date()
                 },
                 include: {
-                    ticket: true,
-                    user: true
+                    tickets: true,
+                    users: true
                 }
             })
 
@@ -288,25 +289,25 @@ class TicketController {
                 pendingTickets,
                 canceledTickets
             ] = await Promise.all([
-                prisma.userTicket.count(),
-                prisma.userTicket.count({
+                prisma.user_tickets.count(),
+                prisma.user_tickets.count({
                     where: {
                         is_used: true,
                         payment_status: PaymentStatus.paid
                     }
                 }),
-                prisma.userTicket.count({
+                prisma.user_tickets.count({
                     where: {
                         is_used: false,
                         payment_status: PaymentStatus.paid
                     }
                 }),
-                prisma.userTicket.count({
+                prisma.user_tickets.count({
                     where: {
                         payment_status: PaymentStatus.pending
                     }
                 }),
-                prisma.userTicket.count({
+                prisma.user_tickets.count({
                     where: {
                         payment_status: PaymentStatus.canceled
                     }
@@ -362,10 +363,10 @@ class TicketController {
                 });
             }
 
-            const tickets = await prisma.userTicket.findMany({
+            const tickets = await prisma.user_tickets.findMany({
                 where: whereCondition,
                 include: {
-                    ticket: true
+                    tickets: true
                 },
                 orderBy: {
                     created_at: 'desc'
@@ -395,7 +396,7 @@ class TicketController {
                 return res.status(400).json({ error: 'Неверный формат ID билета' })
             }
 
-            const ticket = await prisma.userTicket.findUnique({
+            const ticket = await prisma.user_tickets.findUnique({
                 where: { id }
             })
 
@@ -403,7 +404,7 @@ class TicketController {
                 return res.status(404).json({ error: 'Билет не найден' })
             }
 
-            await prisma.userTicket.delete({
+            await prisma.user_tickets.delete({
                 where: { id }
             })
 

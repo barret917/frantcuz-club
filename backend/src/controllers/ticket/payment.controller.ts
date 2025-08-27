@@ -204,7 +204,7 @@ class PaymentService {
             console.log('🔄 Processing successful payment for invoice:', invoiceId);
             
             // 1. Находим заказ по payment_id
-            const order = await this.prisma.order.findFirst({
+            const order = await this.prisma.orders.findFirst({
                 where: { payment_id: invoiceId }
             });
 
@@ -224,11 +224,11 @@ class PaymentService {
                 };
             }
 
-            // 3. Находим все билеты с таким же payment_id
-            const userTickets = await this.prisma.userTicket.findMany({
+            // 3. Находим все user_tickets с таким же payment_id
+            const userTickets = await this.prisma.user_tickets.findMany({
                 where: { payment_id: invoiceId },
                 include: {
-                    ticket: {
+                    tickets: {
                         select: {
                             id: true,
                             title: true,
@@ -249,7 +249,7 @@ class PaymentService {
             }
 
             // 4. Обновляем статус всех билетов
-            await this.prisma.userTicket.updateMany({
+            await this.prisma.user_tickets.updateMany({
                 where: { payment_id: invoiceId },
                 data: {
                     payment_status: PaymentStatus.paid,
@@ -260,7 +260,7 @@ class PaymentService {
             console.log('✅ Updated ticket status to paid');
 
             // 5. Обновляем статус заказа
-            await this.prisma.order.update({
+            await this.prisma.orders.update({
                 where: { id: order.id },
                 data: {
                     status: 'paid' as OrderStatus
@@ -269,39 +269,65 @@ class PaymentService {
 
             console.log('✅ Updated order status to paid');
 
-            // 6. Отправляем уведомления только если заказ был только что обработан
-            console.log('📧 Sending email to:', order.email);
-
+            // 6. Подготавливаем данные для email
             const totalAmount = parseFloat(order.total_amount.toString());
 
             const orderDataForEmail = {
                 id: order.id,
-                first_name: order.first_name,
-                last_name: order.last_name,
+                first_name: order.first_name || 'Клиент',
+                last_name: order.last_name || '',
                 email: order.email,
-                phone: order.phone,
+                phone: order.phone || '',
                 total_amount: totalAmount,
                 created_at: order.created_at,
                 status: "paid" as const
             };
 
-            // Отправка пользователю
+            // 7. Подготавливаем билеты для email с коррекцией времени
+            const ticketsForEmail = userTickets.map(ticket => ({
+                id: ticket.id,
+                ticket_number: ticket.ticket_number,
+                is_used: ticket.is_used,
+                qr_code: ticket.qr_code,
+                created_at: ticket.created_at,
+                // Данные из связанного билета с коррекцией времени (вычитаем 3 часа)
+                tickets: ticket.tickets ? {
+                    id: ticket.tickets.id,
+                    title: ticket.tickets.title,
+                    short_description: ticket.tickets.short_description,
+                    event_date: new Date(ticket.tickets.event_date.getTime() - 3 * 60 * 60 * 1000).toISOString(),
+                    event_location: ticket.tickets.event_location,
+                    price: ticket.tickets.price
+                } : null,
+                // Данные клиента из user_tickets (если есть) или из order
+                customer: {
+                    first_name: ticket.first_name || order.first_name,
+                    last_name: ticket.last_name || order.last_name,
+                    email: ticket.email || order.email,
+                    phone: ticket.phone || order.phone
+                }
+            }));
+
+            console.log(ticketsForEmail, 'ticket')
+            console.log(orderDataForEmail, 'order')
+
+            // 8. Отправка email пользователю
             try {
                 const emailResult = await sendTicketsToCustomer(
                     order.email,
                     orderDataForEmail,
-                    userTickets as any
+                    ticketsForEmail as any
                 );
                 console.log('📧 User email result:', emailResult);
             } catch (emailError) {
                 console.error('❌ User email error:', emailError);
             }
 
-            // Отправка администратору
+            // 9. Отправка email администратору
             try {
                 const adminResult = await notifyAdminAboutOrder(
                     orderDataForEmail,
-                    userTickets as any
+                    ticketsForEmail as any
                 );
                 console.log('📧 Admin email result:', adminResult);
             } catch (adminEmailError) {
@@ -310,7 +336,7 @@ class PaymentService {
 
             return {
                 success: true,
-                userTickets: userTickets as unknown as UserTicket[]
+                userTickets: ticketsForEmail as unknown as UserTicket[]
             };
 
         } catch (error: any) {
@@ -327,12 +353,12 @@ class PaymentService {
      */
     async cancelPayment(invoiceId: string): Promise<{ success: boolean; error?: string }> {
         try {
-            const userTickets = await this.prisma.userTicket.findMany({
+            const userTickets = await this.prisma.user_tickets.findMany({
                 where: { payment_id: invoiceId }
             });
 
             if (userTickets && userTickets.length > 0) {
-                await this.prisma.userTicket.updateMany({
+                await this.prisma.user_tickets.updateMany({
                     where: { payment_id: invoiceId },
                     data: { payment_status: PaymentStatus.canceled }
                 });
@@ -417,7 +443,7 @@ class PaymentService {
                 }
 
                 // Дополнительная проверка - если билет уже оплачен, прекращаем проверку
-                const userTicket = await this.prisma.userTicket.findFirst({
+                const userTicket = await this.prisma.user_tickets.findFirst({
                     where: { payment_id: invoiceId }
                 });
 
@@ -444,7 +470,7 @@ class PaymentService {
     }> {
         try {
             // Группируем по payment_id чтобы избежать дублирования
-            const pendingPayments = await this.prisma.userTicket.groupBy({
+            const pendingPayments = await this.prisma.user_tickets.groupBy({
                 by: ['payment_id'],
                 where: {
                     payment_status: PaymentStatus.pending,
@@ -489,7 +515,7 @@ class PaymentService {
                                 // Отправляем уведомление если есть callback
                                 if (notifyCallback) {
                                     // Получаем информацию о заказе для уведомления
-                                    const order = await this.prisma.order.findFirst({
+                                    const order = await this.prisma.orders.findFirst({
                                         where: { payment_id: payment.payment_id },
                                         select: {
                                             first_name: true,
@@ -522,7 +548,7 @@ class PaymentService {
 
                         case 'pending':
                             // Проверяем не истекло ли время (берем первый билет для проверки)
-                            const sampleTicket = await this.prisma.userTicket.findFirst({
+                            const sampleTicket = await this.prisma.user_tickets.findFirst({
                                 where: { payment_id: payment.payment_id },
                                 select: { expires_at: true }
                             });
@@ -580,16 +606,16 @@ class PaymentService {
      */
     async cancelExpiredPayments(notifyCallback?: (message: string, email?: string) => Promise<void>): Promise<{ success: boolean; canceled?: number; error?: string }> {
         try {
-            const expiredTickets = await this.prisma.userTicket.findMany({
+            const expiredTickets = await this.prisma.user_tickets.findMany({
                 where: {
                     payment_status: PaymentStatus.pending,
                     expires_at: { lt: new Date() },
                     payment_id: { not: null }
                 },
                 include: {
-                    order_item: {
+                    order_items: {
                         include: {
-                            order: {
+                            orders: {
                                 select: {
                                     email: true
                                 }
@@ -603,7 +629,7 @@ class PaymentService {
                 if (ticket.payment_id) {
                     await this.cancelPayment(ticket.payment_id);
                     if (notifyCallback) {
-                        const customerEmail = ticket.order_item?.order?.email;
+                        const customerEmail = ticket.order_items?.orders?.email;
                         await notifyCallback(
                             `⌛ Время оплаты билета ${ticket.ticket_number} истекло.\n` +
                             `Заказ был автоматически отменен. Вы можете создать новый заказ.`,
@@ -626,7 +652,7 @@ class PaymentService {
     async checkPaymentStatus(invoiceId: string): Promise<PaymentStatusResponse> {
         try {
             // Сначала проверяем, не был ли заказ уже обработан
-            const existingOrder = await this.prisma.order.findFirst({
+            const existingOrder = await this.prisma.orders.findFirst({
                 where: { payment_id: invoiceId }
             });
 

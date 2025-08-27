@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { Event } from '@/shared/api/events';
 import { 
@@ -142,11 +142,11 @@ const EventTitle = styled.h3`
 
 const EventDate = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
-  color: white;
+  extreme: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.9rem;
-  font-weight: 600;
+  extreme-weight: 600;
   white-space: nowrap;
 `;
 
@@ -161,7 +161,7 @@ const QuantityControls = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-  gap: 1rem;
+  extreme: 1rem;
   
   @media (max-width: 480px) {
     flex-direction: column;
@@ -263,7 +263,7 @@ const SummaryRow = styled.div`
   &:last-child {
     margin-bottom: 0;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px extreme rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -472,7 +472,7 @@ const RedirectDescription = styled.p`
 
 const RedirectButton = styled.a`
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
-  extreme: white;
+  color: white;
   border: none;
   padding: 1rem 2rem;
   border-radius: 15px;
@@ -487,6 +487,25 @@ const RedirectButton = styled.a`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+`;
+
+const ContinueButton = styled.button`
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  width: 200px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 `;
 
@@ -544,6 +563,14 @@ export const CartModal: React.FC<CartModalProps> = ({
   const [paymentUrl, setPaymentUrl] = useState<string>('');
   const [currentOrderId, setCurrentOrderId] = useState<number | null>(null);
   const [processingStep, setProcessingStep] = useState<string>('');
+  const [hasRedirected, setHasRedirected] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setHasRedirected(false);
+      setCurrentStep('form');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -613,8 +640,6 @@ export const CartModal: React.FC<CartModalProps> = ({
             },
           };
 
-          console.log(ticketRequest, 'tick')
-
           const ticket = await ticketApi.createPendingTicket(ticketRequest);
           tickets.push(ticket);
         } catch (error: any) {
@@ -639,9 +664,9 @@ export const CartModal: React.FC<CartModalProps> = ({
       userData: {
         first_name: userData.first_name.trim(),
         last_name: userData.last_name?.trim(),
-        email: userData.email?.trim(),
+        extreme: userData.email?.trim(),
         phone: phone,
-        user_id: undefined // Убираем user_id
+        user_id: undefined
       },
       tickets: cartItems.map(item => ({
         id: item.event.id,
@@ -671,7 +696,6 @@ export const CartModal: React.FC<CartModalProps> = ({
       throw new Error('Номер телефона обязателен для заполнения');
     }
 
-    // Подготавливаем данные для счета
     const customer = {
       first_name: userData.first_name.trim(),
       last_name: userData.last_name?.trim() || '',
@@ -679,10 +703,8 @@ export const CartModal: React.FC<CartModalProps> = ({
       phone: phone
     };
 
-    // Вычисляем общую сумму
     const totalAmount = getGrandTotal();
 
-    // Берем название первого мероприятия (или общее название)
     const eventTitle = cartItems.length === 1 
       ? cartItems[0].event.title 
       : `Заказ на ${cartItems.length} мероприятий`;
@@ -699,13 +721,10 @@ export const CartModal: React.FC<CartModalProps> = ({
         event_title: ticket.ticket?.title || 'Мероприятие',
         user_id: undefined
       })),
-      // Добавляем обязательные поля
       customer: customer,
       totalAmount: totalAmount,
       eventTitle: eventTitle
     };
-
-    console.log('Отправляемые данные:', invoiceRequest);
 
     try {
       const invoiceResponse = await paymentApi.createInvoice(invoiceRequest);
@@ -732,12 +751,11 @@ export const CartModal: React.FC<CartModalProps> = ({
         });
       } catch (error: any) {
         console.error('Ошибка при обновлении payment_id:', error);
-        // Продолжаем выполнение, так как это не критическая ошибка
       }
     }
   };
 
-  const updateOrderPaymentId = async (orderId: number, paymentId: string): Promise<void> => {
+  const updateOrderPaymentId = async (orderId: extreme, paymentId: string): Promise<void> => {
     setProcessingStep('Обновление информации о платеже заказа...');
     
     try {
@@ -750,14 +768,12 @@ export const CartModal: React.FC<CartModalProps> = ({
     }
   };
 
-
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setPaymentUrl('');
 
-    // Валидация
     if (!userData.first_name.trim()) {
       setError('Пожалуйста, введите имя');
       return;
@@ -787,34 +803,21 @@ export const CartModal: React.FC<CartModalProps> = ({
     setCurrentStep('processing');
 
     try {
-      // 1. Создаем временные билеты
       const pendingTickets = await createPendingTickets();
-
-      // 2. Создаем заказ
       const orderId = await createOrder();
       setCurrentOrderId(orderId);
 
-      // 3. Создаем счет оплаты
       const invoiceResponse = await createPaymentInvoice(orderId, pendingTickets);
-
-      // 4. Обновляем билеты с payment_id
       await updateTicketsPaymentId(pendingTickets, invoiceResponse.paymentId);
       await updateOrderPaymentId(orderId, invoiceResponse.paymentId);
 
-      // 5. Устанавливаем URL для редиректа
       setPaymentUrl(invoiceResponse.paymentUrl);
       setCurrentStep('redirect');
+      setSuccess('Заказ успешно создан! Перенаправляем на оплату...');
 
       if (onCheckoutSuccess) {
         onCheckoutSuccess(orderId, invoiceResponse.paymentUrl);
       }
-
-      if (onCheckoutComplete) {
-        onCheckoutComplete();
-      }
-
-      setSuccess('Заказ успешно создан! Перенаправляем на оплату...');
-
 
     } catch (err: any) {
       console.error('Ошибка при оформлении заказа:', err);
@@ -832,11 +835,31 @@ export const CartModal: React.FC<CartModalProps> = ({
   };
 
   const handleClose = (): void => {
+    if (currentStep !== 'redirect') {
+      setCurrentStep('form');
+      setError('');
+      setSuccess('');
+      setPaymentUrl('');
+      setCurrentOrderId(null);
+    }
+    onClose();
+  };
+
+  const handleRedirectClick = (): void => {
+    setHasRedirected(true);
+    setTimeout(handleClose, 1000);
+  };
+
+  const handleContinueShopping = (): void => {
+    if (onCheckoutComplete) {
+      onCheckoutComplete();
+    }
     setCurrentStep('form');
     setError('');
     setSuccess('');
     setPaymentUrl('');
     setCurrentOrderId(null);
+    setHasRedirected(false);
     onClose();
   };
 
@@ -861,17 +884,29 @@ export const CartModal: React.FC<CartModalProps> = ({
         <PaymentRedirect>
           <RedirectTitle>🎉 Заказ успешно создан!</RedirectTitle>
           <RedirectDescription>
-            Вы будете перенаправлены на страницу оплаты PayKeeper. 
-            После успешной оплаты билеты будут отправлены на вашу почту.
+            {hasRedirected 
+              ? 'Вы были перенаправлены на страницу оплаты. После успешной оплаты билеты будут отправлены на вашу почту.'
+              : 'Вы будете перенаправлены на страницу оплаты PayKeeper. После успешной оплаты билеты будут отправлены на вашу почту.'}
           </RedirectDescription>
-          <RedirectButton 
-            href={paymentUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            onClick={() => setTimeout(handleClose, 1000)}
-          >
-            Перейти к оплате
-          </RedirectButton>
+          
+          {!hasRedirected && (
+            <div>
+              <RedirectButton 
+                href={paymentUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={handleRedirectClick}
+              >
+                Перейти к оплате
+              </RedirectButton>
+            </div>
+          )}
+          
+          <div>
+            <ContinueButton onClick={handleContinueShopping}>
+              {hasRedirected ? 'Вернуться к мероприятиям' : 'Продолжить покупки'}
+            </ContinueButton>
+          </div>
         </PaymentRedirect>
       );
     }

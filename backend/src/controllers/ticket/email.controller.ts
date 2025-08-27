@@ -6,7 +6,7 @@ interface Ticket {
     id: number;
     ticket_number: string;
     qr_code?: string;
-    ticket: {
+    tickets: {
         id: number;
         title: string;
         short_description?: string;
@@ -53,7 +53,7 @@ const ADMIN_EMAIL = 'ibra001@ibrokhim.ru';
 /**
  * Генерирует HTML для билетов
  */
-const generateTicketHtml = (ticket: Ticket, eventData: Ticket['ticket']): string => {
+const generateTicketHtml = (ticket: Ticket, eventData: Ticket['tickets']): string => {
     return `
     <div style="margin-bottom: 30px; padding: 20px; border: 1px solid #e1e1e1; border-radius: 10px; background: white; position: relative; overflow: hidden; transition: transform 0.3s ease;">
         <div style="position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: linear-gradient(to bottom, #d4af37, #f5d062);"></div>
@@ -86,13 +86,13 @@ const generateTicketHtml = (ticket: Ticket, eventData: Ticket['ticket']): string
 export const sendTicketsToCustomer = async (userEmail: string, order: Order, userTickets: Ticket[]): Promise<boolean> => {
     try {
         // Группируем билеты по мероприятиям
-        const eventsMap = new Map<number, { eventData: Ticket['ticket']; tickets: Ticket[] }>();
+        const eventsMap = new Map<number, { eventData: Ticket['tickets']; tickets: Ticket[] }>();
 
         userTickets.forEach(ticket => {
-            const eventId = ticket.ticket.id;
+            const eventId = ticket.tickets.id;
             if (!eventsMap.has(eventId)) {
                 eventsMap.set(eventId, {
-                    eventData: ticket.ticket,
+                    eventData: ticket.tickets,
                     tickets: []
                 });
             }
@@ -271,13 +271,13 @@ export const sendTicketsToCustomer = async (userEmail: string, order: Order, use
 export const notifyAdminAboutOrder = async (order: Order, userTickets: Ticket[]): Promise<boolean> => {
     try {
         // Группируем билеты по мероприятиям
-        const eventsMap = new Map<number, { eventData: Ticket['ticket']; tickets: Ticket[] }>();
+        const eventsMap = new Map<number, { eventData: Ticket['tickets']; tickets: Ticket[] }>();
 
         userTickets.forEach(ticket => {
-            const eventId = ticket.ticket.id;
+            const eventId = ticket.tickets.id;
             if (!eventsMap.has(eventId)) {
                 eventsMap.set(eventId, {
-                    eventData: ticket.ticket,
+                    eventData: ticket.tickets,
                     tickets: []
                 });
             }
@@ -298,7 +298,7 @@ export const notifyAdminAboutOrder = async (order: Order, userTickets: Ticket[])
                 <tr>
                     <td style="padding: 12px 15px; border-bottom: 1px solid #ddd;">
                         <strong>Номер билета:</strong> ${ticket.ticket_number}<br>
-                        <strong>Стоимость:</strong> ${ticket.ticket.price} руб.
+                        <strong>Стоимость:</strong> ${ticket.tickets.price} руб.
                     </td>
                 </tr>
                 ${ticket.qr_code ? `

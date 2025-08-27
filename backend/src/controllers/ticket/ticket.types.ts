@@ -100,6 +100,7 @@ export interface CreateOrderRequest {
     user_id?: number;
   };
   tickets: Array<{
+    user_ticket_id: any;
     id: number;
     price: string;
     quantity: number;

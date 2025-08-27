@@ -230,6 +230,157 @@ model BanquetRequest {
   updatedAt        DateTime             @updatedAt
 }
 
+model order_items {
+  id             Int          @id @default(autoincrement())
+  order_id       Int
+  user_ticket_id Int          @unique
+  price          Decimal      @db.Decimal(10, 2)
+  quantity       Int          @default(1)
+  orders         orders       @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  user_tickets   user_tickets @relation(fields: [user_ticket_id], references: [id], onDelete: Cascade)
+
+  @@index([order_id])
+  @@index([user_ticket_id])
+}
+
+model orders {
+  id             Int            @id @default(autoincrement())
+  user_id        Int?
+  first_name     String         @db.VarChar(50)
+  last_name      String         @db.VarChar(50)
+  email          String         @db.VarChar(100)
+  phone          String         @db.VarChar(20)
+  status         OrderStatus    @default(pending)
+  total_amount   Decimal        @db.Decimal(10, 2)
+  payment_id     String?
+  payment_method String?        @db.VarChar(50)
+  created_at     DateTime       @default(now())
+  updated_at     DateTime
+
+  order_items    order_items[]
+  users          users?         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_tickets   user_tickets[] @relation("OrderTickets")
+
+  @@index([payment_id])
+  @@index([status])
+  @@index([user_id])
+}
+
+model refund_tickets {
+  refund_id      Int
+  user_ticket_id Int
+  ticket_number  String       @db.VarChar(50)
+  refund_amount  Decimal      @db.Decimal(10, 2)
+  refunds        refunds      @relation(fields: [refund_id], references: [id], onDelete: Cascade)
+  user_tickets   user_tickets @relation(fields: [user_ticket_id], references: [id], onDelete: Cascade)
+
+  @@id([refund_id, user_ticket_id])
+}
+
+model refunds {
+  id                    Int              @id @default(autoincrement())
+  user_id               Int?
+  email                 String           @db.VarChar(100)
+  phone                 String           @db.VarChar(20)
+  full_name             String           @db.VarChar(150)
+  account_number        String           @db.VarChar(50)
+  bank_name             String           @db.VarChar(100)
+  bik                   String           @db.VarChar(20)
+  correspondent_account String           @db.VarChar(50)
+  inn                   String           @db.VarChar(20)
+  kpp                   String?          @db.VarChar(20)
+  okpo                  String?          @db.VarChar(20)
+  ogrn                  String?          @db.VarChar(20)
+  refund_amount         Decimal          @db.Decimal(10, 2)
+  refund_reason         String
+  created_at            DateTime         @default(now())
+  updated_at            DateTime
+  deleted_at            DateTime?
+
+  refund_tickets        refund_tickets[]
+  users                 users?           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_tickets          user_tickets[]   @relation("RefundTickets")
+
+  @@index([created_at])
+  @@index([user_id])
+}
+
+model tickets {
+  id                Int            @id @default(autoincrement())
+  title             String         @db.VarChar(100)
+  short_description String?        @db.VarChar(255)
+  description       String?
+  image_url         String?
+  event_date        DateTime
+  event_location    String
+  price             Decimal        @db.Decimal(10, 2)
+  is_used           Boolean        @default(false)
+  qr_code           String?
+  ticket_number     String         @unique @db.VarChar(50)
+  user_id           Int?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime
+  users             users?         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_tickets      user_tickets[]
+
+  @@index([ticket_number], map: "tickets_ticket_number_unique")
+  @@index([user_id])
+}
+
+model user_tickets {
+  id             Int              @id @default(autoincrement())
+  user_id        Int?
+  ticket_id      Int
+  ticket_number  String           @unique @db.VarChar(50)
+  qr_code        String?
+  purchase_date  DateTime         @default(now())
+  is_used        Boolean          @default(false)
+  used_at        DateTime?
+  payment_status PaymentStatus    @default(pending)
+  payment_id     String?
+  expires_at     DateTime?
+  created_at     DateTime         @default(now())
+  updated_at     DateTime
+  email          String?          @db.VarChar(255)
+  first_name     String?          @db.VarChar(255)
+  last_name      String?          @db.VarChar(255)
+  phone          String?          @db.VarChar(20)
+  
+  order_items    order_items?
+  refund_tickets refund_tickets[]
+  tickets        tickets          @relation(fields: [ticket_id], references: [id], onDelete: Cascade)
+  users          users?           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  orders         orders[]         @relation("OrderTickets")
+  refunds        refunds[]        @relation("RefundTickets")
+
+  @@index([email])
+  @@index([expires_at])
+  @@index([first_name, last_name], map: "user_tickets_name_idx")
+  @@index([payment_id])
+  @@index([phone])
+  @@index([ticket_id])
+  @@index([ticket_number])
+  @@index([user_id])
+}
+
+model users {
+  id            Int            @id @default(autoincrement())
+  telegram_id   BigInt?        @unique
+  username      String?        @db.VarChar(255)
+  first_name    String         @default("Гость") @db.VarChar(255)
+  last_name     String?        @db.VarChar(255)
+  is_admin      Boolean        @default(false)
+  language_code String?        @db.VarChar(10)
+  is_bot        Boolean        @default(false)
+  phone         String?        @db.VarChar(20)
+  email         String?        @db.VarChar(255)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime
+  orders        orders[]
+  refunds       refunds[]
+  tickets       tickets[]
+  user_tickets  user_tickets[]
+}
 
 enum HallType {
   restaurant
@@ -288,4 +439,18 @@ enum BanquetRequestStatus {
   approved
   rejected
   completed
+}
+
+enum OrderStatus {
+  pending
+  paid
+  completed
+  canceled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  canceled
 }

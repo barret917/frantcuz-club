@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { eventsApi, CreateEventData } from '@/shared/api/events'
+import { eventsApi, CreateEventData, Event, eventUtils } from '@/shared/api/events'
 import { ImageUpload } from '@/shared/ui/ImageUpload'
 
 const FormContainer = styled.div`
@@ -202,73 +202,107 @@ const ErrorMessage = styled.div`
   margin-bottom: 1rem;
 `
 
+const DeleteButton = styled.button`
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+`
+
 interface EventFormData {
   title: string
-  date: string
-  time: string
-  description: string
+  short_description: string | null
+  description: string | null
+  image_url: string | null
+  event_date: string
+  event_time: string
+  event_location: string
   price: string
-  category: string
-  isUpcoming: boolean
-  imageUrl: string
 }
 
 const initialFormData: EventFormData = {
   title: '',
-  date: '',
-  time: '',
+  short_description: '',
   description: '',
-  price: '',
-  category: '',
-  isUpcoming: true,
-  imageUrl: ''
+  image_url: '',
+  event_date: '',
+  event_time: '',
+  event_location: '',
+  price: ''
 }
 
-const categories = [
-  'Караоке',
-  'Бильярд',
-  'Диско',
-  'Игры',
-  'Банкеты',
-  'Кальян',
-  'Фестиваль',
-  'Турнир',
-  'Мастер-класс',
-  'Другое'
-]
+interface EventsFormProps {
+  event?: Event | null
+  onSuccess?: () => void
+  onCancel?: () => void
+  mode?: 'create' | 'edit'
+}
 
-export const EventsForm: React.FC = () => {
-  const [formData, setFormData] = useState<EventFormData>(initialFormData)
+export const EventsForm: React.FC<EventsFormProps> = ({ 
+  event, 
+  onSuccess, 
+  onCancel, 
+  mode = 'create' 
+}) => {
+  const [formData, setFormData] = useState<EventFormData>(() => {
+    if (event && mode === 'edit') {
+      // Используем локальное время для отображения
+      const eventDate = new Date(event.event_date)
+      const dateString = eventDate.toISOString().split('T')[0]
+      const timeString = eventDate.toTimeString().substring(0, 5)
+      
+      return {
+        title: event.title,
+        short_description: event.short_description,
+        description: event.description,
+        image_url: event.image_url,
+        event_date: dateString,
+        event_time: timeString,
+        event_location: event.event_location,
+        price: event.price
+      }
+    }
+    return initialFormData
+  })
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
 
-  // Логирование при монтировании компонента
   console.log('🚀 EventsForm компонент загружен')
   console.log('☁️ Проверяем Cloudinary переменные:')
   console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
   console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
-  console.log('☁️ Все env переменные:', import.meta.env)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     console.log('📝 Изменение поля:', name, '=', value)
     
     setFormData(prev => {
-      console.log('📝 Предыдущие данные формы:', prev)
       const newData = { ...prev, [name]: value }
       console.log('📝 Новые данные формы:', newData)
-      return newData
-    })
-  }
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('☑️ Изменение чекбокса isUpcoming:', e.target.checked)
-    
-    setFormData(prev => {
-      console.log('☑️ Предыдущие данные формы:', prev)
-      const newData = { ...prev, isUpcoming: e.target.checked }
-      console.log('☑️ Новые данные формы:', newData)
       return newData
     })
   }
@@ -276,25 +310,10 @@ export const EventsForm: React.FC = () => {
   const handleImageUpload = (imageUrl: string) => {
     console.log('🖼️ === НАЧАЛО ЗАГРУЗКИ ИЗОБРАЖЕНИЯ ===')
     console.log('🖼️ Получен URL изображения:', imageUrl)
-    console.log('🖼️ Тип URL:', typeof imageUrl)
-    
-    // Проверяем переменные окружения
-    console.log('☁️ Cloudinary переменные:')
-    console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
-    console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
-    
-    if (imageUrl && typeof imageUrl === 'string') {
-      console.log('🖼️ Длина URL:', imageUrl.length)
-      console.log('🖼️ URL начинается с:', imageUrl.substring(0, 50) + '...')
-    } else {
-      console.log('🖼️ ВНИМАНИЕ: imageUrl не является строкой или пустой:', imageUrl)
-    }
     
     setFormData(prev => {
-      console.log('🖼️ Предыдущие данные формы:', prev)
-      const newData = { ...prev, imageUrl }
+      const newData = { ...prev, image_url: imageUrl }
       console.log('🖼️ Новые данные формы:', newData)
-      console.log('🖼️ Новое значение imageUrl:', newData.imageUrl)
       return newData
     })
     
@@ -303,16 +322,24 @@ export const EventsForm: React.FC = () => {
 
   const handleImageRemove = () => {
     console.log('🗑️ === НАЧАЛО УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
-    console.log('🗑️ Текущий imageUrl перед удалением:', formData.imageUrl)
     
     setFormData(prev => {
-      console.log('🗑️ Предыдущие данные формы:', prev)
-      const newData = { ...prev, imageUrl: '' }
+      const newData = { ...prev, image_url: '' }
       console.log('🗑️ Новые данные формы после удаления:', newData)
       return newData
     })
     
     console.log('🗑️ === КОНЕЦ УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
+  }
+
+  // Функция для совмещения даты и времени в формат ISO
+  const combineDateTime = (date: string, time: string): string => {
+    if (!date || !time) return ''
+    
+    // Создаем дату в локальном времени пользователя
+    const dateTimeString = `${date}T${time}:00`
+    console.log('🕐 Совмещаем дату и время:', dateTimeString)
+    return dateTimeString
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -324,40 +351,97 @@ export const EventsForm: React.FC = () => {
     setErrorMessage('')
 
     try {
+      // Совмещаем дату и время
+      const combinedDateTime = combineDateTime(formData.event_date, formData.event_time)
+      
       const eventData: CreateEventData = {
         title: formData.title,
+        short_description: formData.short_description,
         description: formData.description,
-        date: formData.date,
-        time: formData.time,
-        price: formData.price || undefined,
-        category: formData.category,
-        isUpcoming: formData.isUpcoming,
-        imageUrl: formData.imageUrl || undefined
+        image_url: formData.image_url,
+        event_date: combinedDateTime,
+        event_location: formData.event_location,
+        price: formData.price
       }
 
       console.log('🚀 Отправляем данные мероприятия:', eventData)
-      console.log('🖼️ URL изображения:', eventData.imageUrl)
+      console.log('🖼️ URL изображения:', eventData.image_url)
+      console.log('📅 Полная дата события:', eventData.event_date)
 
-      const response = await eventsApi.createEvent(eventData)
+      let response
+      
+      if (mode === 'edit' && event) {
+        response = await eventsApi.updateEvent(event.id, eventData)
+      } else {
+        response = await eventsApi.createEvent(eventData)
+      }
       
       if (response.success) {
-        setSuccessMessage(response.message || 'Мероприятие успешно добавлено!')
-        setFormData(initialFormData)
+        const message = mode === 'edit' 
+          ? 'Мероприятие успешно обновлено!' 
+          : 'Мероприятие успешно добавлено!'
+        
+        setSuccessMessage(response.message || message)
+        
+        if (mode === 'create') {
+          setFormData(initialFormData)
+        }
+        
+        // Вызываем колбэк при успехе
+        if (onSuccess) {
+          onSuccess()
+        }
         
         // Очищаем сообщение через 3 секунды
         setTimeout(() => setSuccessMessage(''), 3000)
       } else {
-        setErrorMessage(response.error || 'Ошибка при добавлении мероприятия')
+        setErrorMessage(response.error || `Ошибка при ${mode === 'edit' ? 'обновлении' : 'добавлении'} мероприятия`)
       }
     } catch (error: any) {
-      console.error('Ошибка при создании мероприятия:', error)
+      console.error(`Ошибка при ${mode === 'edit' ? 'обновлении' : 'создании'} мероприятия:`, error)
       setErrorMessage(
         error.response?.data?.error || 
         error.message || 
-        'Ошибка при добавлении мероприятия. Попробуйте еще раз.'
+        `Ошибка при ${mode === 'edit' ? 'обновлении' : 'добавлении'} мероприятия. Попробуйте еще раз.`
       )
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!event || !confirm('Вы уверены, что хотите удалить это мероприятие?')) {
+      return
+    }
+
+    setIsDeleting(true)
+    setErrorMessage('')
+
+    try {
+      const response = await eventsApi.deleteEvent(event.id)
+      
+      if (response.success) {
+        setSuccessMessage('Мероприятие успешно удалено!')
+        
+        // Вызываем колбэк при успехе
+        if (onSuccess) {
+          onSuccess()
+        }
+        
+        // Очищаем сообщение через 3 секунды
+        setTimeout(() => setSuccessMessage(''), 3000)
+      } else {
+        setErrorMessage(response.error || 'Ошибка при удалении мероприятия')
+      }
+    } catch (error: any) {
+      console.error('Ошибка при удалении мероприятия:', error)
+      setErrorMessage(
+        error.response?.data?.error || 
+        error.message || 
+        'Ошибка при удалении мероприятия. Попробуйте еще раз.'
+      )
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -367,11 +451,19 @@ export const EventsForm: React.FC = () => {
     setErrorMessage('')
   }
 
-  const isFormValid = formData.title && formData.date && formData.time && formData.description && formData.category
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel()
+    }
+  }
+
+  const isFormValid = formData.title && formData.event_date && formData.event_time && formData.description && formData.event_location
 
   return (
     <FormContainer>
-      <FormTitle>Добавить новое мероприятие</FormTitle>
+      <FormTitle>
+        {mode === 'edit' ? 'Редактировать мероприятие' : 'Добавить новое мероприятие'}
+      </FormTitle>
       
       {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
       {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
@@ -392,42 +484,38 @@ export const EventsForm: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="category">Категория *</Label>
-            <Select
-              id="category"
-              name="category"
-              value={formData.category}
+            <Label htmlFor="event_location">Местоположение *</Label>
+            <Input
+              id="event_location"
+              name="event_location"
+              type="text"
+              value={formData.event_location}
               onChange={handleInputChange}
+              placeholder="Например: Главный зал, Банкетный зал и т.д."
               required
-            >
-              <option value="">Выберите категорию</option>
-              {categories.map(category => (
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </Select>
+            />
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="date">Дата *</Label>
+            <Label htmlFor="event_date">Дата проведения *</Label>
             <Input
-              id="date"
-              name="date"
+              id="event_date"
+              name="event_date"
               type="date"
-              value={formData.date}
+              value={formData.event_date}
               onChange={handleInputChange}
               required
             />
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="time">Время *</Label>
+            <Label htmlFor="event_time">Время проведения *</Label>
             <Input
-              id="time"
-              name="time"
-              type="text"
-              value={formData.time}
+              id="event_time"
+              name="event_time"
+              type="time"
+              value={formData.event_time}
               onChange={handleInputChange}
-              placeholder="Например: 20:00 - 23:00"
               required
             />
           </FormGroup>
@@ -445,19 +533,15 @@ export const EventsForm: React.FC = () => {
           </FormGroup>
 
           <FormGroup>
-            <Label htmlFor="isUpcoming">Статус мероприятия</Label>
-            <CheckboxGroup>
-              <Checkbox
-                id="isUpcoming"
-                name="isUpcoming"
-                type="checkbox"
-                checked={formData.isUpcoming}
-                onChange={handleCheckboxChange}
-              />
-              <CheckboxLabel htmlFor="isUpcoming">
-                Будущее мероприятие
-              </CheckboxLabel>
-            </CheckboxGroup>
+            <Label htmlFor="short_description">Краткое описание</Label>
+            <Input
+              id="short_description"
+              name="short_description"
+              type="text"
+              value={formData.short_description || ''}
+              onChange={handleInputChange}
+              placeholder="Краткое описание мероприятия"
+            />
           </FormGroup>
 
           <FormGroupFull>
@@ -465,7 +549,7 @@ export const EventsForm: React.FC = () => {
             <Textarea
               id="description"
               name="description"
-              value={formData.description}
+              value={formData.description || ''}
               onChange={handleInputChange}
               placeholder="Подробное описание мероприятия, что будет происходить, что включено в стоимость и т.д."
               required
@@ -477,15 +561,15 @@ export const EventsForm: React.FC = () => {
             <ImageUpload
               onImageUpload={handleImageUpload}
               onImageRemove={handleImageRemove}
-              currentImageUrl={formData.imageUrl}
+              currentImageUrl={formData.image_url || ''}
             />
-            {formData.imageUrl && (
+            {formData.image_url && (
               <div style={{ marginTop: '1rem', textAlign: 'center' }}>
                 <p style={{ color: '#28a745', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
                   ✅ Изображение загружено
                 </p>
                 <img 
-                  src={formData.imageUrl} 
+                  src={formData.image_url} 
                   alt="Предпросмотр" 
                   style={{ 
                     maxWidth: '200px', 
@@ -501,13 +585,33 @@ export const EventsForm: React.FC = () => {
 
         <ButtonGroup>
           <Button type="submit" disabled={!isFormValid || isSubmitting}>
-            {isSubmitting ? 'Добавление...' : 'Добавить мероприятие'}
+            {isSubmitting 
+              ? (mode === 'edit' ? 'Обновление...' : 'Добавление...') 
+              : (mode === 'edit' ? 'Обновить мероприятие' : 'Добавить мероприятие')
+            }
           </Button>
+          
+          {mode === 'edit' && event && (
+            <DeleteButton 
+              type="button" 
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Удаление...' : 'Удалить'}
+            </DeleteButton>
+          )}
+          
           <Button type="button" $variant="secondary" onClick={handleReset}>
             Очистить форму
           </Button>
+          
+          {mode === 'edit' && onCancel && (
+            <Button type="button" $variant="secondary" onClick={handleCancel}>
+              Отмена
+            </Button>
+          )}
         </ButtonGroup>
       </form>
     </FormContainer>
   )
-} 
+}
