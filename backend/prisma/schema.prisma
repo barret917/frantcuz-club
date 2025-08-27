@@ -230,26 +230,6 @@ model BanquetRequest {
   updatedAt        DateTime             @updatedAt
 }
 
-model Event {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String
-  date        DateTime
-  time        String   @db.VarChar(100)
-  price       String?  @db.VarChar(100)
-  category    String   @db.VarChar(100)
-  isUpcoming  Boolean  @default(true)
-  isActive    Boolean  @default(true)
-  imageUrl    String?
-  maxGuests   Int?
-  location    String?  @db.VarChar(255)
-  organizer   String?  @db.VarChar(255)
-  contactInfo String?
-  tags        String[]
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
 enum HallType {
   restaurant
