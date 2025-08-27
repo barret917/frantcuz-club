@@ -1,0 +1,12 @@
+# React
+.eslintcache
+/src/serviceWorker.js
+
+# Vue
+node_modules/
+/dist/
+/local/
+/node_modules/
+/.env.local
+/.env.*.local
+/.env
