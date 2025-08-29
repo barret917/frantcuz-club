@@ -10,7 +10,7 @@ datasource db {
 
 model Hall {
   id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(255)
+  name        String   @unique @db.VarChar(255)
   description String?
   type        HallType @default(restaurant)
   imageUrl    String?
@@ -345,6 +345,7 @@ model user_tickets {
   first_name     String?          @db.VarChar(255)
   last_name      String?          @db.VarChar(255)
   phone          String?          @db.VarChar(20)
+  table_number   String?          @db.VarChar(50) // Добавленное поле
   
   order_items    order_items?
   refund_tickets refund_tickets[]
@@ -361,6 +362,7 @@ model user_tickets {
   @@index([ticket_id])
   @@index([ticket_number])
   @@index([user_id])
+  @@index([table_number]) // Добавлен индекс для нового поля
 }
 
 model users {
@@ -418,6 +420,7 @@ enum ZoneItemType {
   spaRoom
   cinemaHall
   custom
+  entrance
 }
 
 enum ReservationType {

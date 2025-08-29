@@ -31,10 +31,12 @@ export interface UserTicket {
   last_name: string | null;
   email: string | null;
   phone: string | null;
+  table_number: string;
   created_at: Date;
   updated_at: Date;
   ticket?: Ticket;
   user?: User;
+  
 }
 
 export interface User {

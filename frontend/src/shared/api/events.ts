@@ -89,7 +89,7 @@ export const eventUtils = {
     const oneHour = 60 * 60 * 1000 // 1 час в миллисекундах
     
     // Если мероприятие идет сейчас (в течение 3 часов до и после)
-    const threeHoursBefore = new Date(eventDate.getTime() - 3 * oneHour)
+    const threeHoursBefore = new Date(eventDate.getTime() - 1 * oneHour)
     const threeHoursAfter = new Date(eventDate.getTime() + 3 * oneHour)
     
     if (now >= threeHoursBefore && now <= threeHoursAfter) {

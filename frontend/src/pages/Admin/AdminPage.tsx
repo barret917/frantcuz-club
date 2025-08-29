@@ -6,14 +6,13 @@ import { BilliardsPricing } from '@/features/billiards-pricing'
 import { KaraokePricing } from '@/features/karaoke-pricing'
 import { HookahList } from '@/features/hookah-management'
 import { BoardGameList } from '@/features/board-games-management'
-import { ZoneManager, HallsManagement } from '@/features/hall-management'
+import { HallsManagement } from '@/features/hall-management'
 import { BanquetRequestsPage } from './BanquetRequestsPage'
 import { getZones } from '@/shared/api/halls'
 import { banquetRequestsApi } from '@/shared/api/banquet-requests'
 import { Zone } from '@/shared/api/halls'
 import { EventsList } from '@/features/events-management'
 import styled, { keyframes, css } from 'styled-components'
-// import { Zone } from '@/entities/Zone'
 
 
 // Анимации

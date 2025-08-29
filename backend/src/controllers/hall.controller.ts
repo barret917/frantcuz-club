@@ -9,6 +9,15 @@ export const createHall = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Название зала обязательно' })
     }
 
+    // Проверка на существование зала с таким именем
+    const existingHall = await prisma.hall.findFirst({
+      where: { name }
+    })
+
+    if (existingHall) {
+      return res.status(400).json({ error: 'Зал с таким названием уже существует' })
+    }
+
     const hall = await prisma.hall.create({
       data: {
         name,
@@ -23,6 +32,12 @@ export const createHall = async (req: Request, res: Response) => {
     res.status(201).json(hall)
   } catch (error) {
     console.error('Ошибка создания зала:', error)
+    
+    // Обработка ошибки уникальности
+    if (error instanceof Error && 'code' in error && error.code === 'P2002') {
+      return res.status(400).json({ error: 'Зал с таким названием уже существует' })
+    }
+    
     res.status(500).json({ error: 'Ошибка создания зала' })
   }
 }

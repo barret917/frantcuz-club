@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { eventsApi, CreateEventData, Event, eventUtils } from '@/shared/api/events'
 import { ImageUpload } from '@/shared/ui/ImageUpload'
+import { getHalls, Hall } from '@/shared/api/halls'
 
 const FormContainer = styled.div`
   background: rgba(255, 255, 255, 0.05);
@@ -111,25 +112,6 @@ const Select = styled.select`
   }
 `
 
-const CheckboxGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-`
-
-const Checkbox = styled.input`
-  width: 18px;
-  height: 18px;
-  accent-color: #667eea;
-`
-
-const CheckboxLabel = styled.label`
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
-  cursor: pointer;
-`
-
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
@@ -230,6 +212,13 @@ const DeleteButton = styled.button`
   }
 `
 
+const LoadingText = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  padding: 1rem;
+  font-style: italic;
+`
+
 interface EventFormData {
   title: string
   short_description: string | null
@@ -267,7 +256,6 @@ export const EventsForm: React.FC<EventsFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<EventFormData>(() => {
     if (event && mode === 'edit') {
-      // Используем локальное время для отображения
       const eventDate = new Date(event.event_date)
       const dateString = eventDate.toISOString().split('T')[0]
       const timeString = eventDate.toTimeString().substring(0, 5)
@@ -290,68 +278,75 @@ export const EventsForm: React.FC<EventsFormProps> = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const [halls, setHalls] = useState<Hall[]>([])
+  const [isLoadingHalls, setIsLoadingHalls] = useState(true)
 
-  console.log('🚀 EventsForm компонент загружен')
-  console.log('☁️ Проверяем Cloudinary переменные:')
-  console.log('☁️ VITE_CLOUDINARY_CLOUD_NAME:', import.meta.env.VITE_CLOUDINARY_CLOUD_NAME)
-  console.log('☁️ VITE_CLOUDINARY_UPLOAD_PRESET:', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
+  // Загружаем список залов при монтировании компонента
+  useEffect(() => {
+    const loadHalls = async () => {
+      try {
+        setIsLoadingHalls(true)
+        const hallsData = await getHalls()
+        setHalls(hallsData)
+        
+        // Если редактируем существующее мероприятие и местоположение уже задано,
+        // проверяем есть ли такое местоположение в списке залов
+        if (event && mode === 'edit' && event.event_location) {
+          const hallExists = hallsData.some(hall => hall.name === event.event_location)
+          if (!hallExists) {
+            // Если зала нет в списке, добавляем текущее значение как опцию
+            setHalls(prev => [
+              ...prev,
+              { 
+                id: 0, 
+                name: event.event_location, 
+                type: 'custom', 
+                isActive: true, 
+                sortOrder: 0, 
+                createdAt: '', 
+                updatedAt: '', 
+                zones: [] 
+              } as Hall
+            ])
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке залов:', error)
+        setErrorMessage('Не удалось загрузить список залов')
+      } finally {
+        setIsLoadingHalls(false)
+      }
+    }
+
+    loadHalls()
+  }, [event, mode])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
-    console.log('📝 Изменение поля:', name, '=', value)
-    
-    setFormData(prev => {
-      const newData = { ...prev, [name]: value }
-      console.log('📝 Новые данные формы:', newData)
-      return newData
-    })
+    setFormData(prev => ({ ...prev, [name]: value }))
   }
 
   const handleImageUpload = (imageUrl: string) => {
-    console.log('🖼️ === НАЧАЛО ЗАГРУЗКИ ИЗОБРАЖЕНИЯ ===')
-    console.log('🖼️ Получен URL изображения:', imageUrl)
-    
-    setFormData(prev => {
-      const newData = { ...prev, image_url: imageUrl }
-      console.log('🖼️ Новые данные формы:', newData)
-      return newData
-    })
-    
-    console.log('🖼️ === КОНЕЦ ЗАГРУЗКИ ИЗОБРАЖЕНИЯ ===')
+    setFormData(prev => ({ ...prev, image_url: imageUrl }))
   }
 
   const handleImageRemove = () => {
-    console.log('🗑️ === НАЧАЛО УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
-    
-    setFormData(prev => {
-      const newData = { ...prev, image_url: '' }
-      console.log('🗑️ Новые данные формы после удаления:', newData)
-      return newData
-    })
-    
-    console.log('🗑️ === КОНЕЦ УДАЛЕНИЯ ИЗОБРАЖЕНИЯ ===')
+    setFormData(prev => ({ ...prev, image_url: '' }))
   }
 
-  // Функция для совмещения даты и времени в формат ISO
   const combineDateTime = (date: string, time: string): string => {
     if (!date || !time) return ''
-    
-    // Создаем дату в локальном времени пользователя
-    const dateTimeString = `${date}T${time}:00`
-    console.log('🕐 Совмещаем дату и время:', dateTimeString)
-    return dateTimeString
+    return `${date}T${time}:00`
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('🚀 Отправляем данные мероприятия:', formData)
     
     setIsSubmitting(true)
     setSuccessMessage('')
     setErrorMessage('')
 
     try {
-      // Совмещаем дату и время
       const combinedDateTime = combineDateTime(formData.event_date, formData.event_time)
       
       const eventData: CreateEventData = {
@@ -363,10 +358,6 @@ export const EventsForm: React.FC<EventsFormProps> = ({
         event_location: formData.event_location,
         price: formData.price
       }
-
-      console.log('🚀 Отправляем данные мероприятия:', eventData)
-      console.log('🖼️ URL изображения:', eventData.image_url)
-      console.log('📅 Полная дата события:', eventData.event_date)
 
       let response
       
@@ -387,12 +378,10 @@ export const EventsForm: React.FC<EventsFormProps> = ({
           setFormData(initialFormData)
         }
         
-        // Вызываем колбэк при успехе
         if (onSuccess) {
           onSuccess()
         }
         
-        // Очищаем сообщение через 3 секунды
         setTimeout(() => setSuccessMessage(''), 3000)
       } else {
         setErrorMessage(response.error || `Ошибка при ${mode === 'edit' ? 'обновлении' : 'добавлении'} мероприятия`)
@@ -423,12 +412,10 @@ export const EventsForm: React.FC<EventsFormProps> = ({
       if (response.success) {
         setSuccessMessage('Мероприятие успешно удалено!')
         
-        // Вызываем колбэк при успехе
         if (onSuccess) {
           onSuccess()
         }
         
-        // Очищаем сообщение через 3 секунды
         setTimeout(() => setSuccessMessage(''), 3000)
       } else {
         setErrorMessage(response.error || 'Ошибка при удалении мероприятия')
@@ -485,15 +472,25 @@ export const EventsForm: React.FC<EventsFormProps> = ({
 
           <FormGroup>
             <Label htmlFor="event_location">Местоположение *</Label>
-            <Input
+            <Select
               id="event_location"
               name="event_location"
-              type="text"
               value={formData.event_location}
               onChange={handleInputChange}
-              placeholder="Например: Главный зал, Банкетный зал и т.д."
               required
-            />
+              disabled={isLoadingHalls}
+            >
+              <option value="">Выберите зал</option>
+              {isLoadingHalls ? (
+                <option value="" disabled>Загрузка залов...</option>
+              ) : (
+                halls.map(hall => (
+                  <option key={hall.id} value={hall.name}>
+                    {hall.name} ({hall.type})
+                  </option>
+                ))
+              )}
+            </Select>
           </FormGroup>
 
           <FormGroup>

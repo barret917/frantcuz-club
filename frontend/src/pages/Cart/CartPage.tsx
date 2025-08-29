@@ -9,6 +9,9 @@ import {
   UserTicket
 } from '@/shared/api/ticket/ticket.types';
 import { orderApi, paymentApi, ticketApi } from '@/shared/api/ticket/ticket';
+import { TableGrid } from '@/features/table-selection/components/TableGrid';
+import { ZoneItem } from '@/entities/zone-item/model/types';
+import { getHalls, getZones, Hall, Zone } from '@/shared/api/halls';
 
 const modalFadeIn = keyframes`
   from {
@@ -54,7 +57,7 @@ const ModalContent = styled.div`
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border-radius: 20px;
   border: 1px solid rgba(102, 126, 234, 0.3);
-  max-width: 900px;
+  max-width: 1200px;
   width: 100%;
   max-height: 95vh;
   overflow-y: auto;
@@ -142,11 +145,11 @@ const EventTitle = styled.h3`
 
 const EventDate = styled.div`
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 100%);
-  extreme: white;
+  color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.9rem;
-  extreme-weight: 600;
+  font-weight: 600;
   white-space: nowrap;
 `;
 
@@ -161,7 +164,7 @@ const QuantityControls = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1rem;
-  extreme: 1rem;
+  padding: 1rem;
   
   @media (max-width: 480px) {
     flex-direction: column;
@@ -263,7 +266,7 @@ const SummaryRow = styled.div`
   &:last-child {
     margin-bottom: 0;
     padding-top: 1rem;
-    border-top: 1px extreme rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -524,9 +527,63 @@ const Step = styled.div<{ active: boolean }>`
   transition: all 0.3s ease;
 `;
 
+const TableSelectionSection = styled.div`
+  margin-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 2rem;
+`;
+
+const SelectedTableInfo = styled.div`
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: white;
+`;
+
+const TableInfoText = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+`;
+
+const TableGridContainer = styled.div`
+  margin-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 1rem;
+`;
+
+const NoTablesMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+`;
+
+const LoadingSection = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.7);
+`;
+
+const KaraokeFilterInfo = styled.div`
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #ffc107;
+`;
+
 interface CartItem {
   event: Event;
   quantity: number;
+  selectedTable?: ZoneItem | null;
 }
 
 interface CartModalProps {
@@ -535,6 +592,8 @@ interface CartModalProps {
   cartItems: CartItem[];
   onUpdateQuantity: (eventId: number, quantity: number) => void;
   onRemoveItem: (eventId: number) => void;
+  onUpdateTableSelection: (eventId: number, table: ZoneItem | null) => void;
+  zoneItems: ZoneItem[];
   onCheckoutSuccess?: (orderId: number, paymentUrl: string) => void;
   onCheckoutComplete?: () => void;
 }
@@ -547,6 +606,8 @@ export const CartModal: React.FC<CartModalProps> = ({
   cartItems,
   onUpdateQuantity,
   onRemoveItem,
+  onUpdateTableSelection,
+  zoneItems = [],
   onCheckoutSuccess,
   onCheckoutComplete
 }) => {
@@ -564,13 +625,74 @@ export const CartModal: React.FC<CartModalProps> = ({
   const [currentOrderId, setCurrentOrderId] = useState<number | null>(null);
   const [processingStep, setProcessingStep] = useState<string>('');
   const [hasRedirected, setHasRedirected] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<ZoneItem | null>(null);
+  const [filteredZoneItems, setFilteredZoneItems] = useState<ZoneItem[]>([]);
+  const [isLoadingHalls, setIsLoadingHalls] = useState(false);
+  const [halls, setHalls] = useState<Hall[]>([]);
+  const [karaokeZones, setKaraokeZones] = useState<Zone[]>([]);
+  const [karaokeHall, setKaraokeHall] = useState<Hall | null>(null);
 
+  // Загрузка всех залов при открытии модального окна
+  useEffect(() => {
+    if (isOpen) {
+      loadHallsAndZones();
+    }
+  }, [isOpen]);
+
+  // Сброс состояния при закрытии модального окна
   useEffect(() => {
     if (!isOpen) {
       setHasRedirected(false);
       setCurrentStep('form');
+      setSelectedTable(null);
+      setFilteredZoneItems([]);
+      setKaraokeZones([]);
+      setKaraokeHall(null);
     }
   }, [isOpen]);
+
+  // Загрузка залов и зон
+  const loadHallsAndZones = async () => {
+    setIsLoadingHalls(true);
+    try {
+      // Загружаем все залы
+      const allHalls = await getHalls();
+      setHalls(allHalls);
+
+      // Ищем зал с типом 'karaoke'
+      const karaokeHall = allHalls.find(hall => hall.type === 'karaoke');
+      
+      if (karaokeHall) {
+        setKaraokeHall(karaokeHall);
+        
+        // Загружаем зоны для караоке зала
+        const zones = await getZones(karaokeHall.id);
+        
+        // Фильтруем только караоке зоны
+        const karaokeZones = zones.filter(zone => zone.type === 'karaoke');
+        setKaraokeZones(karaokeZones);
+
+        // Если есть караоке зоны, берем первую и фильтруем ее items
+        if (karaokeZones.length > 0) {
+          const firstKaraokeZone = karaokeZones[0];
+          const zoneItems = firstKaraokeZone.items || [];
+          
+          setFilteredZoneItems(zoneItems);
+          
+          // Если в корзине уже есть выбранный стол, устанавливаем его
+          const existingSelectedTable = cartItems[0]?.selectedTable;
+          if (existingSelectedTable) {
+            setSelectedTable(existingSelectedTable);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке залов и зон:', error);
+      setError('Не удалось загрузить информацию о залах');
+    } finally {
+      setIsLoadingHalls(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -622,11 +744,22 @@ export const CartModal: React.FC<CartModalProps> = ({
     }));
   };
 
+  const handleTableSelect = (table: ZoneItem): void => {
+    setSelectedTable(table);
+    // Сохраняем выбранный стол для всех мероприятий в корзине
+    cartItems.forEach(item => {
+      onUpdateTableSelection(item.event.id, table);
+    });
+  };
+
   const createPendingTickets = async (): Promise<UserTicket[]> => {
     setProcessingStep('Создание временных билетов...');
     const tickets: UserTicket[] = [];
     
     for (const item of cartItems) {
+      // Получаем номер стола из выбранного стола или из сохраненного в корзине
+      const tableNumber = item.selectedTable?.label || selectedTable?.label || '';
+      
       for (let i = 0; i < item.quantity; i++) {
         try {
           const ticketRequest = {
@@ -638,6 +771,7 @@ export const CartModal: React.FC<CartModalProps> = ({
               phone: userData.phone?.trim() || '',
               user_id: userData?.user_id ?? null
             },
+            table_number: tableNumber // Передаем номер стола
           };
 
           const ticket = await ticketApi.createPendingTicket(ticketRequest);
@@ -664,14 +798,15 @@ export const CartModal: React.FC<CartModalProps> = ({
       userData: {
         first_name: userData.first_name.trim(),
         last_name: userData.last_name?.trim(),
-        extreme: userData.email?.trim(),
+        email: userData.email?.trim(),
         phone: phone,
         user_id: undefined
       },
       tickets: cartItems.map(item => ({
         id: item.event.id,
         price: item.event.price,
-        quantity: item.quantity
+        quantity: item.quantity,
+        table_number: item.selectedTable?.label || selectedTable?.label || '' // Передаем номер стола
       })),
       paymentData: {
         id: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -719,6 +854,7 @@ export const CartModal: React.FC<CartModalProps> = ({
         email: userData.email?.trim() || '',
         phone: phone,
         event_title: ticket.ticket?.title || 'Мероприятие',
+        table_number: ticket.table_number || '', // Используем table_number из билета
         user_id: undefined
       })),
       customer: customer,
@@ -755,7 +891,7 @@ export const CartModal: React.FC<CartModalProps> = ({
     }
   };
 
-  const updateOrderPaymentId = async (orderId: extreme, paymentId: string): Promise<void> => {
+  const updateOrderPaymentId = async (orderId: number, paymentId: string): Promise<void> => {
     setProcessingStep('Обновление информации о платеже заказа...');
     
     try {
@@ -773,6 +909,13 @@ export const CartModal: React.FC<CartModalProps> = ({
     setError('');
     setSuccess('');
     setPaymentUrl('');
+
+    // Проверяем, выбран ли стол для мероприятий с ценой > 0
+    const hasPaidEvents = cartItems.some(item => parsePrice(item.event.price) > 0);
+    if (hasPaidEvents && !selectedTable && !cartItems.some(item => item.selectedTable)) {
+      setError('Пожалуйста, выберите стол для бронирования');
+      return;
+    }
 
     if (!userData.first_name.trim()) {
       setError('Пожалуйста, введите имя');
@@ -841,6 +984,7 @@ export const CartModal: React.FC<CartModalProps> = ({
       setSuccess('');
       setPaymentUrl('');
       setCurrentOrderId(null);
+      setSelectedTable(null);
     }
     onClose();
   };
@@ -859,6 +1003,7 @@ export const CartModal: React.FC<CartModalProps> = ({
     setSuccess('');
     setPaymentUrl('');
     setCurrentOrderId(null);
+    setSelectedTable(null);
     setHasRedirected(false);
     onClose();
   };
@@ -885,7 +1030,7 @@ export const CartModal: React.FC<CartModalProps> = ({
           <RedirectTitle>🎉 Заказ успешно создан!</RedirectTitle>
           <RedirectDescription>
             {hasRedirected 
-              ? 'Вы были перенаправлены на страницу оплаты. После успешной оплаты билеты будут отправлены на вашу почту.'
+              ? 'Вы были перенаправлены на страницу оплата. После успешной оплаты билеты будут отправлены на вашу почту.'
               : 'Вы будете перенаправлены на страницу оплаты PayKeeper. После успешной оплаты билеты будут отправлены на вашу почту.'}
           </RedirectDescription>
           
@@ -936,6 +1081,17 @@ export const CartModal: React.FC<CartModalProps> = ({
                     {item.event.description || 'Описание мероприятия'}
                   </EventDescription>
                   
+                  {(item.selectedTable || selectedTable) && (
+                    <SelectedTableInfo>
+                      <TableInfoText>
+                        Выбранный стол: <strong>{item.selectedTable?.label || selectedTable?.label}</strong>
+                        {(item.selectedTable?.seats || selectedTable?.seats) && (
+                          <> (мест: {item.selectedTable?.seats || selectedTable?.seats})</>
+                        )}
+                      </TableInfoText>
+                    </SelectedTableInfo>
+                  )}
+                  
                   <QuantityControls>
                     <QuantityButtons>
                       <QuantityButton
@@ -985,6 +1141,47 @@ export const CartModal: React.FC<CartModalProps> = ({
                 <GrandTotal>{getGrandTotal().toLocaleString('ru-RU')} ₽</GrandTotal>
               </SummaryRow>
             </CartSummary>
+
+            {/* Схема выбора стола - показываем только для платных мероприятий */}
+            {cartItems.some(item => parsePrice(item.event.price) > 0) && (
+              <TableSelectionSection>
+                <FormTitle>Выберите стол для бронирования</FormTitle>
+                
+                {karaokeHall && (
+                  <KaraokeFilterInfo>
+                    Автоматически выбраны столы из караоке-зала: "{karaokeHall.name}"
+                  </KaraokeFilterInfo>
+                )}
+                
+                {selectedTable && (
+                  <SelectedTableInfo>
+                    <TableInfoText>
+                      Выбранный стол: <strong>{selectedTable.label}</strong>
+                      {selectedTable.seats && (
+                        <> (мест: {selectedTable.seats})</>
+                      )}
+                    </TableInfoText>
+                  </SelectedTableInfo>
+                )}
+                
+                <TableGridContainer>
+                  {isLoadingHalls ? (
+                    <LoadingSection>Загрузка схемы столов...</LoadingSection>
+                  ) : filteredZoneItems.length > 0 ? (
+                    <TableGrid
+                      zoneItems={filteredZoneItems}
+                      onTableSelect={handleTableSelect}
+                      selectedTable={selectedTable}
+                      onContinue={() => {}}
+                    />
+                  ) : (
+                    <NoTablesMessage>
+                      Нет доступных столов для бронирования
+                    </NoTablesMessage>
+                  )}
+                </TableGridContainer>
+              </TableSelectionSection>
+            )}
             
             <OrderForm onSubmit={handleSubmit}>
               <FormTitle>Данные для заказа</FormTitle>
