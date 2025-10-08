@@ -1,0 +1,1 @@
+export { BilliardsPricing } from './components/BilliardsPricing' 

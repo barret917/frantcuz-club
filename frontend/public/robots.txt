@@ -1,0 +1,33 @@
+User-agent: *
+Allow: /
+
+# Разрешаем индексацию всех страниц
+Allow: /about
+Allow: /billiards
+Allow: /karaoke
+Allow: /disco
+Allow: /playstation
+Allow: /menu
+Allow: /booking
+Allow: /contact
+
+# Запрещаем индексацию админки
+Disallow: /admin
+Disallow: /admin/*
+
+# Запрещаем индексацию API
+Disallow: /api
+Disallow: /api/*
+
+# Запрещаем индексацию технических файлов
+Disallow: /_next
+Disallow: /static
+Disallow: /*.js
+Disallow: /*.css
+Disallow: /*.map
+
+# Указываем расположение sitemap
+Sitemap: https://frantsuz-club.ru/sitemap.xml
+
+# Время задержки между запросами (в секундах)
+Crawl-delay: 1 

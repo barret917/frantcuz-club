@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model MenuType {
+  id          Int            @id @default(autoincrement())
+  name        String
+  slug        String         @unique
+  description String?
+  isActive    Boolean        @default(true)
+  sortOrder   Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  categories  MenuCategory[]
+}
+
+model MenuCategory {
+  id          Int        @id @default(autoincrement())
+  menuTypeId  Int
+  name        String
+  slug        String     @unique
+  description String?
+  isActive    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  menuType    MenuType   @relation(fields: [menuTypeId], references: [id])
+  items       MenuItem[]
+}
+
+model MenuItem {
+  id          Int           @id @default(autoincrement())
+  categoryId  Int
+  name        String
+  description String?
+  price       Decimal       @db.Decimal(8, 2)
+  imageUrl    String?
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  category    MenuCategory  @relation(fields: [categoryId], references: [id])
+}
+
+model Hookah {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?
+  price       Decimal  @db.Decimal(8, 2)
+  features    String[]
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BoardGame {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(255)
+  description String?
+  price       Decimal  @db.Decimal(8, 2)
+  duration    String?  @db.VarChar(100)
+  players     String?  @db.VarChar(100)
+  difficulty  String?  @db.VarChar(100)
+  category    String?  @db.VarChar(100)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BilliardsService {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  type        String    @unique @db.VarChar(50)
+  price       Decimal   @db.Decimal(8, 2)
+  description String?
+  imageUrl    String?
+  isActive    Boolean?  @default(true)
+  sortOrder   Int?      @default(0)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model BilliardsSettings {
+  id                    Int       @id @default(autoincrement())
+  bookingFee            Decimal?  @default(100) @db.Decimal(8, 2)
+  bookingTimeoutMinutes Int?      @default(20)
+  minBookingDuration    Int?      @default(60)
+  maxBookingDuration    Int?      @default(480)
+  isActive              Boolean?  @default(true)
+  createdAt             DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt             DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model KaraokeService {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(255)
+  type        String    @unique @db.VarChar(50)
+  price       Decimal   @db.Decimal(8, 2)
+  description String?
+  imageUrl    String?
+  isActive    Boolean?  @default(true)
+  sortOrder   Int?      @default(0)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model KaraokeSettings {
+  id            Int       @id @default(autoincrement())
+  depositPolicy String?   @default("В случае неиспользования суммы депозита, денежные средства не возвращаются.")
+  isActive      Boolean?  @default(true)
+  createdAt     DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt     DateTime? @default(now()) @updatedAt @db.Timestamp(6)
+}
+
+model BanquetRequest {
+  id               Int                  @id @default(autoincrement())
+  eventDate        DateTime
+  eventTime        String
+  endTime          String?
+  guestCount       Int
+  eventType        String
+  budget           String
+  banquetType      String?
+  specialMenu      String?
+  music            String?
+  decor            String?
+  name             String
+  phone            String
+  email            String?
+  additionalWishes String?
+  status           BanquetRequestStatus @default(pending)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+}
+
+model Event {
+  id          Int           @id @default(autoincrement())
+  title       String        @db.VarChar(255)
+  description String
+  date        DateTime
+  time        String        @db.VarChar(100)
+  price       String?       @db.VarChar(100)
+  category    String        @db.VarChar(100)
+  isUpcoming  Boolean       @default(true)
+  isActive    Boolean       @default(true)
+  imageUrl    String?
+  maxGuests   Int?
+  location    String?       @db.VarChar(255)
+  organizer   String?       @db.VarChar(255)
+  contactInfo String?
+  tags        String[]
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  zones       EventZone[]
+  tickets     EventTicket[]
+}
+
+model CarouselPhoto {
+  id          Int           @id @default(autoincrement())
+  title       String        @db.VarChar(255)
+  description String?
+  imageUrl    String
+  page        CarouselPage  @default(billiards)
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+
+enum BanquetRequestStatus {
+  pending
+  approved
+  rejected
+  completed
+}
+
+enum CarouselPage {
+  billiards
+  karaoke
+  disco
+}
+
+// Новые модели для системы бронирования столов
+model BookingZone {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(255)
+  type        BookingZoneType @default(billiards)
+  description String?
+  openTime    String        @default("10:00")
+  closeTime   String        @default("22:00")
+  pricePerHour Decimal      @db.Decimal(8, 2)
+  deposit     Decimal?      @db.Decimal(8, 2)
+  imageUrl    String?
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  tables      BookingTable[]
+  bookings    Booking[]
+}
+
+model BookingTable {
+  id          Int           @id @default(autoincrement())
+  zoneId      Int
+  name        String        @db.VarChar(255)
+  x           Float
+  y           Float
+  width       Float
+  height      Float
+  seats       Int           @default(4)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  zone        BookingZone   @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+}
+
+model Booking {
+  id              Int               @id @default(autoincrement())
+  zoneId          Int
+  tableId         Int?
+  customerName    String            @db.VarChar(255)
+  customerPhone   String            @db.VarChar(20)
+  customerEmail   String?           @db.VarChar(255)
+  bookingDate     DateTime
+  startTime       String            @db.VarChar(5) // HH:MM
+  endTime         String            @db.VarChar(5)   // HH:MM
+  duration        Int               // в минутах
+  guestsCount     Int               @default(1)
+  totalPrice      Decimal           @db.Decimal(8, 2)
+  deposit         Decimal?          @db.Decimal(8, 2)
+  status          BookingStatus     @default(pending)
+  paymentStatus   PaymentStatus     @default(pending)
+  paymentId       String?           @db.VarChar(255)
+  comment         String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  zone            BookingZone       @relation(fields: [zoneId], references: [id])
+  table           BookingTable?     @relation(fields: [tableId], references: [id])
+  payments        BookingPayment[]
+  notifications   BookingNotification[]
+}
+
+model BookingPayment {
+  id            Int         @id @default(autoincrement())
+  bookingId     Int
+  amount        Decimal     @db.Decimal(8, 2)
+  paymentId     String      @db.VarChar(255)
+  status        PaymentStatus @default(pending)
+  payDate       DateTime?   @db.Timestamp(6)
+  refunded      Boolean     @default(false)
+  refundDate    DateTime?   @db.Timestamp(6)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  booking       Booking     @relation(fields: [bookingId], references: [id])
+}
+
+model BookingNotification {
+  id          Int                     @id @default(autoincrement())
+  bookingId   Int
+  type        NotificationType
+  status      NotificationStatus     @default(pending)
+  sentAt      DateTime?              @db.Timestamp(6)
+  error       String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  booking     Booking                @relation(fields: [bookingId], references: [id])
+}
+
+// Enums для новой системы бронирования
+enum BookingZoneType {
+  billiards
+  karaoke
+  playstation
+  disco
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  active
+  completed
+  cancelled
+  no_show
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum NotificationType {
+  booking_created
+  payment_confirmed
+  reminder_24h
+  reminder_1h
+  booking_cancelled
+  booking_modified
+}
+
+enum NotificationStatus {
+  pending
+  sent
+  failed
+}
+
+// ===== СИСТЕМА МЕРОПРИЯТИЙ С БИЛЕТАМИ =====
+
+model EventTicket {
+  id            Int           @id @default(autoincrement())
+  eventId       Int
+  zoneId        Int
+  tableId       Int
+  ticketNumber  String        @unique @db.VarChar(50)
+  qrCode        String?       @db.Text
+  price         Decimal       @db.Decimal(8, 2)
+  status        TicketStatus  @default(available)
+  customerName  String        @db.VarChar(255)
+  customerEmail String        @db.VarChar(255)
+  customerPhone String        @db.VarChar(20)
+  telegramUserId String?      @db.VarChar(50)
+  paymentId     String?       @db.VarChar(255)
+  paymentStatus PaymentStatus @default(pending)
+  purchasedAt   DateTime?
+  usedAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  zone          EventZone     @relation(fields: [zoneId], references: [id])
+  table         EventTable    @relation(fields: [tableId], references: [id])
+}
+
+
+model EventZone {
+  id          Int           @id @default(autoincrement())
+  eventId     Int
+  name        String        @db.VarChar(255)
+  description String?       @db.Text
+  price       Decimal       @db.Decimal(8, 2)
+  maxSeats    Int?
+  isActive    Boolean       @default(true)
+  sortOrder   Int           @default(0)
+  x           Float         @default(0)
+  y           Float         @default(0)
+  width       Float         @default(200)
+  height      Float         @default(150)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  event       Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tables      EventTable[]
+  tickets     EventTicket[]
+}
+
+model EventTable {
+  id          Int           @id @default(autoincrement())
+  zoneId      Int
+  name        String        @db.VarChar(255)
+  x           Float
+  y           Float
+  width       Float
+  height      Float
+  seats       Int           @default(4)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  zone        EventZone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  tickets     EventTicket[]
+}
+
+// Enums для системы мероприятий
+enum TicketStatus {
+  available
+  sold
+  used
+  cancelled
+}

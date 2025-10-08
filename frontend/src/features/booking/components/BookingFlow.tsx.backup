@@ -1,0 +1,244 @@
+import React, { useState } from 'react'
+import styled from 'styled-components'
+import { BookingZoneSelector } from '@/features/booking-zone-selection'
+import { BookingTableSelector } from '@/features/booking-table-selection'
+import { BookingZone, createBooking } from '@/shared/api/booking'
+
+const Container = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem 0;
+`
+
+const SuccessModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`
+
+const SuccessContent = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 2rem;
+`
+
+const SuccessIcon = styled.div`
+  width: 80px;
+  height: 80px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  font-size: 2rem;
+  color: white;
+`
+
+const SuccessTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+`
+
+const SuccessMessage = styled.p`
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+`
+
+const BookingDetails = styled.div`
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+`
+
+const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
+`
+
+const CloseButton = styled.button`
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background: #4338ca;
+  }
+`
+
+type BookingStep = 'zone-selection' | 'table-selection' | 'success'
+
+export const BookingFlow: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState<BookingStep>('zone-selection')
+  const [selectedZone, setSelectedZone] = useState<BookingZone | null>(null)
+  const [bookingData, setBookingData] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleZoneSelect = (zone: BookingZone) => {
+    setSelectedZone(zone)
+    setCurrentStep('table-selection')
+  }
+
+  const handleBackToZones = () => {
+    setCurrentStep('zone-selection')
+    setSelectedZone(null)
+  }
+
+  const handleBookingComplete = async (booking: any) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const createdBooking = await createBooking(booking)
+      setBookingData(createdBooking)
+      setCurrentStep('success')
+    } catch (err) {
+      setError('Ошибка создания бронирования. Попробуйте еще раз.')
+      console.error('Error creating booking:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCloseSuccess = () => {
+    setCurrentStep('zone-selection')
+    setSelectedZone(null)
+    setBookingData(null)
+    setError(null)
+  }
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 'zone-selection':
+        return <BookingZoneSelector onZoneSelect={handleZoneSelect} />
+      
+      case 'table-selection':
+        if (!selectedZone) return null
+        return (
+          <BookingTableSelector
+            zone={selectedZone}
+            onBack={handleBackToZones}
+            onBookingComplete={handleBookingComplete}
+          />
+        )
+      
+      case 'success':
+        return (
+          <SuccessModal>
+            <SuccessContent>
+              <SuccessIcon>✓</SuccessIcon>
+              <SuccessTitle>Бронирование успешно создано!</SuccessTitle>
+              <SuccessMessage>
+                Ваше бронирование было успешно создано. 
+                Мы свяжемся с вами для подтверждения.
+              </SuccessMessage>
+              
+              {bookingData && (
+                <BookingDetails>
+                  <DetailRow>
+                    <span>Номер бронирования:</span>
+                    <span>#{bookingData.id}</span>
+                  </DetailRow>
+                  <DetailRow>
+                    <span>Клиент:</span>
+                    <span>{bookingData.customerName}</span>
+                  </DetailRow>
+                  <DetailRow>
+                    <span>Телефон:</span>
+                    <span>{bookingData.customerPhone}</span>
+                  </DetailRow>
+                  <DetailRow>
+                    <span>Время:</span>
+                    <span>{bookingData.startTime} - {bookingData.endTime}</span>
+                  </DetailRow>
+                  <DetailRow>
+                    <span>Статус:</span>
+                    <span>{bookingData.status}</span>
+                  </DetailRow>
+                </BookingDetails>
+              )}
+              
+              <CloseButton onClick={handleCloseSuccess}>
+                Закрыть
+              </CloseButton>
+            </SuccessContent>
+          </SuccessModal>
+        )
+      
+      default:
+        return null
+    }
+  }
+
+  return (
+    <Container>
+      {error && (
+        <div style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          padding: '1rem',
+          borderRadius: '8px',
+          textAlign: 'center',
+          margin: '2rem',
+          maxWidth: '1200px',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+          {error}
+        </div>
+      )}
+      
+      {loading && (
+        <div style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: 'white',
+          padding: '2rem',
+          borderRadius: '8px',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+          zIndex: 1000
+        }}>
+          Создание бронирования...
+        </div>
+      )}
+      
+      {renderCurrentStep()}
+    </Container>
+  )
+}

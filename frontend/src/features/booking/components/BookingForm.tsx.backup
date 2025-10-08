@@ -1,0 +1,655 @@
+import React, { useState, useEffect } from 'react'
+import styled from 'styled-components'
+import { BookingType } from '@/shared/api/bookings'
+import { createBooking, CreateBookingData } from '@/shared/api/bookings'
+import { getHalls, getZones, Hall, Zone, ZoneItem } from '@/shared/api/halls'
+import { getZoneItems } from '@/shared/api/zone-items'
+import { PaymentModal } from '@/shared/ui/PaymentModal'
+
+const FormContainer = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+`
+
+const FormTitle = styled.h2`
+  color: #fff;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+`
+
+const StepIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+`
+
+const Step = styled.div<{ $active?: boolean; $completed?: boolean }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  
+  background: ${props => {
+    if (props.$active) return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    if (props.$completed) return 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+    return 'rgba(255, 255, 255, 0.1)'
+  }};
+  
+  color: ${props => {
+    if (props.$active || props.$completed) return '#fff'
+    return 'rgba(255, 255, 255, 0.5)'
+  }};
+  
+  border: 2px solid ${props => {
+    if (props.$active) return 'rgba(102, 126, 234, 0.5)'
+    if (props.$completed) return 'rgba(34, 197, 94, 0.5)'
+    return 'rgba(255, 255, 255, 0.2)'
+  }};
+`
+
+const StepLine = styled.div<{ $completed?: boolean }>`
+  width: 60px;
+  height: 2px;
+  background: ${props => props.$completed 
+    ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' 
+    : 'rgba(255, 255, 255, 0.2)'
+  };
+  transition: all 0.3s ease;
+`
+
+const HallsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+`
+
+const HallCard = styled.div<{ $selected?: boolean }>`
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid ${props => props.$selected ? '#667eea' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+`
+
+const HallName = styled.h3`
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+`
+
+const HallInfo = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+`
+
+const ZonesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+`
+
+const ZoneCard = styled.div<{ $selected?: boolean }>`
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid ${props => props.$selected ? '#667eea' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+`
+
+const ZoneName = styled.h3`
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+`
+
+const ZoneInfo = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+`
+
+const TablesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+`
+
+const TableCard = styled.div<{ $selected?: boolean }>`
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid ${props => props.$selected ? '#667eea' : 'rgba(255, 255, 255, 0.1)'};
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+`
+
+const TableName = styled.h3`
+  color: #fff;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+`
+
+const TableInfo = styled.div`
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+`
+
+const TablePrice = styled.div`
+  color: #22c55e;
+  font-weight: bold;
+  font-size: 1rem;
+`
+
+const FormGroup = styled.div`
+  margin-bottom: 1.5rem;
+`
+
+const Label = styled.label`
+  display: block;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+`
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+`
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+`
+
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  ${props => {
+    switch (props.$variant) {
+      case 'primary':
+        return `
+          background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+          color: white;
+          &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+          }
+        `
+      default:
+        return `
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+          }
+        `
+    }
+  }}
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`
+
+const ErrorMessage = styled.div`
+  color: #ff6b6b;
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+`
+
+const SuccessMessage = styled.div`
+  color: #22c55e;
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+`
+
+const LoadingMessage = styled.div`
+  color: #667eea;
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+`
+
+interface BookingFormProps {
+  hall: Hall | null;
+  zone: Zone | null;
+  onBookingComplete: () => void;
+  onBack: () => void;
+}
+
+export const BookingForm: React.FC<BookingFormProps> = ({
+  hall,
+  zone,
+  onBookingComplete,
+  onBack,
+}) => {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [halls, setHalls] = useState<Hall[]>([])
+  const [zones, setZones] = useState<Zone[]>([])
+  const [tables, setTables] = useState<ZoneItem[]>([])
+  const [selectedHall, setSelectedHall] = useState<Hall | null>(hall)
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(zone)
+  const [selectedTable, setSelectedTable] = useState<ZoneItem | null>(null)
+  const [formData, setFormData] = useState({
+    customerName: '',
+    customerPhone: '',
+    customerEmail: '',
+    date: '',
+    time: ''
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+  const [showPayment, setShowPayment] = useState(false)
+  const [bookingData, setBookingData] = useState<CreateBookingData | null>(null)
+
+  useEffect(() => {
+    loadHalls()
+  }, [])
+
+  useEffect(() => {
+    if (selectedHall) {
+      loadZones()
+    }
+  }, [selectedHall])
+
+  useEffect(() => {
+    if (selectedZone) {
+      loadTables()
+    }
+  }, [selectedZone])
+
+  const loadHalls = async () => {
+    try {
+      setIsLoading(true)
+      const hallsData = await getHalls()
+      // Filter only standard halls for bookings
+      const standardHalls = hallsData.filter(h => h.hallType === 'standard')
+      setHalls(standardHalls)
+    } catch (err) {
+      setError('Ошибка загрузки залов')
+      console.error('Ошибка загрузки залов:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadZones = async () => {
+    if (!selectedHall) return
+    
+    try {
+      setIsLoading(true)
+      const zonesData = await getZones(selectedHall.id)
+      setZones(zonesData)
+    } catch (err) {
+      setError('Ошибка загрузки зон')
+      console.error('Ошибка загрузки зон:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const loadTables = async () => {
+    if (!selectedZone) return
+    
+    try {
+      setIsLoading(true)
+      const tablesData = await getZoneItems(selectedZone.id)
+      setTables(tablesData)
+    } catch (err) {
+      setError('Ошибка загрузки столов')
+      console.error('Ошибка загрузки столов:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleHallSelect = (hall: Hall) => {
+    setSelectedHall(hall)
+    setSelectedZone(null)
+    setSelectedTable(null)
+    setCurrentStep(2)
+  }
+
+  const handleZoneSelect = (zone: Zone) => {
+    setSelectedZone(zone)
+    setSelectedTable(null)
+    setCurrentStep(3)
+  }
+
+  const handleTableSelect = (table: ZoneItem) => {
+    setSelectedTable(table)
+    setCurrentStep(4)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!selectedHall || !selectedZone || !selectedTable || !formData.date || !formData.time) {
+      setError('Выберите зал, зону, стол, дату и время')
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const bookingData: CreateBookingData = {
+        type: BookingType.TABLE,
+        hallId: selectedHall.id,
+        zoneId: selectedZone.id,
+        zoneItemId: selectedTable.id,
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone,
+        customerEmail: formData.customerEmail,
+        bookingTime: `${formData.date}T${formData.time}:00Z`,
+        totalAmount: selectedTable.pricePerHour || 0
+      }
+
+      setBookingData(bookingData)
+      setShowPayment(true)
+    } catch (err) {
+      setError('Ошибка создания бронирования')
+      console.error('Ошибка создания бронирования:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false)
+    setSuccess('Стол успешно забронирован!')
+    setTimeout(() => {
+      onBookingComplete()
+    }, 2000)
+  }
+
+  const handlePaymentCancel = () => {
+    setShowPayment(false)
+  }
+
+  const handleBackToHalls = () => {
+    setSelectedHall(null)
+    setSelectedZone(null)
+    setSelectedTable(null)
+    setCurrentStep(1)
+  }
+
+  const handleBackToZones = () => {
+    setSelectedZone(null)
+    setSelectedTable(null)
+    setCurrentStep(2)
+  }
+
+  const handleBackToTables = () => {
+    setSelectedTable(null)
+    setCurrentStep(3)
+  }
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div>
+            <HallsGrid>
+              {halls.map(hall => (
+                <HallCard
+                  key={hall.id}
+                  $selected={selectedHall?.id === hall.id}
+                  onClick={() => handleHallSelect(hall)}
+                >
+                  <HallName>{hall.name}</HallName>
+                  <HallInfo>
+                    <div>Тип: {hall.hallType}</div>
+                    <div>Время работы: {hall.openTime} - {hall.closeTime}</div>
+                    <div>Статус: {hall.isActive ? 'Активен' : 'Неактивен'}</div>
+                    {hall.description && <div>Описание: {hall.description}</div>}
+                  </HallInfo>
+                </HallCard>
+              ))}
+            </HallsGrid>
+          </div>
+        )
+
+      case 2:
+        return (
+          <div>
+            <h3>Выберите зону в зале "{selectedHall?.name}"</h3>
+            <ZonesGrid>
+              {zones.map(zone => (
+                <ZoneCard
+                  key={zone.id}
+                  $selected={selectedZone?.id === zone.id}
+                  onClick={() => handleZoneSelect(zone)}
+                >
+                  <ZoneName>{zone.name}</ZoneName>
+                  <ZoneInfo>
+                    <div>Тип: {zone.type}</div>
+                    <div>Время работы: {zone.openTime} - {zone.closeTime}</div>
+                    <div>Статус: {zone.isActive ? 'Активна' : 'Неактивна'}</div>
+                    {zone.description && <div>Описание: {zone.description}</div>}
+                  </ZoneInfo>
+                </ZoneCard>
+              ))}
+            </ZonesGrid>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div>
+            <h3>Выберите стол в зоне "{selectedZone?.name}"</h3>
+            <TablesGrid>
+              {tables.map(table => (
+                <TableCard
+                  key={table.id}
+                  $selected={selectedTable?.id === table.id}
+                  onClick={() => handleTableSelect(table)}
+                >
+                  <TableName>{table.label}</TableName>
+                  <TableInfo>
+                    <div>Тип: {table.type}</div>
+                    <div>Мест: {table.seats || 'Не указано'}</div>
+                    <div>Статус: {table.isActive ? 'Активен' : 'Неактивен'}</div>
+                    {table.features && table.features.length > 0 && (
+                      <div>Особенности: {table.features.join(', ')}</div>
+                    )}
+                  </TableInfo>
+                  <TablePrice>{table.pricePerHour || 0} ₽/час</TablePrice>
+                </TableCard>
+              ))}
+            </TablesGrid>
+          </div>
+        )
+
+      case 4:
+        return (
+          <form onSubmit={handleSubmit}>
+            <FormGroup>
+              <Label htmlFor="customerName">Имя *</Label>
+              <Input
+                id="customerName"
+                name="customerName"
+                type="text"
+                value={formData.customerName}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label htmlFor="customerPhone">Телефон *</Label>
+              <Input
+                id="customerPhone"
+                name="customerPhone"
+                type="tel"
+                value={formData.customerPhone}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label htmlFor="customerEmail">Email</Label>
+              <Input
+                id="customerEmail"
+                name="customerEmail"
+                type="email"
+                value={formData.customerEmail}
+                onChange={handleInputChange}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label htmlFor="date">Дата бронирования *</Label>
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <Label htmlFor="time">Время бронирования *</Label>
+              <Input
+                id="time"
+                name="time"
+                type="time"
+                value={formData.time}
+                onChange={handleInputChange}
+                required
+              />
+            </FormGroup>
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+            {success && <SuccessMessage>{success}</SuccessMessage>}
+
+            <ButtonGroup>
+              <Button type="button" $variant="secondary" onClick={handleBackToTables}>
+                Назад
+              </Button>
+              <Button type="submit" $variant="primary" disabled={isLoading}>
+                {isLoading ? 'Создание...' : 'Забронировать стол'}
+              </Button>
+            </ButtonGroup>
+          </form>
+        )
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <FormContainer>
+      <FormTitle>Бронирование стола</FormTitle>
+
+      <StepIndicator>
+        <Step $active={currentStep === 1} $completed={currentStep > 1}>
+          1
+        </Step>
+        <StepLine $completed={currentStep > 1} />
+        <Step $active={currentStep === 2} $completed={currentStep > 2}>
+          2
+        </Step>
+        <StepLine $completed={currentStep > 2} />
+        <Step $active={currentStep === 3} $completed={currentStep > 3}>
+          3
+        </Step>
+        <StepLine $completed={currentStep > 3} />
+        <Step $active={currentStep === 4} $completed={currentStep > 4}>
+          4
+        </Step>
+      </StepIndicator>
+
+      {isLoading ? (
+        <LoadingMessage>Загрузка...</LoadingMessage>
+      ) : (
+        renderStepContent()
+      )}
+
+      {showPayment && bookingData && (
+        <PaymentModal
+          amount={bookingData.totalAmount || 0}
+          description={`Бронирование стола ${selectedTable?.label}`}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      )}
+    </FormContainer>
+  )
+}

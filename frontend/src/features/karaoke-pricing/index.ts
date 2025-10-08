@@ -1,0 +1,1 @@
+export { KaraokePricing } from './components/KaraokePricing' 

@@ -1,0 +1,115 @@
+# ============================================
+# Docker Compose для ЛОКАЛЬНОЙ РАЗРАБОТКИ
+# ============================================
+# Использование: docker-compose -f docker-compose.local.yml up --build
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: frantsuz_postgres_local
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: frantsuz_club
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    # Порт не пробрасываем наружу - БД только внутри Docker
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    networks:
+      - frantsuz_local_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: frantsuz_backend_local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/frantsuz_club
+      PORT: 3002
+      CORS_ORIGIN: http://localhost:3006,http://localhost:3000,http://localhost:5173
+      JWT_SECRET: local-dev-secret-key-123
+    ports:
+      - "3002:3002"
+    networks:
+      - frantsuz_local_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+    # Используем CMD из Dockerfile (node dist/index.js)
+    # Миграции запустим вручную или в отдельном init container
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:3002/api
+    container_name: frantsuz_frontend_local
+    restart: unless-stopped
+    ports:
+      - "3006:80"
+    networks:
+      - frantsuz_local_network
+    depends_on:
+      - backend
+
+  # Telegram Bot (polling mode)
+  telegram_bot:
+    build:
+      context: ./frantsuz_bot
+      dockerfile: Dockerfile
+    container_name: frantsuz_bot_local
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: frantsuz_club
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      # Backend API
+      WEBSITE_API_URL: http://backend:3002/api/bot
+      # Telegram (используй свой токен!)
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-YOUR_BOT_TOKEN_HERE}
+      BOT_USERNAME: frantsuz_club_bot
+      # Web App URLs
+      WEB_APP_URL_MENU: http://localhost:3006/menu
+      WEB_APP_URL_BILLARD: http://localhost:3006/billiards
+      WEB_APP_URL_CARAOKE: http://localhost:3006/karaoke
+      WEB_APP_URL_dISCO: http://localhost:3006/disco-bar
+      WEB_APP_URL_LAUNZH: http://localhost:3006/lounge
+      WEB_APP_URL_PLAYSTATIONS: http://localhost:3006/playstation
+      WEB_APP_URL_TABLEPLAY: http://localhost:3006/board-games
+      WEB_APP_URL_AFISHA: http://localhost:3006/events
+      WEB_APP_URL_RESERVE: http://localhost:3006/booking
+      BASE_URL: http://localhost:3006
+    networks:
+      - frantsuz_local_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+networks:
+  frantsuz_local_network:
+    driver: bridge
+    name: frantsuz_local_network
+
+volumes:
+  postgres_local_data:
+    name: frantsuz_postgres_local_data
+

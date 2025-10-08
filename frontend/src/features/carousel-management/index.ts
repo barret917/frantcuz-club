@@ -1,0 +1,1 @@
+export { CarouselPhotosManager } from './components/CarouselPhotosManager' 

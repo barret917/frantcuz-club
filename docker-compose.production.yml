@@ -1,0 +1,125 @@
+services:
+  # PostgreSQL Database (только внутри сети)
+  postgres:
+    image: postgres:16-alpine
+    container_name: frantsuz_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-frantsuz_club}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - frantsuz_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API (пробрасываем порт для Nginx)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: frantsuz_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-frantsuz_club}
+      PORT: 3002
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      JWT_SECRET: ${JWT_SECRET}
+      PAYKEEPER_SERVER: ${PAYKEEPER_SERVER}
+      PAYKEEPER_USER: ${PAYKEEPER_USER}
+      PAYKEEPER_PASSWORD: ${PAYKEEPER_PASSWORD}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+    ports:
+      - "${BACKEND_PORT:-3007}:3002"  # Пробрасываем для Nginx
+    networks:
+      - frantsuz_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+    # Prisma generate выполняется в CMD Dockerfile, здесь только миграции не нужны в production
+    # Миграции применяются вручную перед деплоем или через init container
+
+  # Frontend (единственный порт наружу)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://backend:3002/api}
+    container_name: frantsuz_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3006}:80"
+    networks:
+      - frantsuz_network
+    depends_on:
+      - backend
+
+  # Telegram Bot (polling mode, без портов наружу)
+  telegram_bot:
+    build:
+      context: ./frantsuz_bot
+      dockerfile: Dockerfile
+    container_name: frantsuz_bot
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-frantsuz_club}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # Backend API
+      WEBSITE_API_URL: http://backend:3002/api/bot
+      # Telegram
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      BOT_USERNAME: ${BOT_USERNAME:-frantsuz_club_bot}
+      # PayKeeper
+      PAYKEEPER_SERVER: ${PAYKEEPER_SERVER}
+      PAYKEEPER_USER: ${PAYKEEPER_USER}
+      PAYKEEPER_PASSWORD: ${PAYKEEPER_PASSWORD}
+      PAYKEEPER_TEST_MODE: ${PAYKEEPER_TEST_MODE:-false}
+      # Web App URLs
+      WEB_APP_URL_MENU: ${WEB_APP_URL_MENU:-https://frantsuz-club.ru/menu}
+      WEB_APP_URL_BILLARD: ${WEB_APP_URL_BILLARD:-https://frantsuz-club.ru/billiards}
+      WEB_APP_URL_CARAOKE: ${WEB_APP_URL_CARAOKE:-https://frantsuz-club.ru/karaoke}
+      WEB_APP_URL_dISCO: ${WEB_APP_URL_dISCO:-https://frantsuz-club.ru/disco-bar}
+      WEB_APP_URL_LAUNZH: ${WEB_APP_URL_LAUNZH:-https://frantsuz-club.ru/lounge}
+      WEB_APP_URL_PLAYSTATIONS: ${WEB_APP_URL_PLAYSTATIONS:-https://frantsuz-club.ru/playstation}
+      WEB_APP_URL_TABLEPLAY: ${WEB_APP_URL_TABLEPLAY:-https://frantsuz-club.ru/board-games}
+      WEB_APP_URL_AFISHA: ${WEB_APP_URL_AFISHA:-https://frantsuz-club.ru/events}
+      WEB_APP_URL_RESERVE: ${WEB_APP_URL_RESERVE:-https://frantsuz-club.ru/booking}
+      # Other
+      BASE_URL: ${BASE_URL:-https://frantsuz-club.ru}
+    networks:
+      - frantsuz_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+networks:
+  frantsuz_network:
+    driver: bridge
+    name: frantsuz_network
+
+volumes:
+  postgres_data:
+    name: frantsuz_postgres_data
+
