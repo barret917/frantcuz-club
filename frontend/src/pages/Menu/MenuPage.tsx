@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
-import { MenuType, MenuCategory, type MenuItem } from '@/shared/api/menu'
+import { MenuType, MenuCategory, type MenuItem, menuApi } from '@/shared/api/menu'
 // import { MenuSearch } from '@/features/menu-management'
 import styled, { keyframes, css } from 'styled-components'
 
@@ -522,13 +522,57 @@ const MenuPage: React.FC = () => {
     { id: 22, name: 'Крылышки Буффало', description: 'Острые куриные крылышки', price: 280, currency: 'RUB', categoryId: 10, allergens: [], weight: '200г', calories: 350, preparation: 'Горячие', isPopular: true, isActive: true, sortOrder: 2, imageUrl: '/images/default-food.svg', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' }
   ]
 
-  const [menuTypes, setMenuTypes] = useState<MenuType[]>(mockMenuTypes)
-  const [categories, setCategories] = useState<MenuCategory[]>(mockCategories)
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(mockMenuItems)
-  const [selectedType, setSelectedType] = useState<number | null>(1)
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(1)
-  const [loading, setLoading] = useState(false)
+  const [menuTypes, setMenuTypes] = useState<MenuType[]>([])
+  const [categories, setCategories] = useState<MenuCategory[]>([])
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
+  const [selectedType, setSelectedType] = useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Загрузка данных меню при монтировании компонента
+  useEffect(() => {
+    const loadMenuData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        console.log('📋 Загружаем меню из API...')
+        const [types, categoriesData, items] = await Promise.all([
+          menuApi.getMenuTypes(),
+          menuApi.getMenuCategories(),
+          menuApi.getMenuItems()
+        ])
+        
+        console.log('✅ Меню загружено:', {
+          types: types.length,
+          categories: categoriesData.length,
+          items: items.length
+        })
+        
+        setMenuTypes(types)
+        setCategories(categoriesData)
+        setMenuItems(items)
+        
+        // Устанавливаем первый тип меню по умолчанию
+        if (types.length > 0 && !selectedType) {
+          setSelectedType(types[0].id)
+        }
+      } catch (error) {
+        console.error('❌ Ошибка загрузки меню:', error)
+        setError('Ошибка загрузки меню. Используются демо-данные.')
+        // Используем mock данные в случае ошибки
+        setMenuTypes(mockMenuTypes)
+        setCategories(mockCategories)
+        setMenuItems(mockMenuItems)
+        setSelectedType(1)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    loadMenuData()
+  }, [])
 
   // Фильтрация блюд только по выбранной категории
   const filteredItems = useMemo(() => {
@@ -544,24 +588,6 @@ const MenuPage: React.FC = () => {
         <PageSubtitle>
           Откройте для себя изысканные блюда и напитки в атмосфере клуба Frantsuz
         </PageSubtitle>
-        
-        {/* Уведомление о демонстрационных данных */}
-        <div style={{
-          textAlign: 'center',
-          padding: '1rem',
-          margin: '1rem 0',
-          color: '#fbbf24',
-          fontSize: '0.9rem',
-          background: 'rgba(251, 191, 36, 0.1)',
-          border: '1px solid rgba(251, 191, 36, 0.3)',
-          borderRadius: '8px',
-          maxWidth: '600px',
-          marginLeft: 'auto',
-          marginRight: 'auto'
-        }}>
-          🍽️ <strong>Демонстрационные данные</strong><br/>
-          Показаны примеры блюд для демонстрации функционала меню
-        </div>
         
         {/* Отображение ошибки */}
         {error && (
@@ -624,10 +650,15 @@ const MenuPage: React.FC = () => {
                   </h2>
                   <MenuGrid>
                     {filteredItems.map((item, index) => {
+                      // Используем фото если оно есть, иначе моковую картинку
+                      const imageSrc = (item.imageUrl && item.imageUrl.trim() !== '') 
+                        ? item.imageUrl 
+                        : '/images/default-food.svg'
+                      
                       return (
                         <MenuItemCard key={item.id} style={{ animationDelay: `${index * 0.1}s` }}>
                           <MenuImage 
-                            src={item.imageUrl || '/images/default-food.svg'} 
+                            src={imageSrc} 
                             alt={item.name}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;

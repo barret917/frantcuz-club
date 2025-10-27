@@ -14,8 +14,29 @@ const CanvasContainer = styled.div`
   background: #f8f9fa;
   border: 2px dashed #dee2e6;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: auto;
   margin: 1rem 0;
+  
+  /* Стили скроллбара */
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.5);
+    border-radius: 6px;
+    border: 2px solid #f8f9fa;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.7);
+  }
   
   @media (max-width: 1200px) {
     min-height: 500px;
@@ -23,56 +44,26 @@ const CanvasContainer = styled.div`
   }
   
   @media (max-width: 768px) {
-    aspect-ratio: 4/3;
-    min-height: 250px;
-    max-height: 350px;
-    overflow: auto;
+    aspect-ratio: none;
+    min-height: 500px;
+    max-height: 600px;
+    height: 600px;
     
-    /* Улучшенная видимость скроллбара на мобильных */
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: rgba(33, 150, 243, 0.5);
-      border-radius: 4px;
-    }
-    
-    &::-webkit-scrollbar-thumb:hover {
-      background: rgba(33, 150, 243, 0.7);
-    }
-  }
-  
-  @media (max-width: 480px) {
-    aspect-ratio: 1/1;
-    min-height: 150px;
-    max-height: 250px;
-    overflow: auto;
-    
-    /* Видимый скроллбар на маленьких экранах */
     &::-webkit-scrollbar {
       width: 10px;
       height: 10px;
     }
+  }
+  
+  @media (max-width: 480px) {
+    aspect-ratio: none;
+    min-height: 500px;
+    max-height: 600px;
+    height: 600px;
     
-    &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.15);
-      border-radius: 5px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: rgba(33, 150, 243, 0.6);
-      border-radius: 5px;
-    }
-    
-    &::-webkit-scrollbar-thumb:hover {
-      background: rgba(33, 150, 243, 0.8);
+    &::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
     }
   }
 `
@@ -167,7 +158,8 @@ interface EventZoneCanvasProps {
   onTableUpdate?: (tableId: number, updates: Partial<EventTable>) => void
   onTableDoubleClick?: (tableId: number) => void
   onAddTable?: (zoneId: number) => void
-  isEditMode?: boolean
+  isEditMode?: boolean // Режим редактирования зон
+  isTableEditMode?: boolean // Режим редактирования столов
 }
 
 export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
@@ -182,7 +174,8 @@ export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
   onTableUpdate,
   onTableDoubleClick,
   onAddTable,
-  isEditMode = false
+  isEditMode = false,
+  isTableEditMode = false
 }) => {
   const [screenSize, setScreenSize] = useState({
     width: typeof window !== 'undefined' ? window.innerWidth : 1200,
@@ -201,28 +194,28 @@ export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Функция для получения масштаба в зависимости от размера экрана
+  const getScale = () => {
+    if (screenSize.width <= 480) return 0.6
+    if (screenSize.width <= 768) return 0.75
+    return 1
+  }
+
   const getZoneMinSize = () => {
-    // Увеличиваем минимальные размеры зон для лучшей видимости на мобильных
-    if (screenSize.width <= 480) return { width: 120, height: 100 }
-    if (screenSize.width <= 768) return { width: 140, height: 100 }
+    // Минимальные размеры зон
     return { width: 200, height: 120 }
   }
 
   const getZoneSize = (zone: EventZone) => {
     const minSize = getZoneMinSize()
-    // На мобильных используем scale 0.6 вместо 0.4 для лучшей видимости
-    const scale = screenSize.width <= 480 ? 0.6 : screenSize.width <= 768 ? 0.75 : 1
-    
     return {
-      width: Math.max(minSize.width, (zone.width || 200) * scale),
-      height: Math.max(minSize.height, (zone.height || 120) * scale)
+      width: Math.max(minSize.width, (zone.width || 200)),
+      height: Math.max(minSize.height, (zone.height || 120))
     }
   }
 
   const getTableMinSize = () => {
-    // Согласуем с размерами из TableCanvas
-    if (screenSize.width <= 480) return { width: 44, height: 44 }
-    if (screenSize.width <= 768) return { width: 50, height: 40 }
+    // Минимальные размеры столов
     return { width: 60, height: 35 }
   }
   const [draggedZone, setDraggedZone] = useState<number | null>(null)
@@ -265,9 +258,17 @@ export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
     )
   }
 
+  const scale = getScale()
+  
   return (
-    <CanvasContainer>
-      {zones.map((zone) => (
+    <CanvasContainer style={{ 
+      transform: `scale(${scale})`,
+      transformOrigin: 'top left',
+      width: `${100 / scale}%`,
+      height: `${100 / scale}%`
+    }}>
+      {zones.map((zone) => {
+        return (
         <Rnd
           key={zone.id}
           position={{ x: zone.x, y: zone.y }}
@@ -281,16 +282,23 @@ export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
           minWidth={getZoneMinSize().width}
           minHeight={getZoneMinSize().height}
           dragHandleClassName="zone-drag-handle"
-          disableDragging={!isEditMode}
-          enableResizing={isEditMode}
+          disableDragging={!isEditMode} // Перетаскивание зон только в режиме редактирования зон
+          enableResizing={isEditMode} // Изменение размера зон только в режиме редактирования зон
         >
           <ZoneCard
             isSelected={selectedZoneId === zone.id}
-            onClick={() => handleZoneClick(zone.id)}
             onDoubleClick={() => handleZoneDoubleClick(zone.id)}
-            className={isEditMode ? "" : "zone-drag-handle"}
+            onClick={(e) => {
+              // Блокируем клики по зоне в режиме просмотра
+              if (!isEditMode) {
+                e.stopPropagation()
+                e.preventDefault()
+              }
+            }}
+            className="zone-drag-handle"
             style={{ 
-              pointerEvents: isEditMode ? 'none' : 'auto'
+              pointerEvents: 'auto',
+              cursor: isEditMode ? 'move' : 'default'
             }}
           >
             <ZoneData>
@@ -313,16 +321,17 @@ export const EventZoneCanvas: React.FC<EventZoneCanvasProps> = ({
                 onTableUpdate={onTableUpdate || (() => {})}
                 onTableDoubleClick={onTableDoubleClick || (() => {})}
                 onAddTable={() => {
-                  console.log('🪑 EventZoneCanvas: onAddTable вызван для зоны:', zone.id, 'isEditMode:', isEditMode)
+                  console.log('🪑 EventZoneCanvas: onAddTable вызван для зоны:', zone.id, 'isTableEditMode:', isTableEditMode)
                   onAddTable?.(zone.id)
                 }}
-                isEditMode={isEditMode}
+                isEditMode={isTableEditMode} // Используем режим редактирования столов
                 screenSize={screenSize}
               />
             </div>
           </ZoneCard>
         </Rnd>
-      ))}
+        )
+      })}
     </CanvasContainer>
   )
 }

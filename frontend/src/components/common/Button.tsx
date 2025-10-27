@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export interface ButtonProps {
-  $variant?: 'primary' | 'secondary' | 'danger'
+  $variant?: 'primary' | 'secondary' | 'danger' | 'success'
   $size?: 'small' | 'medium' | 'large'
   $fullWidth?: boolean
 }
@@ -39,6 +39,16 @@ export const Button = styled.button<ButtonProps>`
           &:hover { 
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+          }
+        `
+      case 'success':
+        return `
+          background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+          color: white;
+          box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+          &:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.4);
           }
         `
       case 'secondary':

@@ -97,7 +97,7 @@ const HeroContent = styled.div`
 
 const Title = styled.h1`
   text-align: center;
-  font-size: 3.5rem;
+  font-size: 4rem;
   font-weight: 800;
   margin-bottom: 2rem;
   background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);

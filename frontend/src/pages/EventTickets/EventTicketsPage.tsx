@@ -6,14 +6,53 @@ import { TicketPurchaseFlow } from '@/features/event-tickets/components/TicketPu
 
 const PageContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
   padding: 2rem 0;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+`
+
+const HeroSection = styled.section`
+  background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #2a2a2a 100%);
+  color: white;
+  padding: 4rem 0;
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 3rem 0;
+    min-height: 40vh;
+  }
+`
+
+const HeroContent = styled.div`
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
 `
 
 const Header = styled.div`
@@ -24,9 +63,9 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #ffffff;
   margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #667eea 0%, #8b5cf6 50%, #a855f7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -34,7 +73,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.1rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
   max-width: 600px;
   margin: 0 auto;
@@ -57,6 +96,7 @@ const FilterButton = styled.button<{ active: boolean }>`
   cursor: pointer;
   transition: all 0.3s ease;
   margin: 0 0.5rem;
+  outline: none;
   
   &:hover {
     border-color: #3b82f6;
@@ -66,6 +106,11 @@ const FilterButton = styled.button<{ active: boolean }>`
   
   &:active {
     transform: translateY(0);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: none;
   }
   
   @media (max-width: 768px) {
@@ -239,16 +284,16 @@ export const EventTicketsPage: React.FC = () => {
 
         <FilterSection>
           <FilterButton
-            active={filterType === 'upcoming'}
-            onClick={() => setFilterType('upcoming')}
-          >
-            Предстоящие
-          </FilterButton>
-          <FilterButton
             active={filterType === 'past'}
             onClick={() => setFilterType('past')}
           >
             Прошедшие
+          </FilterButton>
+          <FilterButton
+            active={filterType === 'upcoming'}
+            onClick={() => setFilterType('upcoming')}
+          >
+            Предстоящие
           </FilterButton>
         </FilterSection>
 

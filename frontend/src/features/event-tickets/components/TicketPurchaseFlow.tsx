@@ -41,15 +41,16 @@ const CanvasWrapper = styled.div`
   }
   
   @media (max-width: 768px) {
-    aspect-ratio: 4/3;
-    min-height: 300px;
-    max-height: 400px;
+    aspect-ratio: none;
+    min-height: 500px;
+    max-height: 600px;
+    height: 600px;
     overflow: auto;
     
     /* Улучшенная видимость скроллбара на планшетах */
     &::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
     }
     
     &::-webkit-scrollbar-track {
@@ -68,9 +69,10 @@ const CanvasWrapper = styled.div`
   }
   
   @media (max-width: 480px) {
-    aspect-ratio: 1/1;
-    min-height: 200px;
-    max-height: 300px;
+    aspect-ratio: none;
+    min-height: 500px;
+    max-height: 600px;
+    height: 600px;
     overflow: auto;
     
     /* Яркий скроллбар на маленьких экранах для лучшей видимости */
@@ -493,6 +495,7 @@ export const TicketPurchaseFlow: React.FC<TicketPurchaseFlowProps> = ({
   // Создаем пустые функции один раз, чтобы избежать ререндеров
   const emptyZoneUpdate = useCallback(() => {}, [])
   const emptyZoneDoubleClick = useCallback(() => {}, [])
+  const emptyZoneSelect = useCallback(() => {}, [])
   const emptyTableUpdate = useCallback(() => {}, [])
   const emptyTableDoubleClick = useCallback(() => {}, [])
   const emptyAddTable = useCallback(() => {}, [])
@@ -699,8 +702,8 @@ export const TicketPurchaseFlow: React.FC<TicketPurchaseFlowProps> = ({
               <CanvasWrapper>
                 <EventZoneCanvas
                   zones={zones as any}
-                  selectedZoneId={selectedZone?.id}
-                  onZoneSelect={handleZoneSelect}
+                  selectedZoneId={undefined}
+                  onZoneSelect={emptyZoneSelect}
                   onZoneUpdate={emptyZoneUpdate}
                   onZoneDoubleClick={emptyZoneDoubleClick}
                   zoneTables={zoneTables}

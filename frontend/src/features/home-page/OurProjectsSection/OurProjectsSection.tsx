@@ -220,57 +220,68 @@ const projects = [
   {
     id: 1,
     name: 'Витоп',
-    logo: '/logo-footer/лого-ветоп.png'
+    logo: '/logo-footer/лого-ветоп.png',
+    url: 'https://wetop.ru/'
   },
   {
     id: 2,
     name: 'Дали Хинкали',
-    logo: '/logo-footer/лого-дали-хинкали.png'
+    logo: '/logo-footer/лого-дали-хинкали.png',
+    url: 'https://dali-khinkali.ru/'
   },
   {
     id: 3,
     name: 'Корп Питание',
-    logo: '/logo-footer/лого-кор-питание.png'
+    logo: '/logo-footer/лого-кор-питание.png',
+    url: 'https://corp-pitanie.tyteda.ru'
   },
   {
     id: 4,
     name: 'Шашляндия',
-    logo: '/logo-footer/лого-шашландиа.png'
+    logo: '/logo-footer/лого-шашландиа.png',
+    url: 'https://shashlandia.ru/'
   },
   {
     id: 5,
     name: 'Француз Шоп',
-    logo: '/logo-footer/лого-фратцуз-шоп.png'
+    logo: '/logo-footer/лого-фратцуз-шоп.png',
+    url: 'https://frantsuz-shop.ru/'
   },
   {
     id: 6,
     name: 'Комикадзе',
-    logo: '/logo-footer/лого-комикадзе.png'
+    logo: '/logo-footer/лого-комикадзе.png',
+    url: 'https://comicadze.ru/'
   },
   {
     id: 7,
     name: 'Тут Еда',
-    logo: '/logo-footer/лого-тут-еда.png'
+    logo: '/logo-footer/лого-тут-еда.png',
+    url: 'https://tyteda.ru/'
   },
   {
     id: 8,
     name: 'Пою Всегда',
-    logo: '/logo-footer/лого-пою-всегда.png'
+    logo: '/logo-footer/лого-пою-всегда.png',
+    url: 'https://poyuvsegda.ru/'
   },
   {
     id: 9,
     name: 'Рейтинг',
-    logo: '/logo-footer/лого-рейтинг.png'
+    logo: '/logo-footer/лого-рейтинг.png',
+    url: 'https://reiting.moscow/'
   },
   {
     id: 10,
     name: 'Доставка Поминки',
-    logo: '/logo-footer/лого-доставка-поминки.png'
+    logo: '/logo-footer/лого-доставка-поминки.png',
+    url: 'https://dostavka-pominki.ru/'
   },
   {
     id: 11,
     name: 'Француз Академия',
-    logo: '/logo-footer/лого-франтуз-академия.png'
+    logo: '/logo-footer/лого-франтуз-академия.png',
+    url: 'https://frantsuz.ru/'
   }
 ]
 
@@ -288,7 +299,14 @@ export const OurProjectsSection: React.FC = () => {
           <ProjectsContainer>
             <ProjectsGrid>
               {projects.map((project) => (
-                <ProjectCard key={project.id}>
+                <ProjectCard 
+                  key={project.id}
+                  onClick={() => {
+                    if (project.url) {
+                      window.open(project.url, '_blank', 'noopener,noreferrer')
+                    }
+                  }}
+                >
                   <ProjectLogo>
                     <img src={project.logo} alt={project.name} />
                   </ProjectLogo>

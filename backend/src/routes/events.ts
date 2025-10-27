@@ -11,26 +11,35 @@ router.get('/', async (req, res) => {
     
     let whereClause: any = { isActive: true }
     
-    if (filter === 'upcoming') {
-      whereClause.isUpcoming = true
-    } else if (filter === 'past') {
-      whereClause.isUpcoming = false
-    }
-    
-    const events = await prisma.event.findMany({
+    // Получаем все активные мероприятия
+    const allEvents = await prisma.event.findMany({
       where: whereClause,
       orderBy: [
-        { isUpcoming: 'desc' },
         { date: 'asc' },
         { sortOrder: 'asc' }
       ]
     })
     
+    // Фильтруем мероприятия по актуальной дате
+    const now = new Date()
+    const filteredEvents = allEvents.filter(event => {
+      const eventDateTime = new Date(`${event.date}T${event.time}`)
+      const isUpcoming = eventDateTime > now
+      
+      if (filter === 'upcoming') {
+        return isUpcoming
+      } else if (filter === 'past') {
+        return !isUpcoming
+      }
+      
+      return true // Если фильтр не указан, показываем все
+    })
+    
     // Всегда возвращаем успешный ответ, даже если мероприятий нет
     res.json({
       success: true,
-      data: events || [],
-      message: events.length === 0 ? 'Мероприятий не найдено' : undefined
+      data: filteredEvents || [],
+      message: filteredEvents.length === 0 ? 'Мероприятий не найдено' : undefined
     })
   } catch (error) {
     console.error('Ошибка при получении мероприятий:', error)

@@ -79,19 +79,9 @@ const BackgroundContainer = styled.div`
   width: 100%;
   height: 100%;
   position: relative;
-  will-change: transform;
-  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1);
-  transform-style: preserve-3d;
-  transform: perspective(1000px);
   max-width: 600px;
   height: 800px;
-  transition: all 0.3s ease;
   cursor: pointer;
-  
-  &:hover {
-    will-change: transform;
-    transform: perspective(1000px) rotateX(8deg) rotateY(8deg) scale3d(1.08, 1.08, 1.08);
-  }
   
   @media (max-width: 1024px) {
     max-width: 550px;
@@ -108,15 +98,9 @@ const BilliardsImage = styled.img`
   position: absolute;
   left: 25%;
   top: 5%;
-  transform: translateZ(50px);
   max-width: 100%;
   max-height: 100%;
   z-index: 2;
-  transition: all 0.3s ease;
-  
-  ${BackgroundContainer}:hover & {
-    transform: translateZ(80px) scale(1.08);
-  }
   
   @media (max-width: 1024px) {
     left: 20%;
@@ -290,39 +274,12 @@ const SecondaryButton = styled.button`
 `
 
 export const BilliardsSection: React.FC = () => {
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const container = e.currentTarget;
-    const rect = container.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    // Вычисляем расстояние от центра
-    const deltaX = e.clientX - centerX;
-    const deltaY = e.clientY - centerY;
-    
-    // Вычисляем угол наклона (максимум 15 градусов)
-    const maxTilt = 15;
-    const tiltX = (deltaY / (rect.height / 2)) * maxTilt;
-    const tiltY = (deltaX / (rect.width / 2)) * maxTilt;
-    
-    // Применяем наклон к самому контейнеру (фон + человек вместе)
-    container.style.transform = `perspective(1000px) rotateX(${-tiltX}deg) rotateY(${tiltY}deg) scale3d(1.02, 1.02, 1.02)`;
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Возвращаем в исходное положение
-    e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-  };
-
   return (
     <BilliardsSectionContainer>
       <SectionContainer>
         <BilliardsContent>
           <ImageContainer>
-            <BackgroundContainer 
-              onMouseMove={handleMouseMove}
-              onMouseLeave={handleMouseLeave}
-            >
+            <BackgroundContainer>
               <VerticalText>
                 Б<br/>И<br/>Л<br/>Ь<br/>Я<br/>Р<br/>Д
               </VerticalText>

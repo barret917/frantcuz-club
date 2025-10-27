@@ -1,6 +1,16 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
 import { SectionContainer } from '@/shared/ui/Container'
+
+// Анимация вращения цветка
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
 
 const AboutSectionContainer = styled.section`
   padding: 6rem 0;
@@ -119,16 +129,23 @@ const AboutImage = styled.img`
 
 const Flower = styled.img`
   position: absolute;
-  top: -20px;
-  right: -30px;
-  width: 80px;
+  top: -25px;
+  right: -35px;
+  width: 100px;
   height: auto;
   z-index: 3;
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
+  animation: ${rotate} 8s linear infinite;
   
   @media (max-width: 1024px) {
-    width: 60px;
+    width: 80px;
+    top: -20px;
+    right: -30px;
+  }
+  
+  @media (max-width: 768px) {
+    width: 70px;
     top: -15px;
     right: -25px;
   }
@@ -143,6 +160,7 @@ const Microphone = styled.img`
   z-index: 1;
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
+  animation: ${rotate} 15s linear infinite;
   
   @media (max-width: 1024px) {
     width: 50px;
@@ -177,15 +195,15 @@ export const AboutSection: React.FC = () => {
           
           <ImageContainer>
             <AboutImage 
-              src="/images/девушка.png" 
+              src="/images/девушка с койктелем.png" 
               alt="Девушка с коктейлем"
             />
             <Flower 
-              src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-flower.png" 
+              src="/images/цветок.png" 
               alt="Цветок"
             />
             <Microphone 
-              src="https://frantsuz-club.ru/wp-content/uploads/2021/02/girl-headline-2-microphone.png" 
+              src="/images/микрофон.png" 
               alt="Микрофон"
             />
           </ImageContainer>

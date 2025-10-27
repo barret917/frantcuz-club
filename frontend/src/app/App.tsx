@@ -26,6 +26,7 @@ import { HookahPage } from '@/pages/Hookah'
 import { ProtectedAdminPage } from '@/pages/Admin/ProtectedAdminPage'
 import { AdminLoginPage } from '@/pages/AdminLogin/AdminLoginPage'
 import { EventTicketsPage } from '@/pages/EventTickets/EventTicketsPage'
+import { EventDetailsPage } from '@/pages/EventDetails'
 import { PaymentSuccessPage } from '@/pages/PaymentSuccess/PaymentSuccessPage'
 import { PaymentFailurePage } from '@/pages/PaymentFailure/PaymentFailurePage'
 import { NotFoundPage } from '@/pages/NotFound'
@@ -59,6 +60,7 @@ function App() {
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<ProtectedAdminPage />} />
           <Route path="/events" element={<EventTicketsPage />} />
+          <Route path="/events/:id" element={<EventDetailsPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/failure" element={<PaymentFailurePage />} />
           <Route path="/about" element={<AboutPage />} />

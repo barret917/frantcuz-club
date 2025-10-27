@@ -12,15 +12,8 @@ export const eventController = {
       
       let whereClause: any = { isActive: true }
       
-      if (filter === 'upcoming') {
-        whereClause.isUpcoming = true
-      } else if (filter === 'past') {
-        whereClause.isUpcoming = false
-      }
-      
-      console.log('🔍 Условия поиска:', whereClause)
-      
-      const events = await prisma.event.findMany({
+      // Получаем все активные мероприятия
+      const allEvents = await prisma.event.findMany({
         where: whereClause,
         include: {
           zones: {
@@ -37,21 +30,55 @@ export const eventController = {
           }
         },
         orderBy: [
-          { isUpcoming: 'desc' },
           { date: 'asc' },
           { sortOrder: 'asc' }
         ]
       })
       
-      console.log(`✅ Найдено мероприятий: ${events.length}`)
-      events.forEach((event, index) => {
-        console.log(`   ${index + 1}. ${event.title} (зон: ${event.zones.length})`)
+      // Фильтруем мероприятия по актуальной дате
+      const now = new Date()
+      const filteredEvents = allEvents.filter(event => {
+        try {
+          // Преобразуем event.date в строку если это объект Date
+          const dateStr = event.date instanceof Date ? event.date.toISOString().split('T')[0] : String(event.date)
+          // Извлекаем только дату без времени (YYYY-MM-DD)
+          const dateOnly = dateStr.split('T')[0] || dateStr.split(' ')[0]
+          const eventDateTime = new Date(`${dateOnly}T${event.time}`)
+          
+          // Проверяем валидность даты
+          if (isNaN(eventDateTime.getTime())) {
+            console.warn(`⚠️ Некорректная дата для мероприятия ${event.title}: ${event.date} ${event.time}`)
+            return false
+          }
+          
+          const isUpcoming = eventDateTime > now
+        
+          if (filter === 'upcoming') {
+            return isUpcoming
+          } else if (filter === 'past') {
+            return !isUpcoming
+          }
+          
+          return true // Если фильтр не указан, показываем все
+        } catch (error) {
+          console.error(`❌ Ошибка при обработке мероприятия ${event.title}:`, error)
+          return false
+        }
+      })
+      
+      console.log(`✅ Найдено мероприятий: ${filteredEvents.length}`)
+      filteredEvents.forEach((event, index) => {
+        const dateStr = event.date instanceof Date ? event.date.toISOString().split('T')[0] : String(event.date)
+        const dateOnly = dateStr.split('T')[0] || dateStr.split(' ')[0]
+        const eventDateTime = new Date(`${dateOnly}T${event.time}`)
+        const isUpcoming = eventDateTime > now
+        console.log(`   ${index + 1}. ${event.title} (${isUpcoming ? 'Предстоящее' : 'Прошедшее'}) - ${dateOnly} ${event.time}`)
       })
       
       res.json({
         success: true,
-        data: events,
-        message: events.length === 0 ? 'Мероприятий не найдено' : undefined
+        data: filteredEvents,
+        message: filteredEvents.length === 0 ? 'Мероприятий не найдено' : undefined
       })
     } catch (error) {
       console.error('❌ Ошибка при получении мероприятий:', error)

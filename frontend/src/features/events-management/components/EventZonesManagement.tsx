@@ -16,6 +16,26 @@ const Header = styled.div`
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `
 
+// Стилизованный компонент для модального окна, которое не блокирует канвас
+const NonBlockingModal = styled.div<{ $isOpen: boolean }>`
+  display: ${props => props.$isOpen ? 'flex' : 'none'};
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); // Более прозрачный фон
+  z-index: 1000;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem;
+  pointer-events: none; // Не блокирует клики
+  
+  & > * {
+    pointer-events: auto; // Контент модалки кликабелен
+  }
+`
+
 const Title = styled.h2`
   color: #ffffff;
   font-size: 1.8rem;
@@ -111,9 +131,12 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
   // Состояние для столов
   const [zoneTables, setZoneTables] = useState<{ [zoneId: number]: EventTable[] }>({})
   const [selectedTableId, setSelectedTableId] = useState<number | undefined>(undefined)
-  const [isEditMode, setIsEditMode] = useState(false)
+  const [isEditModeZones, setIsEditModeZones] = useState(false) // Режим редактирования зон
+  const [isEditModeTables, setIsEditModeTables] = useState(false) // Режим редактирования столов
+  const [isSaving, setIsSaving] = useState(false) // Статус сохранения
+  const [lastSaved, setLastSaved] = useState<string | null>(null) // Время последнего сохранения
   
-  console.log('🪑 EventZonesManagement: render, isEditMode:', isEditMode, 'viewMode:', viewMode)
+  console.log('🪑 EventZonesManagement: render, isEditModeZones:', isEditModeZones, 'isEditModeTables:', isEditModeTables, 'viewMode:', viewMode)
   const [isTableModalOpen, setIsTableModalOpen] = useState(false)
   const [editingTable, setEditingTable] = useState<EventTable | null>(null)
 
@@ -216,7 +239,65 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
     form.actions.setValue('maxSeats', zone.maxSeats)
     form.actions.setValue('isActive', zone.isActive)
     form.actions.setValue('sortOrder', zone.sortOrder)
+    setIsEditModeZones(true) // Автоматически включаем режим редактирования зон
+    setIsEditModeTables(false) // Отключаем режим редактирования столов
     setIsModalOpen(true)
+  }
+
+  const handleToggleZonesEdit = () => {
+    setIsEditModeZones(!isEditModeZones)
+    if (!isEditModeZones) {
+      setIsEditModeTables(false) // Отключаем режим редактирования столов
+    }
+  }
+
+  const handleToggleTablesEdit = () => {
+    setIsEditModeTables(!isEditModeTables)
+    if (!isEditModeTables) {
+      setIsEditModeZones(false) // Отключаем режим редактирования зон
+    }
+  }
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsSaving(true)
+      
+      // Обновляем текущие изменения (они уже сохранены при перетаскивании)
+      // Здесь мы просто обновляем список зон для получения актуальных данных
+      await crudOperations.refresh()
+      
+      // Обновляем столы для всех зон
+      for (const zone of crudOperations.items) {
+        try {
+          const response = await eventTablesApi.getTablesByZone(zone.id)
+          if (response.success) {
+            setZoneTables(prev => ({
+              ...prev,
+              [zone.id]: response.data
+            }))
+          }
+        } catch (error) {
+          console.error(`Ошибка загрузки столов для зоны ${zone.id}:`, error)
+        }
+      }
+      
+      // Деактивируем все режимы редактирования
+      setIsEditModeZones(false)
+      setIsEditModeTables(false)
+      
+      // Устанавливаем время сохранения
+      setLastSaved(new Date().toLocaleTimeString('ru-RU'))
+      
+      // Показываем сообщение об успехе
+      setTimeout(() => {
+        setIsSaving(false)
+      }, 500)
+      
+    } catch (error) {
+      console.error('Ошибка при сохранении изменений:', error)
+      setIsSaving(false)
+      alert('Ошибка при сохранении изменений')
+    }
   }
 
   const handleDeleteZone = async (zoneId: number) => {
@@ -377,20 +458,47 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
 
       {viewMode === 'canvas' ? (
         <div>
-          <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
             <Button 
-              $variant={isEditMode ? 'primary' : 'secondary'}
-              onClick={() => {
-                console.log('🪑 EventZonesManagement: Переключение режима редактирования, текущий isEditMode:', isEditMode)
-                setIsEditMode(!isEditMode)
-                console.log('🪑 EventZonesManagement: Новый isEditMode:', !isEditMode)
-              }}
+              $variant={isEditModeZones ? 'primary' : 'secondary'}
+              onClick={handleToggleZonesEdit}
+              style={{ flex: '1', minWidth: '180px' }}
+              disabled={isSaving}
             >
-              {isEditMode ? '👁️ Просмотр' : '✏️ Редактирование'}
+              {isEditModeZones ? '✅ Редактировать зоны' : '✏️ Редактировать зоны'}
             </Button>
-            {isEditMode && (
-              <span style={{ color: '#a0a0a0', fontSize: '0.9rem' }}>
-                Режим редактирования: перетаскивайте зоны и столы, добавляйте новые столы
+            <Button 
+              $variant={isEditModeTables ? 'primary' : 'secondary'}
+              onClick={handleToggleTablesEdit}
+              style={{ flex: '1', minWidth: '180px' }}
+              disabled={isSaving}
+            >
+              {isEditModeTables ? '✅ Редактировать столы' : '🪑 Редактировать столы'}
+            </Button>
+            <Button 
+              $variant={isEditModeZones || isEditModeTables ? 'success' : 'secondary'}
+              onClick={handleSaveChanges}
+              style={{ flex: '1', minWidth: '180px' }}
+              disabled={!isEditModeZones && !isEditModeTables || isSaving}
+            >
+              {isSaving ? '💾 Сохранение...' : isEditModeZones || isEditModeTables ? '💾 Сохранить изменения' : '💾 Изменения сохранены'}
+            </Button>
+            {lastSaved && (
+              <span style={{ 
+                color: '#4caf50', 
+                fontSize: '0.85rem', 
+                width: '100%', 
+                textAlign: 'center',
+                marginTop: '0.5rem',
+                fontWeight: 600
+              }}>
+                ✓ Сохранено в {lastSaved}
+              </span>
+            )}
+            {(isEditModeZones || isEditModeTables) && (
+              <span style={{ color: '#a0a0a0', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}>
+                {isEditModeZones && '💡 Можно перетаскивать и изменять размер зон'}
+                {isEditModeTables && '💡 Можно перетаскивать и добавлять столы внутри зон'}
               </span>
             )}
           </div>
@@ -406,7 +514,8 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
             onTableUpdate={handleTableUpdate}
             onTableDoubleClick={handleTableDoubleClick}
             onAddTable={handleAddTable}
-            isEditMode={isEditMode}
+            isEditMode={isEditModeZones}
+            isTableEditMode={isEditModeTables}
           />
         </div>
       ) : crudOperations.items.length === 0 ? (
@@ -454,7 +563,7 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
         </ZonesGrid>
       )}
 
-      <Modal $isOpen={isModalOpen}>
+      <NonBlockingModal $isOpen={isModalOpen}>
         <ModalContent>
           <ModalHeader>
             <ModalTitle>
@@ -462,6 +571,19 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
             </ModalTitle>
             <CloseButton onClick={() => setIsModalOpen(false)}>×</CloseButton>
           </ModalHeader>
+          {editingZone && isEditModeZones && (
+            <div style={{ 
+              marginBottom: '1rem', 
+              padding: '0.75rem', 
+              background: 'rgba(33, 150, 243, 0.1)', 
+              border: '1px solid rgba(33, 150, 243, 0.3)',
+              borderRadius: '8px',
+              fontSize: '0.9rem',
+              color: '#90caf9'
+            }}>
+              💡 Можно перетаскивать и изменять размер зоны на канвасе внизу
+            </div>
+          )}
           
           <Form onSubmit={handleSubmit}>
             <FormGroup>
@@ -536,7 +658,7 @@ export const EventZonesManagement: React.FC<EventZonesManagementProps> = ({ even
             </div>
           </Form>
         </ModalContent>
-      </Modal>
+      </NonBlockingModal>
 
       {/* Модальное окно для создания/редактирования столов */}
       <Modal $isOpen={isTableModalOpen}>
