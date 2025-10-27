@@ -190,7 +190,7 @@ export const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
           checkAttempts++
           console.log(`Проверка статуса платежа (попытка ${checkAttempts}/${maxAttempts})`)
           
-          const response = await fetch(`http://localhost:3002/api/payment/status/${paymentData.paymentId}`)
+          const response = await fetch(`/api/payment/status/${paymentData.paymentId}`)
           const data = await response.json()
           
           if (data.success && data.data.status === 'paid') {

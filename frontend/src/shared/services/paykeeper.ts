@@ -193,7 +193,7 @@ const payKeeperConfig: PayKeeperConfig = {
   secretKey: import.meta.env.VITE_PAYKEEPER_SECRET_KEY || '',
   successUrl: `${window.location.origin}/payment/success`,
   failureUrl: `${window.location.origin}/payment/failure`,
-  notifyUrl: `${import.meta.env.VITE_API_URL || 'http://localhost:3002/api'}/payment/webhook`,
+  notifyUrl: `${!import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') ? '/api' : import.meta.env.VITE_API_URL}/payment/webhook`,
 }
 
 export const payKeeperService = new PayKeeperService(payKeeperConfig)
