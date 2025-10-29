@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface CarouselPhoto {
   id: number
@@ -50,7 +55,7 @@ export const carouselPhotosApi = {
   async getCarouselPhotos(page?: string): Promise<CarouselPhotosResponse> {
     try {
       const params = page ? { page } : {}
-      const response = await apiClient.get('/carousel-photos', { params })
+      const response = await axios.get(`${API_BASE_URL}/carousel-photos`, { params })
       return response.data
     } catch (error) {
       console.error('Ошибка при получении фотографий карусели:', error)
@@ -61,7 +66,7 @@ export const carouselPhotosApi = {
   // Получить фотографию по ID
   async getCarouselPhoto(id: number): Promise<CarouselPhotoResponse> {
     try {
-      const response = await apiClient.get(`/carousel-photos/${id}`)
+      const response = await axios.get(`${API_BASE_URL}/carousel-photos/${id}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении фотографии:', error)
@@ -72,7 +77,7 @@ export const carouselPhotosApi = {
   // Создать новую фотографию
   async createCarouselPhoto(photoData: CreateCarouselPhotoData): Promise<CreateCarouselPhotoResponse> {
     try {
-      const response = await apiClient.post('/carousel-photos', photoData)
+      const response = await axios.post(`${API_BASE_URL}/carousel-photos`, photoData)
       return response.data
     } catch (error) {
       console.error('Ошибка при создании фотографии:', error)
@@ -83,7 +88,7 @@ export const carouselPhotosApi = {
   // Обновить фотографию
   async updateCarouselPhoto(id: number, photoData: UpdateCarouselPhotoData): Promise<CarouselPhotoResponse> {
     try {
-      const response = await apiClient.put(`/carousel-photos/${id}`, photoData)
+      const response = await axios.put(`${API_BASE_URL}/carousel-photos/${id}`, photoData)
       return response.data
     } catch (error) {
       console.error('Ошибка при обновлении фотографии:', error)
@@ -94,7 +99,7 @@ export const carouselPhotosApi = {
   // Удалить фотографию
   async deleteCarouselPhoto(id: number): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await apiClient.delete(`/carousel-photos/${id}`)
+      const response = await axios.delete(`${API_BASE_URL}/carousel-photos/${id}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при удалении фотографии:', error)

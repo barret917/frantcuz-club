@@ -1,4 +1,10 @@
-import { apiClient, handleApiError } from './client'
+import axios from 'axios'
+import { handleApiError } from './client'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface ZoneItem {
   id: number
@@ -22,7 +28,7 @@ export interface CreateZoneItemData {
 // Получить элементы зоны
 export const getZoneItems = async (zoneId: number): Promise<ZoneItem[]> => {
   try {
-    const response = await apiClient.get(`/zones/${zoneId}/items`)
+    const response = await axios.get(`${API_BASE_URL}/zones/${zoneId}/items`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -32,7 +38,7 @@ export const getZoneItems = async (zoneId: number): Promise<ZoneItem[]> => {
 // Получить все элементы зон
 export const getAllZoneItems = async (): Promise<ZoneItem[]> => {
   try {
-    const response = await apiClient.get('/zone-items')
+    const response = await axios.get(`${API_BASE_URL}/zone-items`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -42,7 +48,7 @@ export const getAllZoneItems = async (): Promise<ZoneItem[]> => {
 // Получить элемент зоны по ID
 export const getZoneItem = async (id: number): Promise<ZoneItem> => {
   try {
-    const response = await apiClient.get(`/zone-items/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/zone-items/${id}`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -52,7 +58,7 @@ export const getZoneItem = async (id: number): Promise<ZoneItem> => {
 // Создать элемент зоны
 export const createZoneItem = async (data: CreateZoneItemData): Promise<ZoneItem> => {
   try {
-    const response = await apiClient.post('/zone-items', data)
+    const response = await axios.post(`${API_BASE_URL}/zone-items`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -62,7 +68,7 @@ export const createZoneItem = async (data: CreateZoneItemData): Promise<ZoneItem
 // Обновить элемент зоны
 export const updateZoneItem = async (id: number, data: Partial<CreateZoneItemData>): Promise<ZoneItem> => {
   try {
-    const response = await apiClient.put(`/zone-items/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/zone-items/${id}`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -72,7 +78,7 @@ export const updateZoneItem = async (id: number, data: Partial<CreateZoneItemDat
 // Удалить элемент зоны
 export const deleteZoneItem = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/zone-items/${id}`)
+    await axios.delete(`${API_BASE_URL}/zone-items/${id}`)
   } catch (error) {
     handleApiError(error)
   }

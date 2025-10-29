@@ -1,4 +1,10 @@
-import { apiClient, handleApiError } from './client'
+import axios from 'axios'
+import { handleApiError } from './client'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface Hall {
   id: number
@@ -43,7 +49,7 @@ export interface CreateHallData {
 // Получить все залы
 export const getHalls = async (): Promise<Hall[]> => {
   try {
-    const response = await apiClient.get('/halls')
+    const response = await axios.get(`${API_BASE_URL}/halls`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -53,7 +59,7 @@ export const getHalls = async (): Promise<Hall[]> => {
 // Получить зоны зала
 export const getZones = async (hallId: number): Promise<Zone[]> => {
   try {
-    const response = await apiClient.get(`/halls/${hallId}/zones`)
+    const response = await axios.get(`${API_BASE_URL}/halls/${hallId}/zones`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -63,7 +69,7 @@ export const getZones = async (hallId: number): Promise<Zone[]> => {
 // Создать зал
 export const createHall = async (data: CreateHallData): Promise<Hall> => {
   try {
-    const response = await apiClient.post('/halls', data)
+    const response = await axios.post(`${API_BASE_URL}/halls`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -73,7 +79,7 @@ export const createHall = async (data: CreateHallData): Promise<Hall> => {
 // Получить зал по ID
 export const getHall = async (id: number): Promise<Hall> => {
   try {
-    const response = await apiClient.get(`/halls/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/halls/${id}`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -83,7 +89,7 @@ export const getHall = async (id: number): Promise<Hall> => {
 // Обновить зал
 export const updateHall = async (id: number, data: Partial<CreateHallData>): Promise<Hall> => {
   try {
-    const response = await apiClient.put(`/halls/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/halls/${id}`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -93,7 +99,7 @@ export const updateHall = async (id: number, data: Partial<CreateHallData>): Pro
 // Удалить зал
 export const deleteHall = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/halls/${id}`)
+    await axios.delete(`${API_BASE_URL}/halls/${id}`)
   } catch (error) {
     handleApiError(error)
   }

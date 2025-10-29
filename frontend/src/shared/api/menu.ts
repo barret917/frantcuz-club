@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface MenuType {
   id: number
@@ -109,7 +114,7 @@ export const menuApi = {
   getMenuTypes: async (): Promise<MenuType[]> => {
     console.log('🔍 Запрашиваем типы меню...')
     try {
-      const response = await apiClient.get('/menu-types')
+      const response = await axios.get(`${API_BASE_URL}/menu-types`)
       console.log('✅ Типы меню получены:', response.data.length, 'шт.')
       return response.data
     } catch (error) {
@@ -119,22 +124,22 @@ export const menuApi = {
   },
 
   getMenuType: async (id: number): Promise<MenuType> => {
-    const response = await apiClient.get(`/menu-types/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/menu-types/${id}`)
     return response.data
   },
 
   createMenuType: async (data: CreateMenuTypeData): Promise<MenuType> => {
-    const response = await apiClient.post('/menu-types', data)
+    const response = await axios.post(`${API_BASE_URL}/menu-types`, data)
     return response.data
   },
 
   updateMenuType: async (id: number, data: UpdateMenuTypeData): Promise<MenuType> => {
-    const response = await apiClient.put(`/menu-types/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/menu-types/${id}`, data)
     return response.data
   },
 
   deleteMenuType: async (id: number): Promise<void> => {
-    await apiClient.delete(`/menu-types/${id}`)
+    await axios.delete(`${API_BASE_URL}/menu-types/${id}`)
   },
 
   // Категории меню
@@ -142,7 +147,7 @@ export const menuApi = {
     console.log('🔍 Запрашиваем категории меню...', menuTypeId ? `для типа ${menuTypeId}` : 'все')
     try {
       const params = menuTypeId ? { menuTypeId } : {}
-      const response = await apiClient.get('/menu-categories', { params })
+      const response = await axios.get(`${API_BASE_URL}/menu-categories`, { params })
       console.log('✅ Категории меню получены:', response.data.length, 'шт.')
       return response.data
     } catch (error) {
@@ -152,22 +157,22 @@ export const menuApi = {
   },
 
   getMenuCategory: async (id: number): Promise<MenuCategory> => {
-    const response = await apiClient.get(`/menu-categories/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/menu-categories/${id}`)
     return response.data
   },
 
   createMenuCategory: async (data: CreateMenuCategoryData): Promise<MenuCategory> => {
-    const response = await apiClient.post('/menu-categories', data)
+    const response = await axios.post(`${API_BASE_URL}/menu-categories`, data)
     return response.data
   },
 
   updateMenuCategory: async (id: number, data: UpdateMenuCategoryData): Promise<MenuCategory> => {
-    const response = await apiClient.put(`/menu-categories/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/menu-categories/${id}`, data)
     return response.data
   },
 
   deleteMenuCategory: async (id: number): Promise<void> => {
-    await apiClient.delete(`/menu-categories/${id}`)
+    await axios.delete(`${API_BASE_URL}/menu-categories/${id}`)
   },
 
   // Блюда меню
@@ -175,7 +180,7 @@ export const menuApi = {
     console.log('🔍 Запрашиваем блюда меню...', categoryId ? `для категории ${categoryId}` : 'все')
     try {
       const params = categoryId ? { categoryId } : {}
-      const response = await apiClient.get('/menu-items', { params })
+      const response = await axios.get(`${API_BASE_URL}/menu-items`, { params })
       console.log('✅ Блюда меню получены:', response.data.length, 'шт.')
       return response.data
     } catch (error) {
@@ -185,14 +190,14 @@ export const menuApi = {
   },
 
   getMenuItem: async (id: number): Promise<MenuItem> => {
-    const response = await apiClient.get(`/menu-items/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/menu-items/${id}`)
     return response.data
   },
 
   createMenuItem: async (data: CreateMenuItemData): Promise<MenuItem> => {
     console.log('🚀 Создаем блюдо:', data)
     try {
-      const response = await apiClient.post('/menu-items', data)
+      const response = await axios.post(`${API_BASE_URL}/menu-items`, data)
       console.log('✅ Блюдо создано:', response.data)
       return response.data
     } catch (error) {
@@ -202,12 +207,12 @@ export const menuApi = {
   },
 
   updateMenuItem: async (id: number, data: UpdateMenuItemData): Promise<MenuItem> => {
-    const response = await apiClient.put(`/menu-items/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/menu-items/${id}`, data)
     return response.data
   },
 
   deleteMenuItem: async (id: number): Promise<void> => {
-    await apiClient.delete(`/menu-items/${id}`)
+    await axios.delete(`${API_BASE_URL}/menu-items/${id}`)
   },
 
   // Получение полного меню для отображения

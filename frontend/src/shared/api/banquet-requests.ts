@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface BanquetRequest {
   id: number
@@ -63,7 +68,7 @@ export const banquetRequestsApi = {
   // Создание новой заявки на банкет
   create: async (data: CreateBanquetRequestData): Promise<{ success: boolean; message: string; data?: BanquetRequest }> => {
     try {
-      const response = await apiClient.post('/banquet-requests', data)
+      const response = await axios.post(`${API_BASE_URL}/banquet-requests`, data)
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка создания заявки на банкет:', error)
@@ -79,7 +84,7 @@ export const banquetRequestsApi = {
     search?: string
   }): Promise<BanquetRequestsResponse> => {
     try {
-      const response = await apiClient.get('/banquet-requests', { params })
+      const response = await axios.get(`${API_BASE_URL}/banquet-requests`, { params })
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка получения заявок на банкеты:', error)
@@ -90,7 +95,7 @@ export const banquetRequestsApi = {
   // Получение заявки по ID
   getById: async (id: number): Promise<{ success: boolean; data: BanquetRequest }> => {
     try {
-      const response = await apiClient.get(`/banquet-requests/${id}`)
+      const response = await axios.get(`${API_BASE_URL}/banquet-requests/${id}`)
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка получения заявки:', error)
@@ -101,7 +106,7 @@ export const banquetRequestsApi = {
   // Обновление статуса заявки
   updateStatus: async (id: number, status: string): Promise<{ success: boolean; message: string; data: BanquetRequest }> => {
     try {
-      const response = await apiClient.patch(`/banquet-requests/${id}/status`, { status })
+      const response = await axios.patch(`${API_BASE_URL}/banquet-requests/${id}/status`, { status })
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка обновления статуса заявки:', error)
@@ -112,7 +117,7 @@ export const banquetRequestsApi = {
   // Удаление заявки
   delete: async (id: number): Promise<{ success: boolean; message: string }> => {
     try {
-      const response = await apiClient.delete(`/banquet-requests/${id}`)
+      const response = await axios.delete(`${API_BASE_URL}/banquet-requests/${id}`)
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка удаления заявки:', error)
@@ -123,7 +128,7 @@ export const banquetRequestsApi = {
   // Получение статистики по заявкам
   getStats: async (): Promise<{ success: boolean; data: BanquetRequestStats }> => {
     try {
-      const response = await apiClient.get('/banquet-requests/stats/overview')
+      const response = await axios.get('/banquet-requests/stats/overview')
       return response.data
     } catch (error: any) {
       console.error('❌ Ошибка получения статистики:', error)

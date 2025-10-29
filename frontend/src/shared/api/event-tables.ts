@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface EventTable {
   id: number
@@ -61,31 +66,31 @@ export interface UpdateTablesBatchResponse {
 export const eventTablesApi = {
   // Получить все столы зоны
   async getTablesByZone(zoneId: number): Promise<GetEventTablesResponse> {
-    const response = await apiClient.get(`/events/zones/${zoneId}/tables`)
+    const response = await axios.get(`${API_BASE_URL}/events/zones/${zoneId}/tables`)
     return response.data
   },
 
   // Создать новый стол
   async createTable(tableData: CreateEventTableData): Promise<CreateEventTableResponse> {
-    const response = await apiClient.post('/events/tables', tableData)
+    const response = await axios.post(`${API_BASE_URL}/events/tables', tableData)
     return response.data
   },
 
   // Обновить стол
   async updateTable(tableId: number, updateData: UpdateEventTableData): Promise<UpdateEventTableResponse> {
-    const response = await apiClient.put(`/events/tables/${tableId}`, updateData)
+    const response = await axios.put(`${API_BASE_URL}/events/tables/${tableId}`, updateData)
     return response.data
   },
 
   // Удалить стол
   async deleteTable(tableId: number): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.delete(`/events/tables/${tableId}`)
+    const response = await axios.delete(`${API_BASE_URL}/events/tables/${tableId}`)
     return response.data
   },
 
   // Массовое обновление столов
   async updateTablesBatch(tables: EventTable[]): Promise<UpdateTablesBatchResponse> {
-    const response = await apiClient.put('/events/tables/batch', { tables })
+    const response = await axios.put(`${API_BASE_URL}/events/tables/batch', { tables })
     return response.data
   }
 }

@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface EventZone {
   id: number
@@ -89,7 +94,7 @@ export const eventZonesApi = {
   // Получить все зоны мероприятия
   async getEventZones(eventId: number): Promise<EventZonesResponse> {
     try {
-      const response = await apiClient.get(`/events/${eventId}/zones`)
+      const response = await axios.get(`${API_BASE_URL}/events/${eventId}/zones`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении зон мероприятия:', error)
@@ -100,7 +105,7 @@ export const eventZonesApi = {
   // Создать новую зону мероприятия
   async createEventZone(eventId: number, zoneData: CreateEventZoneData): Promise<EventZoneResponse> {
     try {
-      const response = await apiClient.post(`/events/${eventId}/zones`, zoneData)
+      const response = await axios.post(`${API_BASE_URL}/events/${eventId}/zones`, zoneData)
       return response.data
     } catch (error) {
       console.error('Ошибка при создании зоны мероприятия:', error)
@@ -111,7 +116,7 @@ export const eventZonesApi = {
   // Обновить зону мероприятия
   async updateEventZone(eventId: number, zoneId: number, zoneData: UpdateEventZoneData): Promise<EventZoneResponse> {
     try {
-      const response = await apiClient.put(`/events/${eventId}/zones/${zoneId}`, zoneData)
+      const response = await axios.put(`${API_BASE_URL}/events/${eventId}/zones/${zoneId}`, zoneData)
       return response.data
     } catch (error) {
       console.error('Ошибка при обновлении зоны мероприятия:', error)
@@ -122,7 +127,7 @@ export const eventZonesApi = {
   // Удалить зону мероприятия
   async deleteEventZone(eventId: number, zoneId: number): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await apiClient.delete(`/events/${eventId}/zones/${zoneId}`)
+      const response = await axios.delete(`${API_BASE_URL}/events/${eventId}/zones/${zoneId}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при удалении зоны мероприятия:', error)
@@ -133,7 +138,7 @@ export const eventZonesApi = {
   // Получить статистику зоны
   async getZoneStats(eventId: number, zoneId: number): Promise<ZoneStatsResponse> {
     try {
-      const response = await apiClient.get(`/events/${eventId}/zones/${zoneId}/stats`)
+      const response = await axios.get(`${API_BASE_URL}/events/${eventId}/zones/${zoneId}/stats`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении статистики зоны:', error)

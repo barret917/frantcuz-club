@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface Event {
   id: number
@@ -83,7 +88,7 @@ export const eventsApi = {
   async getEvents(filter?: 'upcoming' | 'past'): Promise<EventsResponse> {
     try {
       const params = filter ? `?filter=${filter}` : ''
-      const response = await apiClient.get(`/events${params}`)
+      const response = await axios.get(`${API_BASE_URL}/events${params}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении мероприятий:', error)
@@ -94,7 +99,7 @@ export const eventsApi = {
   // Получить мероприятие по ID
   async getEvent(id: number): Promise<EventResponse> {
     try {
-      const response = await apiClient.get(`/events/${id}`)
+      const response = await axios.get(`${API_BASE_URL}/events/${id}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении мероприятия:', error)
@@ -108,7 +113,7 @@ export const eventsApi = {
     console.log('🖼️ API: URL изображения:', eventData.imageUrl)
     
     try {
-      const response = await apiClient.post('/events', eventData)
+      const response = await axios.post(`${API_BASE_URL}/events`, eventData)
       console.log('✅ API: Мероприятие создано:', response.data)
       return response.data
     } catch (error) {
@@ -120,7 +125,7 @@ export const eventsApi = {
   // Обновить мероприятие
   async updateEvent(id: number, eventData: UpdateEventData): Promise<EventResponse> {
     try {
-      const response = await apiClient.put(`/events/${id}`, eventData)
+      const response = await axios.put(`${API_BASE_URL}/events/${id}`, eventData)
       return response.data
     } catch (error) {
       console.error('Ошибка при обновлении мероприятия:', error)
@@ -131,7 +136,7 @@ export const eventsApi = {
   // Удалить мероприятие
   async deleteEvent(id: number): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await apiClient.delete(`/events/${id}`)
+      const response = await axios.delete(`${API_BASE_URL}/events/${id}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при удалении мероприятия:', error)
@@ -142,7 +147,7 @@ export const eventsApi = {
   // Получить статистику мероприятий
   async getStats(): Promise<StatsResponse> {
     try {
-      const response = await apiClient.get('/events/stats/overview')
+      const response = await axios.get(`${API_BASE_URL}/events/stats/overview`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении статистики мероприятий:', error)
@@ -152,29 +157,29 @@ export const eventsApi = {
 } 
 // Получить все события
 export const getAllEvents = async (): Promise<Event[]> => {
-  const response = await apiClient.get('/events')
+  const response = await axios.get(`${API_BASE_URL}/events`)
   return response.data.data || response.data || []
 }
 
 // Создать событие
 export const createEvent = async (data: CreateEventData): Promise<Event> => {
-  const response = await apiClient.post('/events', data)
+  const response = await axios.post(`${API_BASE_URL}/events`, data)
   return response.data
 }
 
 // Обновить событие
 export const updateEvent = async (id: number, data: Partial<CreateEventData>): Promise<Event> => {
-  const response = await apiClient.put(`/events/${id}`, data)
+  const response = await axios.put(`${API_BASE_URL}/events/${id}`, data)
   return response.data
 }
 
 // Удалить событие
 export const deleteEvent = async (id: number): Promise<void> => {
-  await apiClient.delete(`/events/${id}`)
+  await axios.delete(`${API_BASE_URL}/events/${id}`)
 }
 
 // Создать событие с залом
 export const createEventWithHall = async (data: CreateEventData & { hallName: string; hallDescription?: string }): Promise<Event> => {
-  const response = await apiClient.post('/events/with-hall', data)
+  const response = await axios.post(`${API_BASE_URL}/events/with-hall`, data)
   return response.data
 }

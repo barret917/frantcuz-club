@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 // ===== ТИПЫ ДАННЫХ =====
 
@@ -145,115 +150,115 @@ export const eventTicketsApi = {
   // Мероприятия
   async getEvents(filter?: 'upcoming' | 'past') {
     const params = filter ? `?filter=${filter}` : ''
-    const response = await apiClient.get(`/event-tickets/events${params}`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/events${params}`)
     return response.data
   },
 
   async getEventById(id: number) {
-    const response = await apiClient.get(`/event-tickets/events/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/events/${id}`)
     return response.data
   },
 
   async createEvent(data: CreateEventData) {
-    const response = await apiClient.post('/event-tickets/events', data)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/events`, data)
     return response.data
   },
 
   async updateEvent(id: number, data: Partial<CreateEventData>) {
-    const response = await apiClient.put(`/event-tickets/events/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/events/${id}`, data)
     return response.data
   },
 
   async deleteEvent(id: number) {
-    const response = await apiClient.delete(`/event-tickets/events/${id}`)
+    const response = await axios.delete(`${API_BASE_URL}/event-tickets/events/${id}`)
     return response.data
   },
 
   // Зоны
   async getZonesByEvent(eventId: number) {
-    const response = await apiClient.get(`/event-tickets/events/${eventId}/zones`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/events/${eventId}/zones`)
     return response.data
   },
 
   async createZone(data: CreateZoneData) {
-    const response = await apiClient.post('/event-tickets/zones', data)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/zones`, data)
     return response.data
   },
 
   async updateZone(id: number, data: Partial<CreateZoneData>) {
-    const response = await apiClient.put(`/event-tickets/zones/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/zones/${id}`, data)
     return response.data
   },
 
   async deleteZone(id: number) {
-    const response = await apiClient.delete(`/event-tickets/zones/${id}`)
+    const response = await axios.delete(`${API_BASE_URL}/event-tickets/zones/${id}`)
     return response.data
   },
 
   // Столы
   async getTablesByZone(zoneId: number) {
-    const response = await apiClient.get(`/event-tickets/zones/${zoneId}/tables`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/zones/${zoneId}/tables`)
     return response.data
   },
 
   async createTable(data: CreateTableData) {
-    const response = await apiClient.post('/event-tickets/tables', data)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/tables`, data)
     return response.data
   },
 
   async updateTable(id: number, data: Partial<CreateTableData>) {
-    const response = await apiClient.put(`/event-tickets/tables/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/tables/${id}`, data)
     return response.data
   },
 
   async deleteTable(id: number) {
-    const response = await apiClient.delete(`/event-tickets/tables/${id}`)
+    const response = await axios.delete(`${API_BASE_URL}/event-tickets/tables/${id}`)
     return response.data
   },
 
   async updateTablesBatch(tables: Array<Partial<CreateTableData> & { id: number }>) {
-    const response = await apiClient.put('/event-tickets/tables/batch', { tables })
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/tables/batch`, { tables })
     return response.data
   },
 
   // Билеты
   async getTicketsByEvent(eventId: number) {
-    const response = await apiClient.get(`/event-tickets/events/${eventId}/tickets`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/events/${eventId}/tickets`)
     return response.data
   },
 
   async getTicketByNumber(ticketNumber: string) {
-    const response = await apiClient.get(`/event-tickets/tickets/${ticketNumber}`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/tickets/${ticketNumber}`)
     return response.data
   },
 
   async createTicket(data: CreateTicketData) {
-    const response = await apiClient.post('/event-tickets/tickets', data)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/tickets`, data)
     return response.data
   },
 
   async purchaseTicket(data: PurchaseTicketData): Promise<PaymentResponse> {
-    const response = await apiClient.post('/event-tickets/tickets/purchase', data)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/tickets/purchase`, data)
     return response.data.data
   },
 
   async sendTicketToEmail(ticketId: number) {
-    const response = await apiClient.post(`/event-tickets/tickets/${ticketId}/send-email`)
+    const response = await axios.post(`${API_BASE_URL}/event-tickets/tickets/${ticketId}/send-email`)
     return response.data
   },
 
   async useTicket(ticketNumber: string) {
-    const response = await apiClient.put(`/event-tickets/tickets/${ticketNumber}/use`)
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/tickets/${ticketNumber}/use`)
     return response.data
   },
 
   async cancelTicket(id: number) {
-    const response = await apiClient.put(`/event-tickets/tickets/${id}/cancel`)
+    const response = await axios.put(`${API_BASE_URL}/event-tickets/tickets/${id}/cancel`)
     return response.data
   },
 
   async getSalesStats(eventId: number) {
-    const response = await apiClient.get(`/event-tickets/events/${eventId}/stats`)
+    const response = await axios.get(`${API_BASE_URL}/event-tickets/events/${eventId}/stats`)
     return response.data
   }
 }

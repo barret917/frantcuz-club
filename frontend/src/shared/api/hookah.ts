@@ -1,4 +1,9 @@
-import { apiClient } from './client'
+import axios from 'axios'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface Hookah {
   id: number
@@ -47,7 +52,7 @@ export const hookahApi = {
   // Получить все тарифы кальяна
   async getHookahs(): Promise<HookahResponse> {
     try {
-      const response = await apiClient.get('/hookah')
+      const response = await axios.get(`${API_BASE_URL}/hookah`)
       return response.data
     } catch (error) {
       console.error('Ошибка при получении тарифов кальяна:', error)
@@ -58,7 +63,7 @@ export const hookahApi = {
   // Создать новый тариф кальяна
   async createHookah(hookahData: CreateHookahData): Promise<SingleHookahResponse> {
     try {
-      const response = await apiClient.post('/hookah', hookahData)
+      const response = await axios.post(`${API_BASE_URL}/hookah`, hookahData)
       return response.data
     } catch (error) {
       console.error('Ошибка при создании тарифа кальяна:', error)
@@ -69,7 +74,7 @@ export const hookahApi = {
   // Обновить тариф кальяна
   async updateHookah(id: number, hookahData: UpdateHookahData): Promise<SingleHookahResponse> {
     try {
-      const response = await apiClient.put(`/hookah/${id}`, hookahData)
+      const response = await axios.put(`${API_BASE_URL}/hookah/${id}`, hookahData)
       return response.data
     } catch (error) {
       console.error('Ошибка при обновлении тарифа кальяна:', error)
@@ -80,7 +85,7 @@ export const hookahApi = {
   // Удалить тариф кальяна
   async deleteHookah(id: number): Promise<{ success: boolean; message?: string; error?: string }> {
     try {
-      const response = await apiClient.delete(`/hookah/${id}`)
+      const response = await axios.delete(`${API_BASE_URL}/hookah/${id}`)
       return response.data
     } catch (error) {
       console.error('Ошибка при удалении тарифа кальяна:', error)

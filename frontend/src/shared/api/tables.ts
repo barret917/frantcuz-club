@@ -1,4 +1,10 @@
-import { apiClient, handleApiError } from './client'
+import axios from 'axios'
+import { handleApiError } from './client'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export interface Table {
   id: number
@@ -32,7 +38,7 @@ export interface AvailableTablesResponse {
 // Получить все столы
 export const getTables = async (): Promise<Table[]> => {
   try {
-    const response = await apiClient.get('/tables')
+    const response = await axios.get(`${API_BASE_URL}/tables`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -42,7 +48,7 @@ export const getTables = async (): Promise<Table[]> => {
 // Получить доступные столы
 export const getAvailableTables = async (request: AvailableTablesRequest): Promise<AvailableTablesResponse> => {
   try {
-    const response = await apiClient.post('/tables/available', request)
+    const response = await axios.post(`${API_BASE_URL}/tables/available`, request)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -52,7 +58,7 @@ export const getAvailableTables = async (request: AvailableTablesRequest): Promi
 // Получить стол по ID
 export const getTable = async (id: number): Promise<Table> => {
   try {
-    const response = await apiClient.get(`/tables/${id}`)
+    const response = await axios.get(`${API_BASE_URL}/tables/${id}`)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -62,7 +68,7 @@ export const getTable = async (id: number): Promise<Table> => {
 // Создать стол
 export const createTable = async (data: Omit<Table, 'id' | 'createdAt' | 'updatedAt'>): Promise<Table> => {
   try {
-    const response = await apiClient.post('/tables', data)
+    const response = await axios.post(`${API_BASE_URL}/tables`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -72,7 +78,7 @@ export const createTable = async (data: Omit<Table, 'id' | 'createdAt' | 'update
 // Обновить стол
 export const updateTable = async (id: number, data: Partial<Table>): Promise<Table> => {
   try {
-    const response = await apiClient.put(`/tables/${id}`, data)
+    const response = await axios.put(`${API_BASE_URL}/tables/${id}`, data)
     return response.data
   } catch (error) {
     return handleApiError(error)
@@ -82,7 +88,7 @@ export const updateTable = async (id: number, data: Partial<Table>): Promise<Tab
 // Удалить стол
 export const deleteTable = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/tables/${id}`)
+    await axios.delete(`${API_BASE_URL}/tables/${id}`)
   } catch (error) {
     handleApiError(error)
   }

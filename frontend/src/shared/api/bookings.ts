@@ -1,5 +1,10 @@
-import { apiClient } from './client'
+import axios from 'axios'
 import { Hall, Zone } from './halls'
+
+// Используем переменную окружения или /api как fallback
+const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL.includes('localhost') 
+  ? '/api' 
+  : import.meta.env.VITE_API_URL
 
 export enum BookingType {
   TABLE = 'table',
@@ -45,20 +50,20 @@ export interface CreateBookingData {
 }
 
 export const createBooking = async (data: CreateBookingData): Promise<Booking> => {
-  const response = await apiClient.post('/bookings', data)
+  const response = await axios.post(`${API_BASE_URL}/bookings`, data)
   return response.data
 }
 
 export const getBookings = async (): Promise<Booking[]> => {
-  const response = await apiClient.get('/bookings')
+  const response = await axios.get(`${API_BASE_URL}/bookings`)
   return response.data
 }
 
 export const updateBooking = async (id: number, data: Partial<CreateBookingData>): Promise<Booking> => {
-  const response = await apiClient.put(`/bookings/${id}`, data)
+  const response = await axios.put(`${API_BASE_URL}/bookings/${id}`, data)
   return response.data
 }
 
 export const deleteBooking = async (id: number): Promise<void> => {
-  await apiClient.delete(`/bookings/${id}`)
+  await axios.delete(`${API_BASE_URL}/bookings/${id}`)
 }
