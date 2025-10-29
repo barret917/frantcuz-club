@@ -72,7 +72,7 @@ export const eventTablesApi = {
 
   // Создать новый стол
   async createTable(tableData: CreateEventTableData): Promise<CreateEventTableResponse> {
-    const response = await axios.post(`${API_BASE_URL}/events/tables', tableData)
+    const response = await axios.post(`${API_BASE_URL}/events/tables`, tableData)
     return response.data
   },
 
@@ -90,7 +90,7 @@ export const eventTablesApi = {
 
   // Массовое обновление столов
   async updateTablesBatch(tables: EventTable[]): Promise<UpdateTablesBatchResponse> {
-    const response = await axios.put(`${API_BASE_URL}/events/tables/batch', { tables })
+    const response = await axios.put(`${API_BASE_URL}/events/tables/batch`, { tables })
     return response.data
   }
 }
