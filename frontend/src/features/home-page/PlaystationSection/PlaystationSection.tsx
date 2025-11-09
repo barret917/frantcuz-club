@@ -289,7 +289,7 @@ export const PlaystationSection: React.FC = () => {
             </Description>
             
             <ButtonGroup>
-              <PrimaryButton as={Link} to="/booking">Забронировать</PrimaryButton>
+              <PrimaryButton as={Link} to="/booking?page=/playstation">Забронировать</PrimaryButton>
               <SecondaryButton as={Link} to="/games">Подробнее</SecondaryButton>
             </ButtonGroup>
           </TextContent>

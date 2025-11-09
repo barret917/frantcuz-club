@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 import { boardGamesApi, BoardGame } from '@/shared/api/board-games'
 
 
@@ -84,6 +85,53 @@ const Subtitle = styled.p`
   margin-bottom: 2rem;
   
   @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+`
+
+const BookButton = styled(Link)`
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  border: none;
+  padding: 1.5rem 3.5rem;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 
+    0 8px 25px rgba(139, 92, 246, 0.4),
+    0 0 20px rgba(139, 92, 246, 0.2);
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+      0 12px 35px rgba(139, 92, 246, 0.5),
+      0 0 25px rgba(139, 92, 246, 0.3);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 1.2rem 2.5rem;
     font-size: 1.1rem;
   }
 `
@@ -442,6 +490,9 @@ export const GamesPage: React.FC = () => {
             <Subtitle>
               Погрузитесь в мир стратегии, логики и веселья с нашими настольными играми
             </Subtitle>
+            <BookButton to="/booking?page=/games">
+              Забронировать
+            </BookButton>
           </HeroContent>
         </HeroSection>
 
@@ -555,14 +606,16 @@ export const GamesPage: React.FC = () => {
           <GamesContainer>
             <Title>Как забронировать игровую зону</Title>
             <Subtitle>
-              Простой процесс бронирования для вашего комфортного отдыха
+              Выберите удобный способ бронирования для вашего комфортного отдыха
             </Subtitle>
             
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '2rem',
-              marginTop: '3rem'
+              marginTop: '3rem',
+              maxWidth: '900px',
+              margin: '3rem auto 0'
             }}>
               <div style={{
                 textAlign: 'center',
@@ -570,12 +623,95 @@ export const GamesPage: React.FC = () => {
                 background: 'rgba(102, 126, 234, 0.1)',
                 borderRadius: '20px',
                 border: '1px solid rgba(102, 126, 234, 0.2)',
-                transition: 'all 0.3s ease'
-              }}>
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)'
+                e.currentTarget.style.background = 'rgba(102, 126, 234, 0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.background = 'rgba(102, 126, 234, 0.1)'
+              }}
+              >
                 <div style={{
                   fontSize: '3rem',
                   marginBottom: '1rem',
                   animation: "fadeInUp 0.8s ease-out"
+                }}>
+                  💻
+                </div>
+                <h3 style={{
+                  fontSize: '1.3rem',
+                  fontWeight: '600',
+                  marginBottom: '1rem',
+                  color: '#8b5cf6'
+                }}>
+                  Забронировать онлайн
+                </h3>
+                <p style={{
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  lineHeight: '1.6',
+                  marginBottom: '1.5rem'
+                }}>
+                  Быстрое и удобное бронирование через наш сайт. Выберите стол, время и оформите бронь за несколько кликов
+                </p>
+                <a 
+                  href="/booking?page=/games"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    window.location.href = '/booking?page=/games'
+                  }}
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    color: 'white',
+                    textDecoration: 'none',
+                    padding: '0.75rem 1.5rem',
+                    background: 'linear-gradient(135deg, #667eea 0%, #8b5cf6 100%)',
+                    borderRadius: '12px',
+                    border: 'none',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)'
+                  }}
+                >
+                  Забронировать
+                </a>
+              </div>
+              
+              <div style={{
+                textAlign: 'center',
+                padding: '2rem',
+                background: 'rgba(139, 92, 246, 0.1)',
+                borderRadius: '20px',
+                border: '1px solid rgba(139, 92, 246, 0.2)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)'
+                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.15)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.background = 'rgba(139, 92, 246, 0.1)'
+              }}
+              >
+                <div style={{
+                  fontSize: '3rem',
+                  marginBottom: '1rem',
+                  animation: "fadeInUp 0.8s ease-out",
+                  animationDelay: '0.2s'
                 }}>
                   📞
                 </div>
@@ -589,74 +725,56 @@ export const GamesPage: React.FC = () => {
                 </h3>
                 <p style={{
                   color: 'rgba(255, 255, 255, 0.8)',
-                  lineHeight: '1.6'
+                  lineHeight: '1.6',
+                  marginBottom: '1.5rem'
                 }}>
                   Свяжитесь с нами по телефону для уточнения деталей и бронирования
                 </p>
-              </div>
-              
-              <div style={{
-                textAlign: 'center',
-                padding: '2rem',
-                background: 'rgba(139, 92, 246, 0.1)',
-                borderRadius: '20px',
-                border: '1px solid rgba(139, 92, 246, 0.2)',
-                transition: 'all 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '3rem',
-                  marginBottom: '1rem',
-                  animation: "fadeInUp 0.8s ease-out",
-                  animationDelay: '0.2s'
-                }}>
-                  🎯
-                </div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '600',
-                  marginBottom: '1rem',
-                  color: '#8b5cf6'
-                }}>
-                  Выберите время
-                </h3>
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  lineHeight: '1.6'
-                }}>
-                  Укажите удобное для вас время и количество игроков
-                </p>
-              </div>
-              
-              <div style={{
-                textAlign: 'center',
-                padding: '2rem',
-                background: 'rgba(168, 85, 247, 0.1)',
-                borderRadius: '20px',
-                border: '1px solid rgba(168, 85, 247, 0.2)',
-                transition: 'all 0.3s ease'
-              }}>
-                <div style={{
-                  fontSize: '3rem',
-                  marginBottom: '1rem',
-                  animation: "fadeInUp 0.8s ease-out",
-                  animationDelay: '0.4s'
-                }}>
-                  🎮
-                </div>
-                <h3 style={{
-                  fontSize: '1.3rem',
-                  fontWeight: '600',
-                  marginBottom: '1rem',
-                  color: '#8b5cf6'
-                }}>
-                  Приходите играть
-                </h3>
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  lineHeight: '1.6'
-                }}>
-                  Получите удовольствие от игры в уютной атмосфере нашего клуба
-                </p>
+                <a 
+                  href="tel:+79680905550"
+                  onClick={(e) => {
+                    // Для мобильных устройств явно вызываем звонок
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                    if (isMobile) {
+                      // На мобильных устройствах tel: ссылка автоматически откроет приложение для звонка
+                      // Но можно также использовать window.location для надежности
+                      window.location.href = 'tel:+79680905550'
+                    }
+                    // На десктопе просто переходим по ссылке (откроется приложение для звонка, если установлено)
+                  }}
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: '#8b5cf6',
+                    textDecoration: 'none',
+                    padding: '0.75rem 1.5rem',
+                    background: 'rgba(139, 92, 246, 0.2)',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    WebkitTapHighlightColor: 'rgba(139, 92, 246, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.3)'
+                    e.currentTarget.style.transform = 'scale(1.05)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+                    e.currentTarget.style.transform = 'scale(1)'
+                  }}
+                  onTouchStart={(e) => {
+                    // Для тач-устройств добавляем визуальную обратную связь
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.4)'
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.background = 'rgba(139, 92, 246, 0.2)'
+                  }}
+                >
+                  +7 968 090-55-50
+                </a>
               </div>
             </div>
           </GamesContainer>

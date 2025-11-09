@@ -208,6 +208,7 @@ model BookingZone {
   updatedAt   DateTime      @updatedAt
   tables      BookingTable[]
   bookings    Booking[]
+  pageBindings PageZoneBinding[]
 }
 
 model BookingTable {
@@ -278,12 +279,25 @@ model BookingNotification {
   booking     Booking                @relation(fields: [bookingId], references: [id])
 }
 
+model PageZoneBinding {
+  id          Int           @id @default(autoincrement())
+  pageRoute   String        @unique @db.VarChar(255)
+  zoneId      Int
+  zone        BookingZone   @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([pageRoute])
+  @@index([zoneId])
+}
+
 // Enums для новой системы бронирования
 enum BookingZoneType {
   billiards
   karaoke
   playstation
   disco
+  board_games
 }
 
 enum BookingStatus {

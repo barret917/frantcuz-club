@@ -242,7 +242,7 @@ export const Footer: React.FC = () => {
               <a href="tel:+79680915550">+7 968 091-55-50</a>
             </ContactItem>
             <ContactItem>
-              <a href="mailto:online@frantcuz-club.ru">online@frantcuz-club.ru</a>
+              <a href="mailto:online@frantsuz-club.ru">online@frantsuz-club.ru</a>
             </ContactItem>
             <ContactItem>
               <a href="#">г. Москва,<br/>ул. Салтыковская, 49А,<br/>ТЦ Волна, -1 этаж</a>

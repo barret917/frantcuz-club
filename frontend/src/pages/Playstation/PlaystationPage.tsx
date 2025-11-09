@@ -577,7 +577,7 @@ const PlaystationPage: React.FC = () => {
   const navigate = useNavigate()
 
   const handleBooking = () => {
-    navigate('/booking')
+    navigate('/booking?page=/playstation')
   }
 
   return (

@@ -1091,7 +1091,7 @@ export const KaraokePage: React.FC = () => {
                 <Description>
                   Спойте любимые песни в компании друзей в нашем уютном караоке клубе
                 </Description>
-                <BookButton href="/booking" target="_self">
+                <BookButton href="/booking?page=/karaoke" target="_self">
                   Забронировать караоке
                 </BookButton>
               </LeftContent>

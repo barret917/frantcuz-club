@@ -86,8 +86,8 @@ const ZoneCard = styled.div<{ isActive: boolean }>`
   padding: 0;
   transition: all 0.2s;
   overflow: hidden;
-  height: 300px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   
   &:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -96,7 +96,7 @@ const ZoneCard = styled.div<{ isActive: boolean }>`
 
 const ZoneImage = styled.div<{ imageUrl?: string }>`
   width: 100%;
-  height: 100%;
+  height: 200px;
   background: ${props => props.imageUrl 
     ? `url(${props.imageUrl}) center/cover` 
     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -108,6 +108,7 @@ const ZoneImage = styled.div<{ imageUrl?: string }>`
   font-size: 1.2rem;
   font-weight: 600;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
 `
 
 const ZoneContent = styled.div`
@@ -288,14 +289,28 @@ export const BookingZonesManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [editingZone, setEditingZone] = useState<BookingZone | null>(null)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string
+    description: string
+    pricePerHour: number
+    openTime: string
+    closeTime: string
+    isActive: boolean
+    imageUrl: string
+    type: 'billiards' | 'karaoke' | 'playstation' | 'disco' | 'board_games'
+    deposit: number
+    sortOrder: number
+  }>({
     name: '',
     description: '',
     pricePerHour: 0,
     openTime: '09:00',
     closeTime: '23:00',
     isActive: true,
-    imageUrl: ''
+    imageUrl: '',
+    type: 'billiards',
+    deposit: 0,
+    sortOrder: 0
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -328,7 +343,10 @@ export const BookingZonesManagement: React.FC = () => {
       openTime: '09:00',
       closeTime: '23:00',
       isActive: true,
-      imageUrl: ''
+      imageUrl: '',
+      type: 'billiards',
+      deposit: 0,
+      sortOrder: 0
     })
     setShowModal(true)
     setSubmitError(null)
@@ -344,7 +362,10 @@ export const BookingZonesManagement: React.FC = () => {
       openTime: zone.openTime,
       closeTime: zone.closeTime,
       isActive: zone.isActive,
-      imageUrl: zone.imageUrl || ''
+      imageUrl: zone.imageUrl || '',
+      type: zone.type || 'billiards',
+      deposit: zone.deposit || 0,
+      sortOrder: zone.sortOrder || 0
     })
     setShowModal(true)
     setSubmitError(null)
@@ -473,38 +494,35 @@ export const BookingZonesManagement: React.FC = () => {
                 {!zone.imageUrl && zone.name}
               </ZoneImage>
               
-              {/* Скрытые поля - остаются для доступности, но не видны */}
-              <div style={{ display: 'none' }}>
-                <ZoneContent>
-                  <ZoneHeader>
-                    <ZoneName>{zone.name}</ZoneName>
-                    <ZoneStatus isActive={zone.isActive}>
-                      {zone.isActive ? 'Активна' : 'Неактивна'}
-                    </ZoneStatus>
-                  </ZoneHeader>
-                  
-                  <ZoneDetails>
-                    <div><strong>Описание:</strong> {zone.description || 'Не указано'}</div>
-                    <div><strong>Цена за бронирование:</strong> {zone.pricePerHour} ₽</div>
-                    <div><strong>Время работы:</strong> {zone.openTime} - {zone.closeTime}</div>
-                  </ZoneDetails>
+              <ZoneContent>
+                <ZoneHeader>
+                  <ZoneName>{zone.name}</ZoneName>
+                  <ZoneStatus isActive={zone.isActive}>
+                    {zone.isActive ? 'Активна' : 'Неактивна'}
+                  </ZoneStatus>
+                </ZoneHeader>
+                
+                <ZoneDetails>
+                  <div><strong>Описание:</strong> {zone.description || 'Не указано'}</div>
+                  <div><strong>Цена за бронирование:</strong> {zone.pricePerHour} ₽</div>
+                  <div><strong>Время работы:</strong> {zone.openTime} - {zone.closeTime}</div>
+                </ZoneDetails>
 
-                  <ZoneActions>
-                    <Button 
-                      variant="secondary" 
-                      onClick={() => handleEditZone(zone)}
-                    >
-                      Редактировать
-                    </Button>
-                    <Button 
-                      variant="danger" 
-                      onClick={() => handleDeleteZone(zone.id)}
-                    >
-                      Удалить
-                    </Button>
-                  </ZoneActions>
-                </ZoneContent>
-              </div>
+                <ZoneActions>
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => handleEditZone(zone)}
+                  >
+                    Редактировать
+                  </Button>
+                  <Button 
+                    variant="danger" 
+                    onClick={() => handleDeleteZone(zone.id)}
+                  >
+                    Удалить
+                  </Button>
+                </ZoneActions>
+              </ZoneContent>
             </ZoneCard>
           ))}
         </ZonesGrid>

@@ -271,7 +271,11 @@ export const BookingTablesManagement: React.FC = () => {
     name: '',
     seats: 4,
     isActive: true,
-    zoneId: 0
+    zoneId: 0,
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -339,7 +343,11 @@ export const BookingTablesManagement: React.FC = () => {
       name: '',
       seats: 4,
       isActive: true,
-      zoneId: selectedZoneId
+      zoneId: selectedZoneId,
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 100
     })
     setShowModal(true)
     setSubmitError(null)
@@ -352,7 +360,11 @@ export const BookingTablesManagement: React.FC = () => {
       name: table.name,
       seats: table.seats,
       isActive: table.isActive,
-      zoneId: table.zoneId
+      zoneId: table.zoneId,
+      x: table.x || 0,
+      y: table.y || 0,
+      width: table.width || 100,
+      height: table.height || 100
     })
     setShowModal(true)
     setSubmitError(null)
@@ -385,7 +397,15 @@ export const BookingTablesManagement: React.FC = () => {
 
     try {
       if (editingTable) {
-        const updatedTable = await updateBookingTable(editingTable.id, formData)
+        // При обновлении сохраняем все поля включая позицию и размер
+        const updateData = {
+          ...formData,
+          x: editingTable.x, // Сохраняем существующие координаты
+          y: editingTable.y,
+          width: editingTable.width,
+          height: editingTable.height
+        }
+        const updatedTable = await updateBookingTable(editingTable.id, updateData)
         setTables(prev => prev.map(table => 
           table.id === editingTable.id ? updatedTable : table
         ))

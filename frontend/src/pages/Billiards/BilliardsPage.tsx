@@ -1071,7 +1071,7 @@ export const BilliardsPage: React.FC = () => {
               <VIPPriceValue>{service.price}₽</VIPPriceValue>
             </VIPPriceRow>
           </VIPPricingInfo>
-          <CardBookButton href="/booking" target="_self">
+          <CardBookButton href="/booking?page=/billiards" target="_self">
             Забронировать стол
           </CardBookButton>
         </PricingCard>
@@ -1108,7 +1108,7 @@ export const BilliardsPage: React.FC = () => {
                 <Description>
                   Проведите приятное время в компании друзей, наслаждаясь игрой в бильярд
                 </Description>
-                <BookButton href="/booking" target="_self">
+                <BookButton href="/booking?page=/billiards" target="_self">
                   Забронировать стол
                 </BookButton>
               </LeftContent>

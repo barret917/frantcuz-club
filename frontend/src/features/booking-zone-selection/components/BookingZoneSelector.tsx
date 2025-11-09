@@ -21,7 +21,7 @@ const ZonesGrid = styled.div`
 
 const ZoneCard = styled.div<{ isSelected: boolean }>`
   background: ${props => props.isSelected ? '#4f46e5' : '#ffffff'};
-  border: 2px solid ${props => props.isSelected ? '#4f46e5' : '#e5e7eb'};
+  border: none;
   border-radius: 12px;
   padding: 0;
   cursor: pointer;
@@ -124,29 +124,6 @@ const NoDataMessage = styled.div`
   padding: 3rem;
 `
 
-const ContinueButton = styled.button`
-  background: #4f46e5;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: block;
-  margin: 2rem auto 0;
-
-  &:hover {
-    background: #4338ca;
-  }
-
-  &:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-  }
-`
-
 interface BookingZoneSelectorProps {
   onZoneSelect: (zone: BookingZone) => void
 }
@@ -177,12 +154,8 @@ export const BookingZoneSelector: React.FC<BookingZoneSelectorProps> = ({ onZone
 
   const handleZoneSelect = (zone: BookingZone) => {
     setSelectedZone(zone)
-  }
-
-  const handleContinue = () => {
-    if (selectedZone) {
-      onZoneSelect(selectedZone)
-    }
+    // Сразу переходим к следующему шагу при клике на плашку
+    onZoneSelect(zone)
   }
 
   const getZoneTypeLabel = (type: string) => {
@@ -247,13 +220,6 @@ export const BookingZoneSelector: React.FC<BookingZoneSelectorProps> = ({ onZone
           </ZoneCard>
         ))}
       </ZonesGrid>
-
-      <ContinueButton
-        onClick={handleContinue}
-        disabled={!selectedZone}
-      >
-        Продолжить
-      </ContinueButton>
     </Container>
   )
 }

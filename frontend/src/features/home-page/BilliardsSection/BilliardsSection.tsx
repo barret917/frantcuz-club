@@ -306,7 +306,7 @@ export const BilliardsSection: React.FC = () => {
             </Description>
             
             <ButtonGroup>
-              <PrimaryButton as={Link} to="/booking">Забронировать стол</PrimaryButton>
+              <PrimaryButton as={Link} to="/booking?page=/billiards">Забронировать стол</PrimaryButton>
               <SecondaryButton as={Link} to="/billiards">Подробнее</SecondaryButton>
             </ButtonGroup>
           </TextContent>

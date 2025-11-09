@@ -15,6 +15,7 @@ import eventZonesRouter from './routes/event-zones';
 import eventTablesRouter from './routes/event-tables';
 import paymentRouter from './routes/payment';
 import botRouter from './routes/bot';
+import pageZoneBindingsRouter from './routes/page-zone-bindings';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api', eventZonesRouter);
 app.use('/api', eventTablesRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/bot', botRouter); // Роутер для Telegram бота
+app.use('/api/admin/page-zone-bindings', pageZoneBindingsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

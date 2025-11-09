@@ -12,6 +12,7 @@ import { EventsManagement } from '@/features/events-management'
 import { BookingsManagement } from '@/features/bookings-management'
 import { BookingZonesManagement } from '@/features/booking-admin/components/BookingZonesManagement'
 import { BookingTablesManagement } from '@/features/booking-admin/components/BookingTablesManagement'
+import { PageZoneBindingsManagement } from '@/features/booking-admin/components/PageZoneBindingsManagement'
 import styled, { keyframes, css } from 'styled-components'
 
 const SESSION_KEY = 'admin_session'
@@ -360,10 +361,12 @@ const ComingSoonText = styled.p`
   line-height: 1.6;
 `
 
-type AdminTab = 'booking-zones' | 'booking-tables' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'| 'events'| 'carousel-photos'
+type AdminTab = 'booking-zones' | 'booking-tables' | 'page-zone-bindings' | 'menu' | 'bookings' | 'billiards' | 'karaoke' | 'banquet-requests' | 'hookah' | 'board-games'| 'events'| 'carousel-photos'
 
 const tabs = [
   { key: 'booking-zones', label: 'Зоны бронирования', icon: '🏢' },
+  { key: 'booking-tables', label: 'Управление столами', icon: '🪑' },
+  { key: 'page-zone-bindings', label: 'Привязка страниц', icon: '🔗' },
   { key: 'menu', label: 'Меню', icon: '🍽️' },
   { key: 'bookings', label: 'Бронирования', icon: '📅' },
   { key: 'billiards', label: 'Бильярд', icon: '🎱' },
@@ -372,7 +375,6 @@ const tabs = [
   { key: 'hookah', label: 'Кальян', icon: '💨' },
   { key: 'board-games', label: 'Настольные игры', icon: '🎲' },
   { key: 'events', label: 'Мероприятия', icon: '🎲' },
-  { key: 'booking-tables', label: 'Управление столами', icon: '🪑' },
   { key: 'carousel-photos', label: 'Фотографии карусели', icon: '📸' }
 ]
 
@@ -416,6 +418,8 @@ export const AdminPage: React.FC = () => {
         return <BookingZonesManagement />
       case 'booking-tables':
         return <BookingTablesManagement />
+      case 'page-zone-bindings':
+        return <PageZoneBindingsManagement />
       case 'menu':
         return <MenuManagement />
       case 'billiards':
@@ -450,6 +454,7 @@ export const AdminPage: React.FC = () => {
     const descriptions = {
       'booking-zones': 'Создавайте зоны бронирования и управляйте столами',
       'booking-tables': 'Визуальное создание и управление столами в зонах',
+      'page-zone-bindings': 'Привязывайте страницы к зонам для автоматического открытия canvas',
       'menu': 'Редактируйте меню, категории и блюда',
       'billiards': 'Управляйте ценами и изображениями бильярда',
       'karaoke': 'Управляйте ценами и настройками караоке',

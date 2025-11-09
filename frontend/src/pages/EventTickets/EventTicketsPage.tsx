@@ -87,12 +87,13 @@ const FilterSection = styled.div`
 `
 
 const FilterButton = styled.button<{ active: boolean }>`
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   border: 2px solid ${props => props.active ? '#3b82f6' : '#e5e7eb'};
   background: ${props => props.active ? '#3b82f6' : 'white'};
   color: ${props => props.active ? 'white' : '#6b7280'};
   border-radius: 12px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   margin: 0 0.5rem;
@@ -114,8 +115,8 @@ const FilterButton = styled.button<{ active: boolean }>`
   }
   
   @media (max-width: 768px) {
-    padding: 0.6rem 1.2rem;
-    font-size: 0.9rem;
+    padding: 0.85rem 1.6rem;
+    font-size: 0.95rem;
   }
 `
 

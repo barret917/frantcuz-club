@@ -325,7 +325,7 @@ export const KaraokeSection: React.FC = () => {
             </Description>
             
             <ButtonGroup>
-              <PrimaryButton as={Link} to="/booking">Забронировать</PrimaryButton>
+              <PrimaryButton as={Link} to="/booking?page=/karaoke">Забронировать</PrimaryButton>
               <SecondaryButton as={Link} to="/karaoke">Подробнее</SecondaryButton>
             </ButtonGroup>
           </TextContent>

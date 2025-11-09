@@ -300,7 +300,7 @@ export const DiscoBarSection: React.FC = () => {
             </Description>
             
             <ButtonContainer>
-              <DetailsButton as={Link} to="/booking">Забронировать</DetailsButton>
+              <DetailsButton as={Link} to="/booking?page=/disco">Забронировать</DetailsButton>
               <SecondaryButton as={Link} to="/disco">Подробнее</SecondaryButton>
             </ButtonContainer>
           </TextContainer>

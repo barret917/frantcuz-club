@@ -690,7 +690,7 @@ export const DiscoPage: React.FC = () => {
                 </Description>
                 
                 <ButtonGroup>
-                  <PrimaryButton to="/booking">Забронировать</PrimaryButton>
+                  <PrimaryButton to="/booking?page=/disco">Забронировать</PrimaryButton>
                 </ButtonGroup>
               </TextContent>
               

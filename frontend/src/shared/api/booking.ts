@@ -9,7 +9,7 @@ const API_BASE_URL = !import.meta.env.VITE_API_URL || import.meta.env.VITE_API_U
 export interface BookingZone {
   id: number
   name: string
-  type: 'billiards' | 'karaoke' | 'playstation' | 'disco'
+  type: 'billiards' | 'karaoke' | 'playstation' | 'disco' | 'board_games'
   description?: string
   openTime: string
   closeTime: string
@@ -150,7 +150,39 @@ export const updateBookingStatus = async (id: number, status: UpdateBookingStatu
   return response.data
 }
 
+export interface PageZoneBinding {
+  id: number
+  pageRoute: string
+  zoneId: number
+  createdAt: string
+  updatedAt: string
+  zone?: BookingZone
+}
+
 export const cancelBooking = async (id: number): Promise<Booking> => {
   const response = await axios.put(`${API_BASE_URL}/booking/reservations/${id}/cancel`)
   return response.data
+}
+
+// API функции для привязки страниц к зонам
+export const getPageZoneBindings = async (): Promise<PageZoneBinding[]> => {
+  const response = await axios.get(`${API_BASE_URL}/admin/page-zone-bindings`)
+  return response.data
+}
+
+export const getPageZoneBindingByRoute = async (pageRoute: string): Promise<PageZoneBinding> => {
+  const response = await axios.get(`${API_BASE_URL}/admin/page-zone-bindings/${encodeURIComponent(pageRoute)}`)
+  return response.data
+}
+
+export const upsertPageZoneBinding = async (pageRoute: string, zoneId: number): Promise<PageZoneBinding> => {
+  const response = await axios.post(`${API_BASE_URL}/admin/page-zone-bindings`, {
+    pageRoute,
+    zoneId
+  })
+  return response.data
+}
+
+export const deletePageZoneBinding = async (id: number): Promise<void> => {
+  await axios.delete(`${API_BASE_URL}/admin/page-zone-bindings/${id}`)
 }

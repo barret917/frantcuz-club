@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
 import { BookingZoneSelector } from '@/features/booking-zone-selection'
 import { BookingTableSelector } from '@/features/booking-table-selection'
-import { BookingZone, createBooking } from '@/shared/api/booking'
+import { BookingZone, createBooking, getPageZoneBindingByRoute, getBookingZones } from '@/shared/api/booking'
 
 const Container = styled.div`
   min-height: 100vh;
@@ -172,15 +173,69 @@ const CloseButton = styled.button`
 
 type BookingStep = 'zone-selection' | 'table-selection' | 'success'
 
+const LoadingSpinner = styled.div`
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 2rem auto;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+
 export const BookingFlow: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [currentStep, setCurrentStep] = useState<BookingStep>('zone-selection')
   const [selectedZone, setSelectedZone] = useState<BookingZone | null>(null)
   const [selectedTable, setSelectedTable] = useState<any>(null)
   const [bookingDetails, setBookingDetails] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+
+  // Проверяем параметр page из URL и загружаем привязку если есть
+  useEffect(() => {
+    const pageRoute = searchParams.get('page')
+    
+    if (pageRoute) {
+      loadBindingForPage(pageRoute)
+    }
+  }, [searchParams])
+
+  const loadBindingForPage = async (pageRoute: string) => {
+    try {
+      setLoading(true)
+      const binding = await getPageZoneBindingByRoute(pageRoute)
+      
+      if (binding && binding.zone) {
+        // Находим полную информацию о зоне из списка всех зон
+        const zones = await getBookingZones()
+        const zone = zones.find(z => z.id === binding.zoneId)
+        
+        if (zone && zone.isActive) {
+          setSelectedZone(zone)
+          setCurrentStep('table-selection')
+        }
+      }
+    } catch (error) {
+      // Если привязка не найдена, показываем выбор всех зон (нормальное поведение)
+      console.log('Binding not found for page:', pageRoute)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleZoneSelect = (zone: BookingZone) => {
     setSelectedZone(zone)
     setCurrentStep('table-selection')
+    // Убираем параметр page из URL при ручном выборе зоны
+    if (searchParams.get('page')) {
+      setSearchParams({})
+    }
   }
 
   const handleTableSelect = async (table: any) => {
@@ -217,16 +272,33 @@ export const BookingFlow: React.FC = () => {
       <Content>
         <Title>Бронирование стола</Title>
         
-        {currentStep === 'zone-selection' && (
-          <BookingZoneSelector onZoneSelect={handleZoneSelect} />
-        )}
-        
-        {currentStep === 'table-selection' && selectedZone && (
-          <BookingTableSelector 
-            zone={selectedZone} 
-            onBookingCreated={handleTableSelect}
-            onBack={() => setCurrentStep('zone-selection')}
-          />
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '3rem' }}>
+            <LoadingSpinner />
+            <div style={{ marginTop: '1rem', color: 'rgba(255, 255, 255, 0.8)' }}>
+              Загрузка зоны...
+            </div>
+          </div>
+        ) : (
+          <>
+            {currentStep === 'zone-selection' && (
+              <BookingZoneSelector onZoneSelect={handleZoneSelect} />
+            )}
+            
+            {currentStep === 'table-selection' && selectedZone && (
+              <BookingTableSelector 
+                zone={selectedZone} 
+                onBookingCreated={handleTableSelect}
+                onBack={() => {
+                  setCurrentStep('zone-selection')
+                  // Убираем параметр page из URL при возврате
+                  if (searchParams.get('page')) {
+                    setSearchParams({})
+                  }
+                }}
+              />
+            )}
+          </>
         )}
         
         {currentStep === 'success' && bookingDetails && (
