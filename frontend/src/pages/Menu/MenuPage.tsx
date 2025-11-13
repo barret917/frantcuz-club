@@ -554,9 +554,17 @@ const MenuPage: React.FC = () => {
         setCategories(categoriesData)
         setMenuItems(items)
         
-        // Устанавливаем первый тип меню по умолчанию
+        // Устанавливаем первый тип меню и первую категорию по умолчанию
         if (types.length > 0 && !selectedType) {
-          setSelectedType(types[0].id)
+          const firstType = types[0]
+          setSelectedType(firstType.id)
+          // Находим первую категорию этого типа
+          const firstCategory = categoriesData
+            .filter(cat => cat.menuTypeId === firstType.id)
+            .sort((a, b) => a.sortOrder - b.sortOrder)[0]
+          if (firstCategory) {
+            setSelectedCategory(firstCategory.id)
+          }
         }
       } catch (error) {
         console.error('❌ Ошибка загрузки меню:', error)
@@ -566,6 +574,13 @@ const MenuPage: React.FC = () => {
         setCategories(mockCategories)
         setMenuItems(mockMenuItems)
         setSelectedType(1)
+        // Устанавливаем первую категорию первого типа
+        const firstCategory = mockCategories
+          .filter(cat => cat.menuTypeId === 1)
+          .sort((a, b) => a.sortOrder - b.sortOrder)[0]
+        if (firstCategory) {
+          setSelectedCategory(firstCategory.id)
+        }
       } finally {
         setLoading(false)
       }
@@ -574,12 +589,52 @@ const MenuPage: React.FC = () => {
     loadMenuData()
   }, [])
 
-  // Фильтрация блюд только по выбранной категории
+  // Автоматически выбираем первую категорию при смене типа меню
+  useEffect(() => {
+    if (selectedType && categories.length > 0) {
+      const typeCategories = categories
+        .filter(cat => cat.menuTypeId === selectedType)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+      
+      // Если текущая категория не принадлежит выбранному типу, выбираем первую категорию типа
+      if (selectedCategory) {
+        const currentCategory = categories.find(cat => cat.id === selectedCategory)
+        if (!currentCategory || currentCategory.menuTypeId !== selectedType) {
+          if (typeCategories.length > 0) {
+            setSelectedCategory(typeCategories[0].id)
+          } else {
+            setSelectedCategory(null)
+          }
+        }
+      } else if (typeCategories.length > 0) {
+        // Если категория не выбрана, выбираем первую категорию типа
+        setSelectedCategory(typeCategories[0].id)
+      }
+    }
+  }, [selectedType, categories, selectedCategory])
+
+  // Фильтрация блюд с учетом типа меню и категории
   const filteredItems = useMemo(() => {
-    return menuItems
-      .filter(item => selectedCategory ? item.categoryId === selectedCategory : true)
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-  }, [menuItems, selectedCategory])
+    if (!selectedType) {
+      return []
+    }
+
+    // Получаем все категории выбранного типа меню
+    const typeCategoryIds = categories
+      .filter(cat => cat.menuTypeId === selectedType)
+      .map(cat => cat.id)
+
+    // Фильтруем элементы: они должны принадлежать категориям выбранного типа
+    let filtered = menuItems.filter(item => typeCategoryIds.includes(item.categoryId))
+
+    // Если выбрана конкретная категория, дополнительно фильтруем по ней
+    if (selectedCategory) {
+      filtered = filtered.filter(item => item.categoryId === selectedCategory)
+    }
+
+    // Сортируем по sortOrder
+    return filtered.sort((a, b) => a.sortOrder - b.sortOrder)
+  }, [menuItems, selectedType, selectedCategory, categories])
 
   return (
     <MenuPageContainer>
@@ -610,10 +665,14 @@ const MenuPage: React.FC = () => {
                 $active={selectedType === type.id}
                 onClick={() => {
                   setSelectedType(type.id)
-                  // Автоматически выбираем первую категорию нового типа
-                  const typeCategories = categories.filter(cat => cat.menuTypeId === type.id)
+                  // Автоматически выбираем первую категорию нового типа (сортированную по sortOrder)
+                  const typeCategories = categories
+                    .filter(cat => cat.menuTypeId === type.id)
+                    .sort((a, b) => a.sortOrder - b.sortOrder)
                   if (typeCategories.length > 0) {
                     setSelectedCategory(typeCategories[0].id)
+                  } else {
+                    setSelectedCategory(null)
                   }
                 }}
               >
