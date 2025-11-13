@@ -35,7 +35,12 @@ export const pageZoneBindingController = {
   // Получить привязку по маршруту страницы
   async getBindingByPageRoute(req: Request, res: Response) {
     try {
-      const { pageRoute } = req.params
+      // Получаем pageRoute из query параметра (так как он может содержать слэши)
+      const pageRoute = req.query.pageRoute as string
+      
+      if (!pageRoute) {
+        return res.status(400).json({ error: 'pageRoute query parameter is required' })
+      }
 
       const binding = await prisma.pageZoneBinding.findUnique({
         where: { pageRoute },

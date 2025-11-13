@@ -171,7 +171,9 @@ export const getPageZoneBindings = async (): Promise<PageZoneBinding[]> => {
 }
 
 export const getPageZoneBindingByRoute = async (pageRoute: string): Promise<PageZoneBinding> => {
-  const response = await axios.get(`${API_BASE_URL}/admin/page-zone-bindings/${encodeURIComponent(pageRoute)}`)
+  const response = await axios.get(`${API_BASE_URL}/admin/page-zone-bindings/route`, {
+    params: { pageRoute }
+  })
   return response.data
 }
 

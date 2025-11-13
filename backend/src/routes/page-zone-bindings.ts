@@ -6,8 +6,8 @@ const router = Router()
 // Получить все привязки
 router.get('/', pageZoneBindingController.getAllBindings)
 
-// Получить привязку по маршруту страницы
-router.get('/:pageRoute', pageZoneBindingController.getBindingByPageRoute)
+// Получить привязку по маршруту страницы (используем query параметр, так как pageRoute может содержать слэши)
+router.get('/route', pageZoneBindingController.getBindingByPageRoute)
 
 // Создать или обновить привязку
 router.post('/', pageZoneBindingController.upsertBinding)
