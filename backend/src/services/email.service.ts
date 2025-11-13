@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+import { Booking, BookingTable, BookingZone } from '@prisma/client'
 
 export interface TicketEmailData {
   ticket: {
@@ -36,6 +37,11 @@ export interface EmailConfig {
   }
 }
 
+type BookingWithRelations = Booking & {
+  table?: (BookingTable & { zone?: BookingZone | null }) | null
+  zone?: BookingZone | null
+}
+
 class EmailService {
   private transporter: nodemailer.Transporter
   private config: EmailConfig
@@ -71,6 +77,37 @@ class EmailService {
       return true
     } catch (error) {
       console.error('Ошибка отправки email клиенту:', error)
+      return false
+    }
+  }
+
+  /**
+   * Отправляет уведомление администратору о новом бронировании стола
+   */
+  async sendBookingNotification(booking: BookingWithRelations, recipient: string): Promise<boolean> {
+    if (!recipient) {
+      console.warn('Booking notification recipient is not specified')
+      return false
+    }
+
+    if (!this.config.auth.user) {
+      console.warn('SMTP auth user is not configured; booking notification email will not be sent')
+      return false
+    }
+
+    try {
+      const mailOptions = {
+        from: this.config.auth.user,
+        to: recipient,
+        subject: `Новое бронирование стола #${booking.id}`,
+        html: this.generateBookingNotificationHtml(booking)
+      }
+
+      await this.transporter.sendMail(mailOptions)
+      console.log(`Booking notification email sent to ${recipient}`)
+      return true
+    } catch (error) {
+      console.error('Ошибка отправки уведомления о бронировании:', error)
       return false
     }
   }
@@ -292,6 +329,125 @@ class EmailService {
     `
   }
 
+  private generateBookingNotificationHtml(booking: BookingWithRelations): string {
+    const bookingDate = booking.bookingDate ? new Date(booking.bookingDate) : null
+    const formattedDate = bookingDate
+      ? bookingDate.toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        })
+      : '—'
+
+    const zoneName = booking.zone?.name || booking.table?.zone?.name || '—'
+    const tableName = booking.table?.name || '—'
+
+    const totalAmount = this.formatCurrency(booking.totalPrice ?? booking.deposit ?? null)
+    const depositAmount = this.formatCurrency(booking.deposit ?? null)
+
+    return `
+      <div style="font-family: Arial, sans-serif; background: #f5f5f7; padding: 24px;">
+        <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);">
+          <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #ffffff; padding: 24px;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 700;">Новое бронирование</h1>
+            <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.9;">№ ${booking.id}</p>
+          </div>
+          <div style="padding: 24px;">
+            <h2 style="margin: 0 0 16px; font-size: 18px; color: #1e293b;">Детали гостя</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+              <tbody>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Имя</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${booking.customerName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Телефон</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${booking.customerPhone}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Email</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${booking.customerEmail || '—'}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h2 style="margin: 0 0 16px; font-size: 18px; color: #1e293b;">Параметры бронирования</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+              <tbody>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Дата</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${formattedDate}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Время</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${booking.startTime} – ${booking.endTime}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Зона</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${zoneName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Стол</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${tableName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #64748b;">Гостей</td>
+                  <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${booking.guestsCount}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: #64748b;">Сумма к оплате</span>
+                <span style="color: #0f172a; font-weight: 700; font-size: 18px;">${totalAmount}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #64748b;">Депозит</span>
+                <span style="color: #0f172a; font-weight: 600;">${depositAmount}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  }
+
+  private formatCurrency(value: any): string {
+    const numericValue = this.normalizeNumber(value)
+    if (numericValue == null) {
+      return '—'
+    }
+
+    return `${numericValue.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ₽`
+  }
+
+  private normalizeNumber(value: any): number | null {
+    if (value == null) {
+      return null
+    }
+
+    if (typeof value === 'number') {
+      return value
+    }
+
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value)
+      return Number.isNaN(parsed) ? null : parsed
+    }
+
+    if (typeof value === 'object' && typeof value?.toNumber === 'function') {
+      try {
+        return value.toNumber()
+      } catch {
+        return null
+      }
+    }
+
+    const coerced = Number(value)
+    return Number.isNaN(coerced) ? null : coerced
+  }
+
   /**
    * Проверяет подключение к SMTP серверу
    */
@@ -313,7 +469,7 @@ const emailConfig: EmailConfig = {
   secure: process.env.SMTP_SECURE === 'true' || true,
   auth: {
     user: process.env.SMTP_USER || '',
-    pass: process.env.SMTP_PASS || ''
+    pass: process.env.SMTP_PASS || process.env.SMTP_PASSWORD || ''
   }
 }
 

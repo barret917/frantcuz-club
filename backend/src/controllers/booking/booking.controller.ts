@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
+import emailService from '../../services/email.service'
 
 const prisma = new PrismaClient()
 
@@ -82,9 +83,16 @@ export const bookingController = {
             include: {
               zone: true
             }
-          }
+          },
+          zone: true
         }
       })
+
+      try {
+        await emailService.sendBookingNotification(booking, 'online@frantsuz-club.ru')
+      } catch (notificationError) {
+        console.error('Failed to send booking notification email:', notificationError)
+      }
 
       res.status(201).json(booking)
     } catch (error) {

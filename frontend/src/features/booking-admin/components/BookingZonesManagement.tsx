@@ -19,7 +19,7 @@ const Header = styled.div`
 const Title = styled.h1`
   font-size: 2rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #ffffff;
 `
 
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`

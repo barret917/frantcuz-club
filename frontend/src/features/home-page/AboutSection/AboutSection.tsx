@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { SectionContainer } from '@/shared/ui/Container'
 
@@ -102,74 +102,188 @@ const Paragraph = styled.p`
 
 const ImageContainer = styled.div`
   position: relative;
-  width: 300px;
-  height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
   z-index: 2;
   
-  @media (max-width: 1024px) {
-    width: 250px;
-    height: 350px;
-  }
-  
   @media (max-width: 768px) {
-    width: 200px;
-    height: 300px;
     margin: 0 auto;
   }
 `
 
+const BackgroundContainer = styled.div<{ rotateX: number; rotateY: number }>`
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 2 / 3;
+  background-image: url('/images/фон для девушки с койктелем.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 2.5rem;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) translateZ(0) rotateX(${props => props.rotateX}deg) rotateY(${props => props.rotateY}deg);
+  transition: transform 0.05s linear;
+  will-change: transform;
+  backface-visibility: hidden;
+  touch-action: none;
+  
+  @media (max-width: 1024px) {
+    width: min(100%, 360px);
+    padding-bottom: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    width: min(100%, 300px);
+    padding-bottom: 1.5rem;
+  }
+`
+
 const AboutImage = styled.img`
-  width: 100%;
+  width: 70%;
   height: auto;
   position: relative;
-  z-index: 2;
+  z-index: 3;
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
+  
+  @media (max-width: 1024px) {
+    width: 75%;
+  }
+  
+  @media (max-width: 768px) {
+    width: 80%;
+  }
 `
 
 const Flower = styled.img`
   position: absolute;
-  top: -25px;
-  right: -35px;
-  width: 100px;
+  top: -8%;
+  right: -8%;
+  width: 24%;
+  min-width: 60px;
+  max-width: 100px;
   height: auto;
-  z-index: 3;
+  z-index: 4;
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
   animation: ${rotate} 8s linear infinite;
   
   @media (max-width: 1024px) {
-    width: 80px;
-    top: -20px;
-    right: -30px;
+    top: -10%;
+    right: -6%;
   }
   
   @media (max-width: 768px) {
-    width: 70px;
-    top: -15px;
-    right: -25px;
+    top: -12%;
+    right: -4%;
   }
 `
 
 const Microphone = styled.img`
   position: absolute;
-  bottom: 50px;
-  left: -40px;
-  width: 60px;
+  bottom: 10%;
+  left: -10%;
+  width: 18%;
+  min-width: 45px;
+  max-width: 70px;
   height: auto;
-  z-index: 1;
+  z-index: 4;
   filter: brightness(1.1) contrast(1.05);
   transition: all 0.3s ease;
   animation: ${rotate} 15s linear infinite;
   
   @media (max-width: 1024px) {
-    width: 50px;
-    bottom: 40px;
-    left: -30px;
+    bottom: 12%;
+    left: -6%;
+  }
+  
+  @media (max-width: 768px) {
+    bottom: 14%;
+    left: -4%;
   }
 `
 
 export const AboutSection: React.FC = () => {
+  const [rotateX, setRotateX] = useState(0)
+  const [rotateY, setRotateY] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const rafRef = useRef<number | null>(null)
+  const lastMousePosition = useRef({ x: 0, y: 0 })
+
+  const updateRotation = useCallback(() => {
+    if (!containerRef.current) return
+
+    const rect = containerRef.current.getBoundingClientRect()
+    const centerX = rect.left + rect.width / 2
+    const centerY = rect.top + rect.height / 2
+    
+    const mouseX = lastMousePosition.current.x - centerX
+    const mouseY = lastMousePosition.current.y - centerY
+    
+    // Адаптивный максимальный угол: меньше на мобильных для оптимизации производительности
+    const isMobile = window.innerWidth <= 768
+    const maxRotation = isMobile ? 15 : 20
+    
+    const rotateYValue = (mouseX / (rect.width / 2)) * maxRotation
+    const rotateXValue = -(mouseY / (rect.height / 2)) * maxRotation
+    
+    setRotateX(rotateXValue)
+    setRotateY(rotateYValue)
+    
+    rafRef.current = null
+  }, [])
+
+  const updatePosition = useCallback((clientX: number, clientY: number) => {
+    lastMousePosition.current = { x: clientX, y: clientY }
+    
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(updateRotation)
+    }
+  }, [updateRotation])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    updatePosition(e.clientX, e.clientY)
+  }, [updatePosition])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    if (e.touches.length > 0) {
+      const touch = e.touches[0]
+      updatePosition(touch.clientX, touch.clientY)
+    }
+  }, [updatePosition])
+
+  const handleMouseLeave = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    setRotateX(0)
+    setRotateY(0)
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = null
+    }
+    setRotateX(0)
+    setRotateY(0)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+    }
+  }, [])
+
   return (
     <AboutSectionContainer>
       <SectionContainer>
@@ -194,18 +308,28 @@ export const AboutSection: React.FC = () => {
           </TextContent>
           
           <ImageContainer>
-            <AboutImage 
-              src="/images/девушка с койктелем.png" 
-              alt="Девушка с коктейлем"
-            />
-            <Flower 
-              src="/images/цветок.png" 
-              alt="Цветок"
-            />
-            <Microphone 
-              src="/images/микрофон.png" 
-              alt="Микрофон"
-            />
+            <BackgroundContainer
+              ref={containerRef}
+              rotateX={rotateX}
+              rotateY={rotateY}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <AboutImage 
+                src="/images/девушка с койктелем.png" 
+                alt="Девушка с коктейлем"
+              />
+              <Flower 
+                src="/images/цветок.png" 
+                alt="Цветок"
+              />
+              <Microphone 
+                src="/images/микрофон.png" 
+                alt="Микрофон"
+              />
+            </BackgroundContainer>
           </ImageContainer>
         </AboutContent>
       </SectionContainer>

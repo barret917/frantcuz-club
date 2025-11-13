@@ -2,6 +2,7 @@ import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { SectionContainer } from '@/shared/ui/Container'
+import { use3DTilt } from '@/shared/hooks/use3DTilt'
 
 // Анимация для мяча
 const ballBounce = keyframes`
@@ -78,7 +79,7 @@ const ImageContainer = styled.div`
   z-index: 2;
 `
 
-const BackgroundContainer = styled.div`
+const BackgroundContainer = styled.div<{ rotateX: number; rotateY: number }>`
   background-image: url('/images/playstation-bg.png');
   background-size: contain;
   background-repeat: no-repeat;
@@ -88,6 +89,12 @@ const BackgroundContainer = styled.div`
   max-width: 400px;
   height: 400px;
   cursor: pointer;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) translateZ(0) rotateX(${props => props.rotateX}deg) rotateY(${props => props.rotateY}deg);
+  transition: transform 0.05s linear;
+  will-change: transform;
+  backface-visibility: hidden;
+  touch-action: none;
   
   @media (max-width: 1024px) {
     max-width: 350px;
@@ -269,6 +276,16 @@ const SecondaryButton = styled.button`
 `
 
 export const PlaystationSection: React.FC = () => {
+  const {
+    rotateX,
+    rotateY,
+    containerRef,
+    handleMouseMove,
+    handleTouchMove,
+    handleMouseLeave,
+    handleTouchEnd
+  } = use3DTilt()
+
   return (
     <PlaystationSectionContainer>
       <SectionContainer>
@@ -295,7 +312,15 @@ export const PlaystationSection: React.FC = () => {
           </TextContent>
           
           <ImageContainer className="image-content">
-            <BackgroundContainer>
+            <BackgroundContainer
+              ref={containerRef}
+              rotateX={rotateX}
+              rotateY={rotateY}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <MessiImage 
                 src="/images/месси.png" 
                 alt="Футболист Месси в действии"

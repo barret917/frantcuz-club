@@ -305,7 +305,7 @@ export const BookingFormPage: React.FC = () => {
         customerEmail: formData.customerEmail,
         startTime: formData.bookingTime,
         endTime: `${parseInt(formData.bookingTime.split(':')[0]) + formData.duration}:${formData.bookingTime.split(':')[1]}`,
-        totalAmount: bookingSelection.table?.zone?.pricePerHour || 200
+        totalAmount: bookingSelection.zone?.pricePerHour ?? 200
       }
 
       await createBooking(bookingData)
@@ -332,17 +332,12 @@ export const BookingFormPage: React.FC = () => {
       
       <SelectedInfo>
         <SelectedTitle>Выбранный зал:</SelectedTitle>
-        <SelectedText>{bookingSelection.hall?.name}</SelectedText>
-      </SelectedInfo>
-      
-      <SelectedInfo>
-        <SelectedTitle>Выбранная зона:</SelectedTitle>
         <SelectedText>{bookingSelection.zone?.name}</SelectedText>
       </SelectedInfo>
       
       <SelectedInfo>
         <SelectedTitle>Выбранный стол:</SelectedTitle>
-        <SelectedText>{bookingSelection.table?.name} - {bookingSelection.table?.pricePerHour} ₽ за бронирование</SelectedText>
+        <SelectedText>{bookingSelection.table?.name} - {bookingSelection.zone?.pricePerHour} ₽ за бронирование</SelectedText>
       </SelectedInfo>
       
       {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -443,7 +438,7 @@ export const BookingFormPage: React.FC = () => {
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
-          amount={bookingSelection.table?.pricePerHour * formData.duration}
+          amount={bookingSelection.zone?.pricePerHour ?? 200}
           bookingId="temp-booking-id"
           onPayment={() => {}}
         />

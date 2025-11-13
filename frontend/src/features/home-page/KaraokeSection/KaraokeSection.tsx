@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Link } from 'react-router-dom'
 import { SectionContainer } from '@/shared/ui/Container'
+import { use3DTilt } from '@/shared/hooks/use3DTilt'
 
 // Анимация для баров эквалайзера
 const barAnimation = keyframes`
@@ -200,10 +201,11 @@ const ImageContainer = styled.div`
     width: 100%;
     height: 500px;
     order: -1;
+    align-items: center;
   }
 `
 
-const BackgroundContainer = styled.div`
+const BackgroundContainer = styled.div<{ rotateX: number; rotateY: number }>`
   background-image: url('/images/karaoke-main-bg.png');
   background-size: contain;
   background-repeat: no-repeat;
@@ -213,6 +215,12 @@ const BackgroundContainer = styled.div`
   max-width: 400px;
   height: 600px;
   cursor: pointer;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) translateZ(0) rotateX(${props => props.rotateX}deg) rotateY(${props => props.rotateY}deg);
+  transition: transform 0.05s linear;
+  will-change: transform;
+  backface-visibility: hidden;
+  touch-action: none;
   
   @media (max-width: 1024px) {
     max-width: 350px;
@@ -240,16 +248,20 @@ const EqualizerBars = styled.div`
   flex-direction: column;
   align-items: flex-start;
   z-index: 1;
+  will-change: transform;
+  contain: layout style paint;
 `
 
-const Bar = styled.div<{ left: number; duration: number; height: number }>`
+const Bar = styled.div<{ $left: number; $duration: number; $height: number }>`
   position: absolute;
-  left: ${props => props.left}px;
+  left: ${props => props.$left}px;
   width: 2px;
-  height: ${props => props.height}px;
+  height: ${props => props.$height}px;
   background: #ff6b6b;
-  animation: ${barAnimation} ${props => props.duration}ms infinite ease-in-out;
+  animation: ${barAnimation} ${props => props.$duration}ms infinite ease-in-out;
   transform-origin: bottom;
+  will-change: transform;
+  contain: layout style paint;
 `
 
 const KaraokeImage = styled.img`
@@ -286,24 +298,35 @@ const KaraokeImage = styled.img`
 `
 
 export const KaraokeSection: React.FC = () => {
-  // Генерируем бары эквалайзера
-  const generateBars = () => {
+  const {
+    rotateX,
+    rotateY,
+    containerRef,
+    handleMouseMove,
+    handleTouchMove,
+    handleMouseLeave,
+    handleTouchEnd
+  } = use3DTilt()
+
+  // Мемоизируем бары эквалайзера - генерируем только один раз
+  const equalizerBars = useMemo(() => {
     const bars = []
-    for (let i = 0; i < 90; i++) {
-      const left = i * 2 + 1
+    const barCount = 40 // Уменьшили с 90 до 40 для лучшей производительности
+    for (let i = 0; i < barCount; i++) {
+      const left = i * 4.5 + 1 // Увеличили расстояние между барами
       const duration = 400 + Math.random() * 80 // 400-480ms
       const height = Math.random() * 24 + 3 // 3-27px
       bars.push(
         <Bar
           key={i}
-          left={left}
-          duration={duration}
-          height={height}
+          $left={left}
+          $duration={duration}
+          $height={height}
         />
       )
     }
     return bars
-  }
+  }, []) // Пустой массив зависимостей - генерируем только один раз
 
   return (
     <KaraokeSectionContainer>
@@ -331,9 +354,17 @@ export const KaraokeSection: React.FC = () => {
           </TextContent>
           
           <ImageContainer>
-            <BackgroundContainer>
+            <BackgroundContainer
+              ref={containerRef}
+              rotateX={rotateX}
+              rotateY={rotateY}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               <EqualizerBars>
-                {generateBars()}
+                {equalizerBars}
               </EqualizerBars>
               <KaraokeImage 
                 src="/images/караокеЖенщина.png" 

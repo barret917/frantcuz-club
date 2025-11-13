@@ -38,6 +38,7 @@ const HeroSection = styled.section`
   @media (max-width: 768px) {
     min-height: 70vh;
     padding: 0;
+    padding-bottom: 25px;
   }
 `
 

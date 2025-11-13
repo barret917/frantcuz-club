@@ -19,8 +19,8 @@ const ZonesGrid = styled.div`
   margin-right: auto;
 `
 
-const ZoneCard = styled.div<{ isSelected: boolean }>`
-  background: ${props => props.isSelected ? '#4f46e5' : '#ffffff'};
+const ZoneCard = styled.div<{ $isSelected: boolean }>`
+  background: ${props => props.$isSelected ? '#4f46e5' : 'transparent'};
   border: none;
   border-radius: 12px;
   padding: 0;
@@ -37,11 +37,11 @@ const ZoneCard = styled.div<{ isSelected: boolean }>`
   }
 `
 
-const ZoneImage = styled.div<{ imageUrl?: string }>`
+const ZoneImage = styled.div<{ $imageUrl?: string }>`
   width: 100%;
   height: 100%;
-  background: ${props => props.imageUrl 
-    ? `url(${props.imageUrl})` 
+  background: ${props => props.$imageUrl 
+    ? `url(${props.$imageUrl})` 
     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   };
   background-size: cover;
@@ -198,10 +198,10 @@ export const BookingZoneSelector: React.FC<BookingZoneSelectorProps> = ({ onZone
         {zones.map((zone) => (
           <ZoneCard
             key={zone.id}
-            isSelected={selectedZone?.id === zone.id}
+            $isSelected={selectedZone?.id === zone.id}
             onClick={() => handleZoneSelect(zone)}
           >
-            <ZoneImage imageUrl={zone.imageUrl}>
+            <ZoneImage $imageUrl={zone.imageUrl}>
               {!zone.imageUrl && getZoneTypeLabel(zone.type)}
             </ZoneImage>
             

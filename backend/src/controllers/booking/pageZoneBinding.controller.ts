@@ -1,7 +1,5 @@
 import { Request, Response } from 'express'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '../../prisma'
 
 export const pageZoneBindingController = {
   // Получить все привязки
@@ -22,9 +20,15 @@ export const pageZoneBindingController = {
       })
 
       res.json(bindings)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching page zone bindings:', error)
-      res.status(500).json({ error: 'Failed to fetch page zone bindings' })
+      const errorMessage = error?.message || 'Unknown error'
+      const errorCode = error?.code || 'UNKNOWN'
+      console.error('Error details:', { message: errorMessage, code: errorCode, stack: error?.stack })
+      res.status(500).json({ 
+        error: 'Failed to fetch page zone bindings',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      })
     }
   },
 
